@@ -1,7 +1,7 @@
 import { connect } from "./connecte";
 import * as model from "../__models";
 
-const initialize = () => {
+export const initialize = () => {
 
     // model.ModelAction.belongsTo(model.ModelEvenement);
 
@@ -14,5 +14,3 @@ const initialize = () => {
             console.log(`Failed to sync all models ${error.message}`);
         });
 };
-
-export { initialize };
