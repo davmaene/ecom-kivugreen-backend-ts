@@ -50,3 +50,8 @@ export const onVerify: Function = async ({ token, req, res, next }: { token: str
         return cb(error, undefined)
     }
 };
+
+export const Middleware = {
+    onVerify,
+    onSignin
+}

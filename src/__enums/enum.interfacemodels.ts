@@ -6,17 +6,20 @@ export interface globalInterface {
 }
 
 export interface IUsers extends globalInterface {
-    nom: string;
-    postnom: string;
+    nom?: string;
+    postnom?: string;
     prenom?: number;
-    phone?: string;
+    phone: string;
     email?: string;
     date_naiss?: string;
     sexe?: string;
     province?: number;
     territoire?: number;
     village?: number;
-    hectare_cultive: number
+    hectare_cultive?: number;
+    isvalidated?: number;
+    uuid?: number,
+    password?: string
 }
 
 export interface IRoles extends globalInterface {
@@ -36,4 +39,13 @@ export interface IProvinces extends globalInterface {
 export interface ITerritoires extends globalInterface {
     idprovince: number,
     territoire: string
+}
+
+export interface IVillages extends globalInterface {
+    village: string,
+    latitude: string,
+    longitude: string,
+    groupement: string,
+    provincecode: string,
+    idterritoire: string
 }

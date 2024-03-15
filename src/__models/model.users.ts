@@ -21,6 +21,9 @@ export const Users = connect.define<User>('__tbl_ecom_users', {
     province: DataTypes.STRING,
     territoire: DataTypes.STRING,
     village: DataTypes.STRING,
-    hectare_cultive: DataTypes.STRING
+    hectare_cultive: DataTypes.STRING,
+    isvalidated: DataTypes.INTEGER,
+    uuid: DataTypes.STRING,
+    password: DataTypes.STRING
 
 }, { paranoid: true, timestamps: true });
