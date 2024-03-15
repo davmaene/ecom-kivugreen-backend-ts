@@ -160,8 +160,8 @@ export const Responder = (res: Response, status: number, body: any) => {
                 break;
         }
     } else {
-        res.status(222).json({
-            status: 222,
+        res.status(400).json({
+            status: 400,
             message: "missing params to the request ",
             data: "case where missing `res` or `status` object in switch case"
         });

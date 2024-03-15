@@ -63,3 +63,4 @@ export enum HttpStatusCode {
     NotExtended = 510,                  // 510 - Non étendu
     NetworkAuthenticationRequired = 511, // 511 - Authentification réseau requise
 }
+

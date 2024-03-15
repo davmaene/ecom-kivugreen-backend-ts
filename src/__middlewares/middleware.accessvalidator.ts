@@ -3,6 +3,7 @@ import { Request, NextFunction, Response } from 'express'
 import { exludedRoutes, onVerify } from './middleware.cookies';
 import { Responder } from '../__helpers/helper.responseserver';
 import { HttpStatusCode } from '../__enums/enum.httpsstatuscode';
+import { log } from 'console';
 
 dotenv.config();
 
@@ -11,8 +12,9 @@ const { APP_CONNEXIONTOAPPWEB, APP_CONNEXIONTOAPPMOB } = process.env;
 if (!APP_CONNEXIONTOAPPMOB || !APP_CONNEXIONTOAPPWEB)
     throw Error("Connexion from web or mobile missing !");
 
-export const accessValidator = ({ req, res, next }: { req: Request, res: Response, next: NextFunction }) => {
+export const accessValidator = (req: Request, res: Response, next: NextFunction) => {
     const { headers, url } = req;
+    log(headers, url)
     if (headers && url) {
 
         if (exludedRoutes.indexOf(url) === -1) {
