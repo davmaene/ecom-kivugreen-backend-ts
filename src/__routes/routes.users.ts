@@ -3,8 +3,8 @@ import express from 'express'
 
 export const __routesUsers = express.Router()
 
-__routesUsers.post("/user/signin",  __controllerUsers.auth)
-__routesUsers.post("/user/signup",  __controllerUsers.register)
+__routesUsers.post("/user/auth",  __controllerUsers.auth)
+__routesUsers.post("/user/register",  __controllerUsers.register)
 
 // __routesUsers.post("/user/add",  __controlerUsers.savenew) // onValidate(userModelValidator)
 // __routesUsers.post("/user/verify", onValidate(userModelOnVerification), limiterVerify, __controlerUsers.verify)

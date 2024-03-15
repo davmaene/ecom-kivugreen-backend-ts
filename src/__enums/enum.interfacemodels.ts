@@ -47,5 +47,5 @@ export interface IVillages extends globalInterface {
     longitude: string,
     groupement: string,
     provincecode: string,
-    idterritoire: string
+    idterritoire: number
 }

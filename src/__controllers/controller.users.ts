@@ -67,7 +67,7 @@ export const __controllerUsers = {
                     {
                         model: Villages,
                         required: false,
-                        attributes: ['id', 'territoire']
+                        attributes: ['id', 'village']
                     }
                 ]
             })
