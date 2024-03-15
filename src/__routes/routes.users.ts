@@ -1,11 +1,11 @@
-import { onValidate, userModelOnSignin } from '../__middlewares/middleware.datavalidator'
+import { onValidate, userModelOnSignin, userModelValidator } from '../__middlewares/middleware.datavalidator'
 import { __controllerUsers } from '../__controllers/controller.users'
 import express from 'express'
 
 export const __routesUsers = express.Router()
 
 __routesUsers.post("/user/auth", onValidate(userModelOnSignin), __controllerUsers.auth)
-__routesUsers.post("/user/register", __controllerUsers.register)
+__routesUsers.post("/user/register", onValidate(userModelValidator),__controllerUsers.register)
 
 // __routesUsers.post("/user/add",  __controlerUsers.savenew) // onValidate(userModelValidator)
 // __routesUsers.post("/user/verify", onValidate(userModelOnVerification), limiterVerify, __controlerUsers.verify)
