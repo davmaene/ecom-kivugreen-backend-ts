@@ -13,14 +13,14 @@ export const Hasroles = connect.define<Hasrole>('__tbl_ecom_hasroles', {
         autoIncrement: true,
         allowNull: true,
     },
-    TblUserId: {
+    TblEcomUserId: {
         type: DataTypes.INTEGER,
         references: {
             model: Users,
             key: 'id'
         }
     },
-    TblRoleId: {
+    TblEcomRoleId: {
         type: DataTypes.INTEGER,
         references: {
             model: Roles,
@@ -34,7 +34,7 @@ export const Hasroles = connect.define<Hasrole>('__tbl_ecom_hasroles', {
     indexes: [
         {
             unique: true,
-            fields: ['TblRoleId', 'TblUserId']
+            fields: ['TblEcomRoleId', 'TblEcomUserId']
         }
     ]
 });

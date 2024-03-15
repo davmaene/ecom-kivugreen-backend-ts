@@ -13,9 +13,9 @@ export interface IUsers extends globalInterface {
     email?: string;
     date_naiss?: string;
     sexe?: string;
-    province?: number;
-    territoire?: number;
-    village?: number;
+    idprovince?: number;
+    idterritoire?: number;
+    idvillage?: number;
     hectare_cultive?: number;
     isvalidated?: number;
     uuid?: number,
@@ -28,8 +28,8 @@ export interface IRoles extends globalInterface {
 }
 
 export interface IHasrole extends globalInterface {
-    TblUserId: number,
-    TblRoleId: number
+    TblEcomUserId: number,
+    TblEcomRoleId: number
 }
 
 export interface IProvinces extends globalInterface {
