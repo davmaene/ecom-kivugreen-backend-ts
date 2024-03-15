@@ -8,17 +8,20 @@ import { Request, Response, NextFunction } from 'express'
 import { Territoires } from '../__models/model.territoires';
 import { Villages } from '../__models/model.villages';
 import { Op } from 'sequelize';
-import { comparePWD } from '../__helpers/helper.passwords';
+import { comparePWD, hashPWD } from '../__helpers/helper.passwords';
 import { randomLongNumber } from '../__helpers/helper.random';
 import { Responder } from '../__helpers/helper.responseserver';
 import { HttpStatusCode } from '../__enums/enum.httpsstatuscode';
 import { Middleware } from '../__middlewares/middleware.cookies';
-import { formatUserModel } from '../__helpers/helper.all';
+import { capitalizeWords, formatUserModel } from '../__helpers/helper.all';
 import dotenv from 'dotenv';
+import { log } from 'console';
+import { v4 as uuidv4 } from 'uuid';
+import { Services } from '../__services/serives.all';
 
 dotenv.config()
 
-const { APP_EXIPRES_IN_ADMIN, APP_EXIPRES_IN_ALL } = process.env
+const { APP_EXIPRES_IN_ADMIN, APP_EXIPRES_IN_ALL, APP_ESCAPESTRING } = process.env
 
 export const __controllerUsers = {
     auth: async (req: Request, res: Response, next: NextFunction) => {
@@ -142,6 +145,93 @@ export const __controllerUsers = {
         }
     },
     register: async (req: Request, res: Response, next: NextFunction) => {
+        const { nom, postnom, prenom, email, phone, adresse, idprovince, idterritoire, idvillage, date_naiss, genre, password, avatar, idroles } = req.body;
 
+        try {
+            const pwd = await hashPWD({ plaintext: password })
+            const transaction = await connect.transaction();
+            const uuid = uuidv4();
+
+            Users.create({
+                uuid,
+                nom: capitalizeWords({ text: nom }),
+                postnom: capitalizeWords({ text: postnom }),
+                prenom: prenom ? capitalizeWords({ text: prenom }) : APP_ESCAPESTRING,
+                email: email || fillphone({ phone }),
+                phone: fillphone({ phone }),
+                adresse,
+                idprovince,
+                idterritoire,
+                idvillage,
+                date_naiss,
+                genre,
+                password: pwd,
+                avatar: `assets/as_avatar/defaultavatar.png`
+            }, { transaction })
+                .then(user => {
+                    if (user instanceof Users) {
+
+                        user = user.toJSON();
+                        delete user['password'];
+                        delete user['idprovince'];
+                        delete user['idterritoire'];
+                        delete user['idvillage'];
+                        delete user['isvalidated'];
+                        const { id, } = user
+
+                        Services.addRoleToUser({
+                            inputs: {
+                                idroles,
+                                iduser: id
+                            },
+                            transaction,
+                            cb: (err: any, done: any) => {
+                                if (done) {
+                                    const { code } = done;
+                                    if (code === 200) {
+
+                                        if (email) {
+                                            let chaine = JSON.stringify({
+                                                email: email,
+                                                phone: user['phone'],
+                                            })
+                                        }
+
+                                        Services.onSendSMS({
+                                            is_flash: false,
+                                            to: fillphone({ phone }),
+                                            content: `Bonjour ${capitalizeWords({ text: nom })} votre compte a été crée avec succès. Ceci est votre mot de passe ${password}`,
+                                        })
+                                            .then(m => {
+                                                log(m)
+                                            })
+                                            .catch(er => {
+                                                log(er)
+                                            })
+
+                                        transaction.commit()
+                                        return Responder(res, HttpStatusCode.Ok, { user, code: code_ })
+                                    } else {
+                                        transaction.rollback()
+                                        return Responder(res, HttpStatusCode.BadRequest, "Role not initialized correctly !")
+                                    }
+                                } else {
+                                    transaction.rollback()
+                                    return Responder(res, HttpStatusCode.BadRequest, "Role not initialized correctly !")
+                                }
+                            }
+                        })
+                    } else return Responder(res, HttpStatusCode.BadRequest, user)
+                })
+                .catch(err => {
+                    transaction.rollback()
+                    const { name, errors } = err;
+                    const { message } = errors[0];
+                    return Responder(res, HttpStatusCode.ServiceUnavailable, { name, error: message })
+                })
+        } catch (error) {
+            log(error)
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
     }
 }

@@ -1,6 +1,5 @@
 import { Sequelize } from "sequelize";
 import Database from "./database";
-import { initialize } from "./initializing";
 
 const database = Database.getInstance();
 const { dbName, username, password, logging, dialect, host, port } = database;
@@ -25,7 +24,14 @@ connect
     .authenticate()
     .then(() => {
         console.log("Connected successfuly to db ..." + dbName, ' on port ==> ', port);
-        initialize()
+        connect
+            .sync({ alter: true })
+            .then(() => {
+                console.log("All models were synchronized successfully to DB ====> " + dbName);
+            })
+            .catch((error) => {
+                console.log(`Failed to sync all models ${error.message}`);
+            });
     })
     .catch((error) => {
         console.log(`Failed to connect... ${error}`);

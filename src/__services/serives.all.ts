@@ -1510,13 +1510,12 @@ export const Services = {
             }
         });
     },
-    addRoleToUser: async ({ input, transaction, cb }: { input: any, transaction: any, cb: Function }) => {
-        const { iduser, idrole } = input;
-        if (!iduser || !idrole) return cb(undefined, { code: 401, message: "This request must have at least !", data: input });
+    addRoleToUser: async ({ inputs: { iduser, idroles }, transaction, cb }: { inputs: { iduser?: number, idroles: number[] }, transaction: any, cb: Function }) => {
+        if (!iduser || !idroles) return cb(undefined, { code: 401, message: "This request must have at least !", data: { idroles, iduser } });
         try {
-            if (Array.isArray(idrole)) {
+            if (Array.isArray(idroles)) {
                 const done = []
-                for (let role of idrole) {
+                for (let role of idroles) {
                     const r = await Hasroles.create({
                         id: parseInt(randomLongNumber({ length: 6 })),
                         TblEcomRoleId: role,
@@ -1525,23 +1524,6 @@ export const Services = {
                     done.push(r)
                 }
                 return cb(undefined, { code: 200, message: "Done", data: done })
-            } else {
-                Hasroles.create({
-                    id: parseInt(randomLongNumber({ length: 6 })),
-                    TblEcomRoleId: idrole,
-                    TblEcomUserId: iduser
-                }, { transaction })
-                    .then(role => {
-                        if (role instanceof Hasroles) {
-                            return cb(undefined, { code: 200, message: "Done", data: role.toJSON() })
-                        }
-                        else {
-                            return cb(undefined, { code: 400, message: "Error unknown", data: role })
-                        }
-                    })
-                    .catch(err => {
-                        return cb(undefined, { code: 503, message: "Error on ", data: err })
-                    })
             }
         } catch (error) {
             return cb(undefined, { code: 500, message: "Error", data: error })

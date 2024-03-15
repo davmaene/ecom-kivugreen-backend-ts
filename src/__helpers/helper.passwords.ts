@@ -7,8 +7,8 @@ const { APP_SALTLENGTH } = process.env;
 
 if (!APP_SALTLENGTH) throw Error("The variable APP_SALTLENGTH is not defined in path variable")
 
-export const hashPWD = async ({ plaintext }: { plaintext: string }, cb: Function) => {
-    return bcrypt.hash(plaintext, APP_SALTLENGTH);
+export const hashPWD = async ({ plaintext }: { plaintext: string }) => {
+    return bcrypt.hash(plaintext, parseInt(APP_SALTLENGTH));
 }
 
 export const comparePWD = async ({ plaintext, hashedtext }: { plaintext: string, hashedtext: string }) => {
