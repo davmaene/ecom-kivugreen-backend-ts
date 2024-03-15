@@ -28,3 +28,12 @@ export interface IHasrole extends globalInterface {
     TblUserId: number,
     TblRoleId: number
 }
+
+export interface IProvinces extends globalInterface {
+    province: number
+}
+
+export interface ITerritoires extends globalInterface {
+    idprovince: number,
+    territoire: string
+}
