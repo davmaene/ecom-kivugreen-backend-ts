@@ -14,8 +14,14 @@ export const Users = connect.define<User>('__tbl_ecom_users', {
     nom: DataTypes.STRING,
     postnom: DataTypes.STRING,
     prenom: DataTypes.STRING,
-    phone: DataTypes.STRING,
-    email: DataTypes.STRING,
+    phone: {
+        type: DataTypes.STRING,
+        unique: true
+    },
+    email: {
+        type: DataTypes.STRING,
+        unique: true
+    },
     date_naiss: DataTypes.STRING,
     sexe: DataTypes.STRING,
     province: DataTypes.STRING,
@@ -26,4 +32,13 @@ export const Users = connect.define<User>('__tbl_ecom_users', {
     uuid: DataTypes.STRING,
     password: DataTypes.STRING
 
-}, { paranoid: true, timestamps: true });
+}, {
+    paranoid: true,
+    timestamps: true,
+    // indexes: [
+    //     {
+    //         unique: true,
+    //         fields: ['phone', 'email']
+    //     }
+    // ]
+});

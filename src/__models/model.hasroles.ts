@@ -1,6 +1,8 @@
 import { DataTypes, Model } from 'sequelize'
 import { connect } from '../__databases/connecte'
 import { IHasrole, IRoles, IUsers } from '__enums/enum.interfacemodels';
+import { Roles } from './model.roles';
+import { Users } from './model.users';
 
 export interface Hasrole extends Model<IHasrole>, IHasrole { }
 
@@ -11,7 +13,28 @@ export const Hasroles = connect.define<Hasrole>('__tbl_ecom_hasroles', {
         autoIncrement: true,
         allowNull: true,
     },
-    TblUserId: DataTypes.INTEGER,
-    TblRoleId: DataTypes.INTEGER
+    TblUserId: {
+        type: DataTypes.INTEGER,
+        references: {
+            model: Users,
+            key: 'id'
+        }
+    },
+    TblRoleId: {
+        type: DataTypes.INTEGER,
+        references: {
+            model: Roles,
+            key: 'id'
+        }
+    }
 
-}, { paranoid: true, timestamps: true });
+}, {
+    paranoid: true,
+    timestamps: true,
+    indexes: [
+        {
+            unique: true,
+            fields: ['TblRoleId', 'TblUserId']
+        }
+    ]
+});
