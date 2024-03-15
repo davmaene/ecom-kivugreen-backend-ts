@@ -1,4 +1,4 @@
-export const HttpStatusMessages = {
+export const HttpStatusMessages: any = {
     100: "Continuer",
     101: "Changement de protocoles",
     102: "Traitement en cours",

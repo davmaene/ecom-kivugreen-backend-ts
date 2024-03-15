@@ -1,5 +1,7 @@
 import { Response, NextFunction, Request } from 'express'
 import dotenv from "dotenv";
+import { HttpStatusCode } from '../__enums/enum.httpsstatuscode';
+import { HttpStatusMessages } from '__enums/enum.httpsmessage';
 
 dotenv.config();
 
@@ -12,6 +14,12 @@ export const Responder = (res: Response, status: number, body: any) => {
         }
         const sts = (status);
         res.setHeader("_from_", APP_NAME);
+
+        return res.status(status).json({
+            status,
+            message: HttpStatusMessages[status],
+            data: body || {}
+        })
 
         switch (sts) {
 
