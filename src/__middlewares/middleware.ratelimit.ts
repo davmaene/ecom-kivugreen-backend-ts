@@ -1,25 +1,29 @@
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
+import { Request, NextFunction, Response } from 'express';
 
 dotenv.config();
 
-const { APPPORT, APPCOOKIESNAME, APPRATELIMITMAXREQS, APPRATELIMITTIMING } = process.env;
+const { APP_PORT, APP_COOKIESNAME, APP_RATELIMITMAXREQS, APP_RATELIMITTIMING } = process.env;
 const msSignin = 5, msVerify = 3, msSignup = 6, msResendcode = 2;
 
-export const rateLimiter = (nrqst, { req, res, next }) => {
+if (!APP_RATELIMITMAXREQS || !APP_RATELIMITTIMING)
+    throw Error("The variable APP_RATELIMIT is not definied in ")
+
+export const rateLimiter = (nrqst: number, { req, res, next }: { req: Request, res: Response, next: NextFunction }): Function => {
     console.log(nrqst);
     return rateLimit({
-        windowMs: parseInt(nrqst) * 60 * 1000,
-        max: parseInt(APPRATELIMITMAXREQS),
+        windowMs: (nrqst) * 60 * 1000,
+        max: parseInt(APP_RATELIMITMAXREQS),
         standardHeaders: false,
         legacyHeaders: false
     })
 }
 
-export const createRateLimiter = (time) => {
+export const createRateLimiter = (time: number): Function => {
     return rateLimit({
-        windowMs: parseInt(time) * 60 * 1000,
-        max: parseInt(time),
+        windowMs: (time) * 60 * 1000,
+        max: (time),
         standardHeaders: false,
         legacyHeaders: false,
         message: {

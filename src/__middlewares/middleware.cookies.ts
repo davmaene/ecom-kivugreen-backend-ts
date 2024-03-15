@@ -1,23 +1,27 @@
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
+import { Request, Response, NextFunction } from 'express'
 
 dotenv.config();
 
-const { APPAPIKEY, APPCOOKIESNAME } = process.env;
+const { APP_APAPPACCESKEY: APPAPIKEY, APP_COOKIESNAME: APPCOOKIESNAME } = process.env;
 
-export const exludedRoutes = [
+if (!APPAPIKEY || !APPCOOKIESNAME)
+    throw Error("The variables APPAPIKEY or APPCOOKIESNAME is not defined in environement variable !")
+
+export const exludedRoutes: string[] = [
     "/users/user/signup",
     "/users/user/signin",
     "/users/user/verify",
     "/users/user/resendcode",
 ]
 
-export const optionsSignin = {
+export const optionsSignin: any = {
     expiresIn: '14h',
     jwtid: '993'.toString()
 }
 
-export const onSignin = async ({ data }, cb) => {
+export const onSignin: Function = async ({ data }: { data: any }, cb: Function) => {
     try {
         jwt.sign({
             ...data
@@ -33,7 +37,7 @@ export const onSignin = async ({ data }, cb) => {
     }
 };
 
-export const onVerify = async ({ token, req, res, next }, cb) => {
+export const onVerify: Function = async ({ token, req, res, next }: { token: string, req: Request, res: Response, next: NextFunction }, cb: Function) => {
     try {
         jwt.verify(token, APPAPIKEY, {}, (err, done) => {
             if (done) {
@@ -46,9 +50,3 @@ export const onVerify = async ({ token, req, res, next }, cb) => {
         return cb(error, undefined)
     }
 };
-
-export const Middleware = {
-    onVerify,
-    onSignin,
-    exludedRoutes
-}

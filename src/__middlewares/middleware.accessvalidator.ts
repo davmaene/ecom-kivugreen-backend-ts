@@ -1,48 +1,48 @@
 import dotenv from 'dotenv';
 import { Request, NextFunction, Response } from 'express'
 import { exludedRoutes, onVerify } from './middleware.cookies';
-import { Responder } from '__helpers/helper.responseserver';
+import { Responder } from '../__helpers/helper.responseserver';
+import { HttpStatusCode } from '../__enums/enum.httpsstatuscode';
 
 dotenv.config();
 
-const { CONNEXIONTOAPPWEB, CONNEXIONTOAPPMOB } = process.env;
+const { APP_CONNEXIONTOAPPWEB, APP_CONNEXIONTOAPPMOB } = process.env;
 
-if (!CONNEXIONTOAPPMOB || !CONNEXIONTOAPPWEB) throw Error("Connexion from web or mobile missing !")
+if (!APP_CONNEXIONTOAPPMOB || !APP_CONNEXIONTOAPPWEB)
+    throw Error("Connexion from web or mobile missing !");
 
 export const accessValidator = ({ req, res, next }: { req: Request, res: Response, next: NextFunction }) => {
     const { headers, url } = req;
     if (headers && url) {
 
         if (exludedRoutes.indexOf(url) === -1) {
-            if (headers && headers.hasOwnProperty(CONNEXIONTOAPPWEB)) {
+            if (headers && headers.hasOwnProperty(APP_CONNEXIONTOAPPWEB)) {
 
-                const authorization = headers[CONNEXIONTOAPPWEB];
-                const _isfrom_mob = headers[CONNEXIONTOAPPMOB];
-                const { apikey, accesskey } = headers;
+                const authorization = String(headers[APP_CONNEXIONTOAPPWEB]);
+                const _isfrom_mob = String(headers[APP_CONNEXIONTOAPPMOB]);
 
                 if (authorization && authorization.includes("Bearer ")) {
                     if (_isfrom_mob === 'true') return next();
 
                     onVerify({
-                        token: authorization.split(" ")[1].trim() || "",
+                        token: authorization.split(" ")[1].trim(),
                         next,
                         req,
                         res
-                    }, (err, done) => {
+                    }, (err: any, done: any) => {
                         if (done) {
                             req.currentuser = { ...done };
                             return next();
                         } else {
-                            return Responder(res, 403, "Your Token has expired !")
+                            return Responder(res, HttpStatusCode.Unauthorized, "Your Token has expired !")
                         }
                     })
-
-                } else return Responder(res, 403, "Your don't have access to this ressource !")
+                } else return Responder(res, HttpStatusCode.Unauthorized, "Your don't have access to this ressource !")
             } else {
-                return Responder(res, 403, "Your don't have access to this ressource !")
+                return Responder(res, HttpStatusCode.Unauthorized, "Your don't have access to this ressource !")
             }
         } else {
             return next()
         }
-    } else return Responder(res, 403, "Your don't have access to this ressource !")
+    } else return Responder(res, HttpStatusCode.Unauthorized, "Your don't have access to this ressource !")
 }

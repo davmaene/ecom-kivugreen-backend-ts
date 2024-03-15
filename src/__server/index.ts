@@ -6,6 +6,7 @@ import { Responder } from "../__helpers/helper.responseserver";
 import * as fs from 'fs';
 import * as path from 'path';
 import morgan from 'morgan';
+import { accessValidator } from "../__middlewares/middleware.accessvalidator";
 
 dotenv.config();
 
@@ -21,10 +22,6 @@ app.use(cors());
 app.use((req: Request, res: Response, next: NextFunction) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
-    if (req.method === "OPTIONS") {
-        res.header("Access-Control-Allow-Methods", "PUT, PATCH, POST, DELETE, GET");
-        res.status(200).json({});
-    }
     next();
 });
 
@@ -32,7 +29,7 @@ const ___logAccess = fs.createWriteStream(path.join(__dirname, 'access.log'), { 
 
 app.use(morgan("combined", { stream: ___logAccess }));
 
-app.use('/', (req: Request, res: Response, next: NextFunction) => {
+app.use('/', accessValidator, (req: Request, res: Response, next: NextFunction) => {
     return Responder(res, HttpStatusCode.Accepted, {
         app: APP_NAME,
         version: APP_VERSION
