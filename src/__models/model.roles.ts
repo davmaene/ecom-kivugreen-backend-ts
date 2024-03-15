@@ -2,9 +2,9 @@ import { DataTypes, Model } from 'sequelize'
 import { connect } from '../__databases/connecte'
 import { IRoles, IUsers } from '__enums/enum.interfacemodels';
 
-export interface User extends Model<IRoles>, IRoles { }
+export interface Role extends Model<IRoles>, IRoles { }
 
-export const Roles = connect.define<User>('__tbl_users', {
+export const Roles = connect.define<Role>('__tbl_ecom_roles', {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,

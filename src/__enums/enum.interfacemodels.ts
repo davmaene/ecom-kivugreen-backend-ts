@@ -23,3 +23,8 @@ export interface IRoles extends globalInterface {
     role: string,
     description: string
 }
+
+export interface IHasrole extends globalInterface {
+    TblUserId: number,
+    TblRoleId: number
+}
