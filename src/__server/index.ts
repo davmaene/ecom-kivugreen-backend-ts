@@ -9,7 +9,7 @@ import morgan from 'morgan';
 
 dotenv.config();
 
-const { APP_NAME, APP_PORT } = process.env;
+const { APP_NAME, APP_PORT, APP_VERSION } = process.env;
 
 const app = express();
 const PORT = APP_PORT || 8012;
@@ -31,6 +31,13 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 const ___logAccess = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
 
 app.use(morgan("combined", { stream: ___logAccess }));
+
+app.use('/', (req: Request, res: Response, next: NextFunction) => {
+    return Responder(res, HttpStatusCode.Accepted, {
+        app: APP_NAME,
+        version: APP_VERSION
+    })
+})
 
 app.use((req: Request, res: Response, next: NextFunction) => {
     const { url, method, body } = req
