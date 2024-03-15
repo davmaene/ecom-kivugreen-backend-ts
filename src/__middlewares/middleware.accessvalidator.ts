@@ -14,9 +14,7 @@ if (!APP_CONNEXIONTOAPPMOB || !APP_CONNEXIONTOAPPWEB)
 
 export const accessValidator = (req: Request, res: Response, next: NextFunction) => {
     const { headers, url } = req;
-    log(headers, url)
     if (headers && url) {
-
         if (exludedRoutes.indexOf(url) === -1) {
             if (headers && headers.hasOwnProperty(APP_CONNEXIONTOAPPWEB)) {
 
