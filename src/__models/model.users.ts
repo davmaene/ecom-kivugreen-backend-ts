@@ -21,5 +21,6 @@ export const Users = connect.define<User>('__tbl_users', {
     province: DataTypes.STRING,
     territoire: DataTypes.STRING,
     village: DataTypes.STRING,
+    hectare_cultive: DataTypes.STRING
 
 }, { paranoid: true, timestamps: true });

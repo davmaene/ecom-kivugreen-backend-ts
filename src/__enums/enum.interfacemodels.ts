@@ -16,4 +16,10 @@ export interface IUsers extends globalInterface {
     province?: number;
     territoire?: number;
     village?: number;
+    hectare_cultive: number
+}
+
+export interface IRoles extends globalInterface {
+    role: string,
+    description: string
 }

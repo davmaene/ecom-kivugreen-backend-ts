@@ -7,6 +7,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import morgan from 'morgan';
 import { accessValidator } from "../__middlewares/middleware.accessvalidator";
+import { routes } from "../__routes/index";
 
 dotenv.config();
 
@@ -29,12 +30,7 @@ const ___logAccess = fs.createWriteStream(path.join(__dirname, 'access.log'), { 
 
 app.use(morgan("combined", { stream: ___logAccess }));
 
-app.use('/', accessValidator, (req: Request, res: Response, next: NextFunction) => {
-    return Responder(res, HttpStatusCode.Accepted, {
-        app: APP_NAME,
-        version: APP_VERSION
-    })
-})
+app.use('/api', accessValidator, routes)
 
 app.use((req: Request, res: Response, next: NextFunction) => {
     const { url, method, body } = req
