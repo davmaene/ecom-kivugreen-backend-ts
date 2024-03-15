@@ -14,12 +14,12 @@ export const exludedRoutes: string[] = [
     "/users/user/signin",
     "/users/user/verify",
     "/users/user/resendcode",
-]
+];
 
 export const optionsSignin: any = {
     expiresIn: '14h',
     jwtid: '993'.toString()
-}
+};
 
 export const onSignin: Function = async ({ data }: { data: any }, cb: Function) => {
     try {
