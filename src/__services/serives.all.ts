@@ -1,13 +1,13 @@
 import dotenv from 'dotenv';
 import axios from 'axios';
-import { Hasroles } from '__models/model.hasroles';
-import { randomLongNumber } from '__helpers/helper.random';
-import { capitalizeWords } from '__helpers/helper.all';
+import { Hasroles } from '../__models/model.hasroles';
+import { randomLongNumber } from '../__helpers/helper.random';
+import { capitalizeWords } from '../__helpers/helper.all';
 import nodemailer from 'nodemailer';
-import { Roles } from '__models/model.roles';
-import { Provinces } from '__models/model.provinces';
-import { Territoires } from '__models/model.territoires';
-import { Villages } from '__models/model.villages';
+import { Roles } from '../__models/model.roles';
+import { Provinces } from '../__models/model.provinces';
+import { Territoires } from '../__models/model.territoires';
+import { Villages } from '../__models/model.villages';
 
 dotenv.config()
 
