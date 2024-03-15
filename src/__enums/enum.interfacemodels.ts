@@ -8,17 +8,18 @@ export interface globalInterface {
 export interface IUsers extends globalInterface {
     nom?: string;
     postnom?: string;
-    prenom?: number;
+    prenom?: string;
     phone: string;
     email?: string;
     date_naiss?: string;
     sexe?: string;
+    avatar?: string;
     idprovince?: number;
     idterritoire?: number;
     idvillage?: number;
     hectare_cultive?: number;
     isvalidated?: number;
-    uuid?: number,
+    uuid?: string,
     password?: string
 }
 

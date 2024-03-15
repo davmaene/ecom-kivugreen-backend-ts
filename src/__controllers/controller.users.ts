@@ -159,12 +159,11 @@ export const __controllerUsers = {
                 prenom: prenom ? capitalizeWords({ text: prenom }) : APP_ESCAPESTRING,
                 email: email || fillphone({ phone }),
                 phone: fillphone({ phone }),
-                adresse,
                 idprovince,
                 idterritoire,
                 idvillage,
                 date_naiss,
-                genre,
+                sexe: genre,
                 password: pwd,
                 avatar: `assets/as_avatar/defaultavatar.png`
             }, { transaction })
@@ -210,7 +209,7 @@ export const __controllerUsers = {
                                             })
 
                                         transaction.commit()
-                                        return Responder(res, HttpStatusCode.Ok, { user, code: code_ })
+                                        return Responder(res, HttpStatusCode.Ok, user)
                                     } else {
                                         transaction.rollback()
                                         return Responder(res, HttpStatusCode.BadRequest, "Role not initialized correctly !")

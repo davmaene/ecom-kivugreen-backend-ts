@@ -12,6 +12,7 @@ export const Users = connect.define<User>('__tbl_ecom_users', {
         allowNull: true,
     },
     nom: DataTypes.STRING,
+    avatar: DataTypes.STRING,
     postnom: DataTypes.STRING,
     prenom: DataTypes.STRING,
     phone: {

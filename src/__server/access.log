@@ -32,3 +32,4 @@
 ::ffff:127.0.0.1 - - [15/Mar/2024:15:47:55 +0000] "POST /api/users/user/register HTTP/1.1" - - "-" "PostmanRuntime/7.36.3"
 ::ffff:127.0.0.1 - - [15/Mar/2024:16:06:11 +0000] "POST /api/users/user/register HTTP/1.1" 500 62 "-" "PostmanRuntime/7.36.3"
 ::ffff:127.0.0.1 - - [15/Mar/2024:16:06:36 +0000] "POST /api/users/user/register HTTP/1.1" 500 62 "-" "PostmanRuntime/7.36.3"
+::ffff:127.0.0.1 - - [15/Mar/2024:16:07:17 +0000] "POST /api/users/user/register HTTP/1.1" 400 88 "-" "PostmanRuntime/7.36.3"
