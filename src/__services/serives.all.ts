@@ -4,6 +4,10 @@ import { Hasroles } from '__models/model.hasroles';
 import { randomLongNumber } from '__helpers/helper.random';
 import { capitalizeWords } from '__helpers/helper.all';
 import nodemailer from 'nodemailer';
+import { Roles } from '__models/model.roles';
+import { Provinces } from '__models/model.provinces';
+import { Territoires } from '__models/model.territoires';
+import { Villages } from '__models/model.villages';
 
 dotenv.config()
 
@@ -1541,6 +1545,34 @@ export const Services = {
             }
         } catch (error) {
             return cb(undefined, { code: 500, message: "Error", data: error })
+        }
+    },
+    rawRolesAsTableOfIds: async () => {
+        const { count, rows } = await Roles.findAndCountAll({ where: {}, raw: true, attributes: ['id'] });
+        if (count <= 0) return [];
+        else {
+            return rows.map(r => r && r['id'])
+        }
+    },
+    rawProvincesAsTableOfIds: async () => {
+        const { count, rows } = await Provinces.findAndCountAll({ where: {}, raw: true, attributes: ['id'] });
+        if (count <= 0) return [];
+        else {
+            return rows.map(r => r && r['id'])
+        }
+    },
+    rawTerritoiresAsTableOfIds: async () => {
+        const { count, rows } = await Territoires.findAndCountAll({ where: {}, raw: true, attributes: ['id'] });
+        if (count <= 0) return [];
+        else {
+            return rows.map(r => r && r['id'])
+        }
+    },
+    rawVillagesAsTableOfIds: async () => {
+        const { count, rows } = await Villages.findAndCountAll({ where: {}, raw: true, attributes: ['id'] });
+        if (count <= 0) return [];
+        else {
+            return rows.map(r => r && r['id'])
         }
     },
 }
