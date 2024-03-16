@@ -4,7 +4,7 @@ import { Users } from '../__models/model.users';
 import { Hasroles } from '../__models/model.hasroles';
 import { Provinces } from '../__models/model.provinces';
 import { Roles } from '../__models/model.roles';
-import { Request, Response, NextFunction } from 'express'
+import { Request, Response, NextFunction, response } from 'express'
 import { Territoires } from '../__models/model.territoires';
 import { Villages } from '../__models/model.villages';
 import { Op } from 'sequelize';
@@ -21,7 +21,7 @@ import { Services } from '../__services/serives.all';
 
 dotenv.config()
 
-const { APP_EXIPRES_IN_ADMIN, APP_EXIPRES_IN_ALL, APP_ESCAPESTRING } = process.env
+const { APP_EXIPRES_IN_ADMIN, APP_EXIPRES_IN_ALL, APP_ESCAPESTRING, APP_NAME } = process.env
 
 export const __controllerUsers = {
     auth: async (req: Request, res: Response, next: NextFunction) => {
@@ -45,7 +45,7 @@ export const __controllerUsers = {
 
             Users.findOne({
                 where: {
-                    isvalidated: 1,
+                    // isvalidated: 1,
                     [Op.or]: [
                         { email: phone },
                         { phone: fillphone({ phone }) }
@@ -75,6 +75,7 @@ export const __controllerUsers = {
                 ]
             })
                 .then(user => {
+                    log(user?.toJSON())
                     if (user instanceof Users) {
                         const { password: aspassword, isvalidated, phone, date_naiss } = user.toJSON()
                         if (isvalidated === 1) {
@@ -118,22 +119,7 @@ export const __controllerUsers = {
                             })
                         } else {
                             const code = randomLongNumber({ length: 6 })
-                            // user.update({
-                            //     verificationcode: code
-                            // })
-                            //     .then(uss => {
-                            //         Services.SMSServices({
-                            //             is_flash: false,
-                            //             to: fillphone({ phone: user && user['phone'] }),
-                            //             content: `MK-${code} \nBonjour ${capitalizeWords({ text: user && user['nom'] })} votre compte n'est pas encore verifié. Ceci est votre code de vérification`,
-                            //         });
-                            //         transaction.rollback()
-                            //         return Responder(res, 400, `${fillphone({ phone })} is not verified ! a new code was sent to user`)
-                            //     })
-                            //     .catch(error => {
-                            //         transaction.rollback()
-                            //         return Responder(res, HttpStatusCode.Forbidden, "Phone | Email or Password incorrect !")
-                            //     })
+                            return Responder(res, HttpStatusCode.NotAcceptable, "Account not validated !")
                         }
                     } else {
                         transaction.rollback()
@@ -200,15 +186,8 @@ export const __controllerUsers = {
                                             to: fillphone({ phone }),
                                             content: `Bonjour ${capitalizeWords({ text: nom })} votre compte a été crée avec succès. Ceci est votre mot de passe ${password}`,
                                         })
-                                            .then(m => {
-                                                log(m)
-                                            })
-                                            .catch(er => {
-                                                log(er)
-                                            })
-
                                         transaction.commit()
-                                        return Responder(res, HttpStatusCode.Ok, user)
+                                        return Responder(res, HttpStatusCode.Created, user)
                                     } else {
                                         transaction.rollback()
                                         return Responder(res, HttpStatusCode.InternalServerError, "Role not initialized correctly !")
@@ -231,4 +210,79 @@ export const __controllerUsers = {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     },
+    validate: async (req: Request, res: Response, next: NextFunction) => {
+        const { iduser } = req.params;
+        if (!iduser) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least iduser as paramter !")
+        try {
+            const transaction = await connect.transaction();
+
+            Users.belongsToMany(Roles, { through: Hasroles });
+            Roles.belongsToMany(Users, { through: Hasroles });
+
+            Provinces.hasOne(Users, { foreignKey: "id" });
+            Users.belongsTo(Provinces, { foreignKey: "idprovince" });
+
+            Territoires.hasOne(Users, { foreignKey: "id" });
+            Users.belongsTo(Territoires, { foreignKey: "idterritoire" });
+
+            Villages.hasOne(Users, { foreignKey: "id" });
+            Users.belongsTo(Villages, { foreignKey: "idvillage" });
+
+            Users.findOne({
+                where: {
+                    [Op.or]: [
+                        { id: iduser },
+                        { uuid: iduser }
+                    ]
+                },
+                include: [
+                    {
+                        model: Roles,
+                        required: true,
+                        attributes: ['id', 'role']
+                    },
+                    {
+                        model: Provinces,
+                        required: false,
+                        attributes: ['id', 'province']
+                    },
+                    {
+                        model: Territoires,
+                        required: false,
+                        attributes: ['id', 'territoire']
+                    },
+                    {
+                        model: Villages,
+                        required: false,
+                        attributes: ['id', 'village']
+                    }
+                ]
+            })
+                .then(user => {
+                    if (user instanceof Users) {
+                        const { password: aspassword, isvalidated, phone, date_naiss, nom } = user?.toJSON()
+                        if (isvalidated !== 1) {
+                            user.update({
+                                isvalidated: 1
+                            })
+                            .then(U => {
+                                Services.onSendSMS({
+                                    to: fillphone({ phone }),
+                                    content: `Bonjour ${capitalizeWords({ text: nom })} votre compte a été validé avec succès; vous pouvez maintenant acceder à la plateforme de ${APP_NAME}`,
+                                    is_flash: false
+                                })
+                                return Responder(res, HttpStatusCode.Ok, user)
+                            })
+                        } else {
+                            return Responder(res, HttpStatusCode.Conflict, "Account is still validated !")
+                        }
+                    } else {
+                        transaction.rollback()
+                        return Responder(res, HttpStatusCode.Forbidden, "Phone | Email or Password incorrect !")
+                    }
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    }
 }

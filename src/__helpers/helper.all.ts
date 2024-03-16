@@ -20,8 +20,8 @@ export const truncatestring = ({ string, separator }: { string: string, separato
     return string.substring(0, string.lastIndexOf(separator))
 };
 
-export const capitalizeWords = ({ text }: { text: string }) => {
-    return text.replace(/\b\w/g, (char) => char.toUpperCase());
+export const capitalizeWords = ({ text }: { text?: string }) => {
+    return String(text).replace(/\b\w/g, (char) => char.toUpperCase());
 };
 
 export const formatUserModel = ({ model }: { model: any }) => {

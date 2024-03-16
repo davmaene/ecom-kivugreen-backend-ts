@@ -25,7 +25,6 @@ export const Services = {
                     'is_flash': is_flash || API_SMS_IS_FLASH,
                     'app': APP_NAME
                 };
-                log(payload)
                 const { data, status, request, config, headers, statusText } = await axios({
                     method: "POST",
                     url: API_SMS_ENDPOINT,
