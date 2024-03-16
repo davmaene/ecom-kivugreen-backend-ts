@@ -235,7 +235,6 @@ export const __controllerUsers = {
                         { uuid: iduser }
                     ]
                 },
-                logging: true,
                 include: [
                     {
                         model: Roles,
@@ -379,7 +378,7 @@ export const __controllerUsers = {
                     {
                         model: Roles,
                         required: true,
-                        attributes: ['id', 'role']
+                        attributes: ['id', 'role'],
                     },
                     {
                         model: Provinces,
