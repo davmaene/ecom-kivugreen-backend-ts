@@ -228,7 +228,6 @@ export const __controllerUsers = {
                     return Responder(res, HttpStatusCode.Conflict, { name, error: message })
                 })
         } catch (error) {
-            log(error)
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     },

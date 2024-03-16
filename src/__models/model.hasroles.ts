@@ -29,7 +29,7 @@ export const Hasroles = connect.define<Hasrole>('__tbl_ecom_hasroles', {
     }
 
 }, {
-    paranoid: true,
+    paranoid: false,
     timestamps: true,
     indexes: [
         {

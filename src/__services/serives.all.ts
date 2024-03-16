@@ -8,6 +8,8 @@ import { Roles } from '../__models/model.roles';
 import { Provinces } from '../__models/model.provinces';
 import { Territoires } from '../__models/model.territoires';
 import { Villages } from '../__models/model.villages';
+import { completeCodeCountryToPhoneNumber } from '../__helpers/helper.fillphone';
+import { log } from 'console';
 
 dotenv.config()
 
@@ -18,11 +20,12 @@ export const Services = {
         return new Promise(async (resolve, reject) => {
             try {
                 const payload = {
-                    'phone': to,
+                    'phone': completeCodeCountryToPhoneNumber({ phone: to }),
                     'message': content,
                     'is_flash': is_flash || API_SMS_IS_FLASH,
                     'app': APP_NAME
                 };
+                log(payload)
                 const { data, status, request, config, headers, statusText } = await axios({
                     method: "POST",
                     url: API_SMS_ENDPOINT,
@@ -33,7 +36,7 @@ export const Services = {
                     }
                 })
 
-                if (status === 200) return resolve({ code: 200, message: "Message was succefuly sent ", data: data })
+                if (status === 200 || status === 201) return resolve({ code: status, message: "Message was succefuly sent ", data: data })
                 else return reject({ code: status, message: statusText, data })
 
             } catch (error: any) {

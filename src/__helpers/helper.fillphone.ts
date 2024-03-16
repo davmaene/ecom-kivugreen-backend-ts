@@ -9,19 +9,20 @@ export const fillphone = ({ phone }: { phone: string }) => {
 
 export const completeCodeCountryToPhoneNumber = ({ phone }: { phone: string }) => {
     phone = phone ? phone.toString() : '0';
-    const cdcode = '243'
+    const cdcode = '243';
     switch (phone.charAt(0)) {
         case '0':
-            return String(`${cdcode}${phone.substring(1)}`);
+            phone = String(`${cdcode}${phone.substring(1)}`);
             break;
         case '+':
-            return String(`${cdcode}${phone.substring(4)}`);
+            phone = String(`${cdcode}${phone.substring(4)}`);
             break;
         case '2':
-            return String(`${cdcode}${phone.substring(3)}`);
+            phone = String(`${cdcode}${phone.substring(3)}`);
             break;
         default:
-            return String(`${cdcode}${phone.substring(1)}`);
+            phone = String(`${cdcode}${phone.substring(1)}`);
             break;
     }
+    return '+'.concat(phone)
 }

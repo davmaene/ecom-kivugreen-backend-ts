@@ -38,7 +38,7 @@ export const Users = connect.define<User>('__tbl_ecom_users', {
     password: DataTypes.STRING
 
 }, {
-    paranoid: true,
+    paranoid: false,
     timestamps: true,
     indexes: [
         {
