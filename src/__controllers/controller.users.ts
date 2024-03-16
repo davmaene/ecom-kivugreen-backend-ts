@@ -235,6 +235,9 @@ export const __controllerUsers = {
                         { uuid: iduser }
                     ]
                 },
+                attributes: {
+                    exclude: ['password', 'isvalidated', 'idprovince', 'idterritoire', 'idvillage']
+                },
                 include: [
                     {
                         model: Roles,
@@ -312,6 +315,9 @@ export const __controllerUsers = {
                         { uuid: iduser }
                     ]
                 },
+                attributes: {
+                    exclude: ['password', 'isvalidated', 'idprovince', 'idterritoire', 'idvillage']
+                },
                 include: [
                     {
                         model: Roles,
@@ -373,6 +379,9 @@ export const __controllerUsers = {
             Users.findAndCountAll({
                 where: {
                     isvalidated: 1
+                },
+                attributes: {
+                    exclude: ['password', 'isvalidated', 'idprovince', 'idterritoire', 'idvillage']
                 },
                 include: [
                     {
