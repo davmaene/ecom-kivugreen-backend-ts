@@ -30,7 +30,7 @@ const ___logAccess = fs.createWriteStream(path.join(__dirname, 'access.log'), { 
 
 app.use(morgan("combined", { stream: ___logAccess }));
 
-app.use('/api', accessValidator, routes)
+app.use('/api', routes) // accessValidator
 
 app.use((req: Request, res: Response, next: NextFunction) => {
     const { url, method, body } = req

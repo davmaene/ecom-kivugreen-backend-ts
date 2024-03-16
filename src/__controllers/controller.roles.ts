@@ -3,6 +3,8 @@ import { Responder } from '../__helpers/helper.responseserver';
 import { Request, Response, NextFunction } from 'express';
 import { Roles } from '../__models/model.roles';
 import { capitalizeWords } from '../__helpers/helper.all';
+import { log } from 'console';
+import { Services } from '../__services/serives.all';
 
 export const __controllerRoles = {
     list: async (req: Request, res: Response, next: NextFunction) => {
@@ -16,6 +18,27 @@ export const __controllerRoles = {
                 .catch(err => {
                     return Responder(res, HttpStatusCode.InternalServerError, err)
                 })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    addtouser: async (req: Request, res: Response, next: NextFunction) => {
+        const { idrole, iduser } = req.body;
+        try {
+            Services.addRoleToUser({
+                inputs: {
+                    idroles: [idrole]
+                },
+                transaction: null,
+                cb: (err: any, ro: any) => {
+                    if (ro) {
+                        const { code, message, data } = ro
+                        if (code === 200) {
+                            return Responder(res, HttpStatusCode.Ok, ro)
+                        }else return Responder(res, HttpStatusCode.BadRequest, ro)
+                    } else return Responder(res, HttpStatusCode.BadRequest, ro)
+                }
+            })
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }

@@ -232,5 +232,5 @@ export const __controllerUsers = {
             log(error)
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
-    }
+    },
 }
