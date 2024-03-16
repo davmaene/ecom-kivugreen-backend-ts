@@ -26,14 +26,14 @@ export const capitalizeWords = ({ text }: { text?: string }) => {
 
 export const formatUserModel = ({ model }: { model: any }) => {
 
-    const province = model['__tbl_ecom_provinces'];
-    const territoire = model['__tbl_ecom_territoires'];
-    const village = model['__tbl_ecom_villages'];
+    const province = model['__tbl_ecom_province'];
+    const territoire = model['__tbl_ecom_territoire'];
+    const village = model['__tbl_ecom_village'];
     const roles = model['__tbl_ecom_roles'];
 
     delete model['__tbl_ecom_roles']
-    delete model['__tbl_ecom_provinces']
-    delete model['__tbl_ecom_territoires']
+    delete model['__tbl_ecom_province']
+    delete model['__tbl_ecom_territoire']
     delete model['__tbl_ecom_village']
     delete model['idprovince']
     delete model['idterritoire']

@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
-import { Request, Response, NextFunction } from 'express'
+import { Request, Response, NextFunction } from 'express';
+import base64 from 'base-64';
 
 dotenv.config();
 
@@ -13,6 +14,8 @@ export const exludedRoutes: string[] = [
     "/users/user/register",
     "/users/user/auth",
 ];
+
+export const tries = 3;
 
 export const optionsSignin: any = {
     expiresIn: '14h',
@@ -27,7 +30,16 @@ export const onSignin: Function = async ({ data }: { data: any }, cb: Function) 
             APPAPIKEY,
             { ...optionsSignin },
             (err, encoded) => {
-                return cb(err, encoded)
+                if (encoded) {
+                    let tr: string
+                    tr = encoded
+                    for (let index = 0; index < tries; index++) {
+                        tr = base64.encode(tr)
+                    }
+                    return cb(err, tr)
+                } else {
+                    return cb(err, undefined)
+                }
             }
         )
     } catch (error) {
@@ -37,7 +49,12 @@ export const onSignin: Function = async ({ data }: { data: any }, cb: Function) 
 
 export const onVerify: Function = async ({ token, req, res, next }: { token: string, req: Request, res: Response, next: NextFunction }, cb: Function) => {
     try {
-        jwt.verify(token, APPAPIKEY, {}, (err, done) => {
+        let tr: string
+        tr = token
+        for (let index = 0; index < tries; index++) {
+            tr = base64.decode(tr)
+        } 
+        jwt.verify(tr, APPAPIKEY, {}, (err, done) => {
             if (done) {
                 return cb(undefined, done)
             } else {

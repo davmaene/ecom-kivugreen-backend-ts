@@ -45,7 +45,6 @@ export const __controllerUsers = {
 
             Users.findOne({
                 where: {
-                    // isvalidated: 1,
                     [Op.or]: [
                         { email: phone },
                         { phone: fillphone({ phone }) }
@@ -75,57 +74,62 @@ export const __controllerUsers = {
                 ]
             })
                 .then(user => {
-                    log(user?.toJSON())
                     if (user instanceof Users) {
-                        const { password: aspassword, isvalidated, phone, date_naiss } = user.toJSON()
-                        if (isvalidated === 1) {
-                            comparePWD({
-                                hashedtext: aspassword || '',
-                                plaintext: password
-                            }).then(verified => {
+                        const { password: aspassword, isvalidated, __tbl_ecom_roles } = user.toJSON();
+                        const roles = Array.from(__tbl_ecom_roles).map((role: any) => role['id']);
+                        comparePWD({
+                            hashedtext: aspassword || '',
+                            plaintext: password
+                        })
+                            .then(verified => {
                                 if (verified) {
-
-                                    Middleware.onSignin({
-                                        expiresIn: APP_EXIPRES_IN_ADMIN || '45m',
-                                        data: {
-                                            phone: user && user['phone'],
-                                            uuid: user && user['uuid'],
-                                            __id: user && user['id'],
-                                            // role: user && user['__tbl_roles']
-                                        }
-                                    }, (reject: string, token: string) => {
-                                        if (token) {
-
-                                            user = formatUserModel({ model: user })
-                                            if (user !== null) {
-                                                if (user.hasOwnProperty('isvalidated')) {
-                                                    delete user['isvalidated']
-                                                }
-                                                if (user.hasOwnProperty('password')) {
-                                                    delete user['password']
-                                                }
+                                    if (isvalidated === 1) {
+                                        Middleware.onSignin({
+                                            expiresIn: APP_EXIPRES_IN_ADMIN || '45m',
+                                            data: {
+                                                phone: user && user['phone'],
+                                                uuid: user && user['uuid'],
+                                                __id: user && user['id'],
+                                                roles 
                                             }
-                                            transaction.commit()
-                                            return Responder(res, HttpStatusCode.Ok, { token, user })
-                                        } else {
-                                            transaction.rollback()
-                                            return Responder(res, HttpStatusCode.Forbidden, "Your refresh token already expired ! you must login to get a new one !")
-                                        }
-                                    })
+                                        },
+                                            (reject: string, token: string) => {
+                                                if (token) {
+                                                    log(token)
+                                                    // user = formatUserModel({ model: user })
+                                                    if (user !== null) {
+                                                        if (user.hasOwnProperty('isvalidated')) {
+                                                            delete user['isvalidated']
+                                                        }
+                                                        if (user.hasOwnProperty('password')) {
+                                                            delete user['password']
+                                                        }
+                                                    }
+                                                    transaction.commit()
+                                                    return Responder(res, HttpStatusCode.Ok, { token, user })
+                                                } else {
+                                                    transaction.rollback()
+                                                    return Responder(res, HttpStatusCode.Forbidden, "Your refresh token already expired ! you must login to get a new one !")
+                                                }
+                                            })
+                                    } else {
+                                        return Responder(res, HttpStatusCode.NotAcceptable, "Account not validated !")
+                                    }
                                 } else {
                                     transaction.rollback()
                                     return Responder(res, HttpStatusCode.Forbidden, "Phone | Email or Password incorrect !")
                                 }
                             })
-                        } else {
-                            const code = randomLongNumber({ length: 6 })
-                            return Responder(res, HttpStatusCode.NotAcceptable, "Account not validated !")
-                        }
+                            .catch(err => {
+                                transaction.rollback()
+                                return Responder(res, HttpStatusCode.Forbidden, "Phone | Email or Password incorrect !")
+                            })
                     } else {
                         transaction.rollback()
                         return Responder(res, HttpStatusCode.Forbidden, "Phone | Email or Password incorrect !")
                     }
                 })
+                .catch(err => Responder(res, HttpStatusCode.Conflict, err))
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
@@ -347,9 +351,9 @@ export const __controllerUsers = {
                         if (isvalidated !== 1) {
                             transaction.commit()
                             return Responder(res, HttpStatusCode.Ok, user)
-                        }else{
+                        } else {
                             transaction.rollback()
-                            return Responder(res, HttpStatusCode.NotFound, {}) 
+                            return Responder(res, HttpStatusCode.NotFound, {})
                         }
                     } else {
                         transaction.rollback()
