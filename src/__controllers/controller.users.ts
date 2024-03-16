@@ -265,15 +265,17 @@ export const __controllerUsers = {
                             user.update({
                                 isvalidated: 1
                             })
-                            .then(U => {
-                                Services.onSendSMS({
-                                    to: fillphone({ phone }),
-                                    content: `Bonjour ${capitalizeWords({ text: nom })} votre compte a été validé avec succès; vous pouvez maintenant acceder à la plateforme de ${APP_NAME}`,
-                                    is_flash: false
+                                .then(U => {
+                                    Services.onSendSMS({
+                                        to: fillphone({ phone }),
+                                        content: `Bonjour ${capitalizeWords({ text: nom })} votre compte a été validé avec succès; vous pouvez maintenant acceder à la plateforme de ${APP_NAME}`,
+                                        is_flash: false
+                                    })
+                                    transaction.commit()
+                                    return Responder(res, HttpStatusCode.Ok, user)
                                 })
-                                return Responder(res, HttpStatusCode.Ok, user)
-                            })
                         } else {
+                            transaction.rollback()
                             return Responder(res, HttpStatusCode.Conflict, "Account is still validated !")
                         }
                     } else {
