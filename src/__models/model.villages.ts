@@ -18,4 +18,12 @@ export const Villages = connect.define<Village>('__tbl_ecom_villages', {
     groupement: DataTypes.STRING,
     provincecode: DataTypes.STRING
 
-}, { paranoid: true, timestamps: true });
+}, { paranoid: true, timestamps: false, freezeTableName: true });
+
+Villages.sync({ alter: true })
+    .then(() => {
+        console.log('=======> Cerated done `table Villages` ');
+    })
+    .catch((error) => {
+        console.error('Une erreur s\'est produite lors de la création de la table :', error);
+    });

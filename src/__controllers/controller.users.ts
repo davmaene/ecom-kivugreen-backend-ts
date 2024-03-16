@@ -212,11 +212,11 @@ export const __controllerUsers = {
                                         return Responder(res, HttpStatusCode.Ok, user)
                                     } else {
                                         transaction.rollback()
-                                        return Responder(res, HttpStatusCode.BadRequest, "Role not initialized correctly !")
+                                        return Responder(res, HttpStatusCode.InternalServerError, "Role not initialized correctly !")
                                     }
                                 } else {
                                     transaction.rollback()
-                                    return Responder(res, HttpStatusCode.BadRequest, "Role not initialized correctly !")
+                                    return Responder(res, HttpStatusCode.InternalServerError, "Role not initialized correctly !")
                                 }
                             }
                         })

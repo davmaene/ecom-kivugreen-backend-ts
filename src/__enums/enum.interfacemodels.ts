@@ -33,8 +33,11 @@ export interface IHasrole extends globalInterface {
     TblEcomRoleId: number
 }
 
-export interface IProvinces extends globalInterface {
-    province: number
+export interface IProvinces {
+    id?: number,
+    province: number,
+    createdon?: string,
+    status?: number
 }
 
 export interface ITerritoires extends globalInterface {

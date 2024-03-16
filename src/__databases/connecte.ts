@@ -23,16 +23,16 @@ export const connect = new Sequelize(
 connect
     .authenticate()
     .then(() => {
-        console.log("Connected successfuly to db ..." + dbName, ' on port ==> ', port);
-        connect
-            .sync({ alter: true })
-            .then(() => {
-                console.log("All models were synchronized successfully to DB ====> " + dbName);
-            })
-            .catch((error) => {
-                console.log(`Failed to sync all models ${error.message}`);
-            });
+        // console.log("Connected successfuly to db ..." + dbName, ' on port ==> ', port);
+        // connect
+        //     .sync({ alter: true, force: true })
+        //     .then(() => {
+        //         console.log("Models were synchronized successfully to DB ====> " + dbName);
+        //     })
+        //     .catch((error) => {
+        //         console.log(`Failed to sync all models ${error.message}`);
+        //     });
     })
     .catch((error) => {
-        console.log(`Failed to connect... ${error}`);
+        console.log(`Failed to connect to bd ${error}`);
     });

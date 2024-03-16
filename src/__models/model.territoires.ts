@@ -14,4 +14,12 @@ export const Territoires = connect.define<Territoire>('__tbl_ecom_territoires', 
     idprovince: DataTypes.STRING,
     territoire: DataTypes.STRING,
 
-}, { paranoid: true, timestamps: true });
+}, { paranoid: true, timestamps: false });
+
+Territoires.sync({ alter: true })
+    .then(() => {
+        console.log('=======> Cerated done `table Territoires` ');
+    })
+    .catch((error) => {
+        console.error('Une erreur s\'est produite lors de la création de la table :', error);
+    });

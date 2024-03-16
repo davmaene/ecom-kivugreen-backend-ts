@@ -36,10 +36,10 @@ export const Users = connect.define<User>('__tbl_ecom_users', {
 }, {
     paranoid: true,
     timestamps: true,
-    // indexes: [
-    //     {
-    //         unique: true,
-    //         fields: ['phone', 'email']
-    //     }
-    // ]
+    indexes: [
+        {
+            unique: true,
+            fields: ['phone', 'email']
+        }
+    ]
 });

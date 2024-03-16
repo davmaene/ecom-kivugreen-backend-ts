@@ -11,6 +11,16 @@ export const Provinces = connect.define<Province>('__tbl_ecom_provinces', {
         autoIncrement: true,
         allowNull: true,
     },
-    province: DataTypes.STRING
+    province: DataTypes.STRING,
+    createdon: DataTypes.STRING,
+    status: DataTypes.INTEGER,
 
-}, { paranoid: true, timestamps: true });
+}, { paranoid: true, timestamps: false, freezeTableName: true });
+
+Provinces.sync({ alter: true })
+    .then(() => {
+        console.log('=======> Cerated done `table Provinces` ');
+    })
+    .catch((error) => {
+        console.error('Une erreur s\'est produite lors de la création de la table :', error);
+    });
