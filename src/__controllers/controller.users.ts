@@ -225,7 +225,7 @@ export const __controllerUsers = {
                     transaction.rollback()
                     const { name, errors } = err;
                     const { message } = errors[0];
-                    return Responder(res, HttpStatusCode.ServiceUnavailable, { name, error: message })
+                    return Responder(res, HttpStatusCode.Conflict, { name, error: message })
                 })
         } catch (error) {
             log(error)
