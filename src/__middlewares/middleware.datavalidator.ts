@@ -3,14 +3,16 @@ import { NextFunction, Response, Request } from 'express';
 import { Services } from '../__services/serives.all';
 import { HttpStatusCode } from '../__enums/enum.httpsstatuscode';
 import { Responder } from '../__helpers/helper.responseserver';
+import { log } from 'console';
 
 export const validateGender = (v: string) => {
     return ["M", "F"].indexOf(v) !== -1 ? true : false
 };
 
-export const roleValidator = async (v: number) => {
+export const roleValidator = async (v: number[]) => {
     const t = (await Services.rawRolesAsTableOfIds());
-    return [...t].indexOf((v)) !== -1 ? true : false;
+    return v.every(index => [...t].indexOf((index)) !== -1 ? true : false)
+    // return [...t].indexOf((v)) !== -1 ? true : false;
 };
 
 export const provinceValidator = async (v: number) => {
@@ -33,7 +35,8 @@ export const userModelValidator = [
     body('postnom').notEmpty().isAscii().withMessage("`postnom` is required and it can not be empty !"),
     body('email').optional().isEmail().trim().withMessage("`email` the value entered for email it seems to be not a valide email adresse !"),
     body('phone').notEmpty().isMobilePhone('fr-CD').trim().withMessage("`phone` the value entered for the phone it seems to be not a valide phone number !"),
-    // body('adresse').optional().isAscii().withMessage("`adresse` the value for adresse is not invalid !"),
+    body('hectare_cultive').optional().isNumeric().withMessage("`hectare_cultive` the value for hectare_cultive is not invalid ! this must be a type of number !"),
+    body('date_naiss').isDate({ format: 'DD/MM/YYYY' }).withMessage("`date_naiss` the value for date_naiss is not invalid ! this must be a type of valide date !"),
     body('genre').notEmpty().isString().isLength({ max: 1, min: 1 }).custom(validateGender).withMessage("`genre` the value for genre is not invalid ! this can only be M or F"),
     body('idprovince').optional().isNumeric().custom(async (v, { req }) => {
         const validator = await provinceValidator(v);

@@ -12,7 +12,11 @@ export const Users = connect.define<User>('__tbl_ecom_users', {
         allowNull: true,
     },
     nom: DataTypes.STRING,
-    avatar: DataTypes.STRING,
+    avatar: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: `assets/as_avatar/defaultavatar.png`
+    },
     postnom: DataTypes.STRING,
     prenom: DataTypes.STRING,
     phone: {

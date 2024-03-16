@@ -164,8 +164,7 @@ export const __controllerUsers = {
                 idvillage,
                 date_naiss,
                 sexe: genre,
-                password: pwd,
-                avatar: `assets/as_avatar/defaultavatar.png`
+                password: pwd
             }, { transaction })
                 .then(user => {
                     if (user instanceof Users) {
