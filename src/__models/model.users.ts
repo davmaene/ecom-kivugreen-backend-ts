@@ -33,7 +33,10 @@ export const Users = connect.define<User>('__tbl_ecom_users', {
     idterritoire: DataTypes.STRING,
     idvillage: DataTypes.STRING,
     hectare_cultive: DataTypes.STRING,
-    isvalidated: DataTypes.INTEGER,
+    isvalidated: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+    },
     uuid: DataTypes.STRING,
     password: DataTypes.STRING
 

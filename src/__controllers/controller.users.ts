@@ -4,7 +4,7 @@ import { Users } from '../__models/model.users';
 import { Hasroles } from '../__models/model.hasroles';
 import { Provinces } from '../__models/model.provinces';
 import { Roles } from '../__models/model.roles';
-import { Request, Response, NextFunction, response } from 'express'
+import { Request, Response, NextFunction, } from 'express'
 import { Territoires } from '../__models/model.territoires';
 import { Villages } from '../__models/model.villages';
 import { Op } from 'sequelize';
@@ -211,7 +211,7 @@ export const __controllerUsers = {
         }
     },
     validate: async (req: Request, res: Response, next: NextFunction) => {
-        const { iduser } = req.params;
+        let { iduser } = req.params;
         if (!iduser) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least iduser as paramter !")
         try {
             const transaction = await connect.transaction();
@@ -231,10 +231,11 @@ export const __controllerUsers = {
             Users.findOne({
                 where: {
                     [Op.or]: [
-                        { id: iduser },
+                        { id: parseInt(iduser) },
                         { uuid: iduser }
                     ]
                 },
+                logging: true,
                 include: [
                     {
                         model: Roles,
@@ -280,8 +281,126 @@ export const __controllerUsers = {
                         }
                     } else {
                         transaction.rollback()
-                        return Responder(res, HttpStatusCode.Forbidden, "Phone | Email or Password incorrect !")
+                        return Responder(res, HttpStatusCode.NotFound, "User not found in the list of users !")
                     }
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    profile: async (req: Request, res: Response, next: NextFunction) => {
+        let { iduser } = req.params;
+        if (!iduser) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least iduser as paramter !")
+        try {
+            const transaction = await connect.transaction();
+
+            Users.belongsToMany(Roles, { through: Hasroles });
+            Roles.belongsToMany(Users, { through: Hasroles });
+
+            Provinces.hasOne(Users, { foreignKey: "id" });
+            Users.belongsTo(Provinces, { foreignKey: "idprovince" });
+
+            Territoires.hasOne(Users, { foreignKey: "id" });
+            Users.belongsTo(Territoires, { foreignKey: "idterritoire" });
+
+            Villages.hasOne(Users, { foreignKey: "id" });
+            Users.belongsTo(Villages, { foreignKey: "idvillage" });
+
+            Users.findOne({
+                where: {
+                    [Op.or]: [
+                        { id: parseInt(iduser) },
+                        { uuid: iduser }
+                    ]
+                },
+                include: [
+                    {
+                        model: Roles,
+                        required: true,
+                        attributes: ['id', 'role']
+                    },
+                    {
+                        model: Provinces,
+                        required: false,
+                        attributes: ['id', 'province']
+                    },
+                    {
+                        model: Territoires,
+                        required: false,
+                        attributes: ['id', 'territoire']
+                    },
+                    {
+                        model: Villages,
+                        required: false,
+                        attributes: ['id', 'village']
+                    }
+                ]
+            })
+                .then(user => {
+                    if (user instanceof Users) {
+                        const { password: aspassword, isvalidated, phone, date_naiss, nom } = user?.toJSON()
+                        if (isvalidated !== 1) {
+                            transaction.commit()
+                            return Responder(res, HttpStatusCode.Ok, user)
+                        }else{
+                            transaction.rollback()
+                            return Responder(res, HttpStatusCode.NotFound, {}) 
+                        }
+                    } else {
+                        transaction.rollback()
+                        return Responder(res, HttpStatusCode.NotFound, "User not found in the list of users !")
+                    }
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    list: async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const transaction = await connect.transaction();
+
+            Users.belongsToMany(Roles, { through: Hasroles });
+            Roles.belongsToMany(Users, { through: Hasroles });
+
+            Provinces.hasOne(Users, { foreignKey: "id" });
+            Users.belongsTo(Provinces, { foreignKey: "idprovince" });
+
+            Territoires.hasOne(Users, { foreignKey: "id" });
+            Users.belongsTo(Territoires, { foreignKey: "idterritoire" });
+
+            Villages.hasOne(Users, { foreignKey: "id" });
+            Users.belongsTo(Villages, { foreignKey: "idvillage" });
+
+            Users.findAndCountAll({
+                where: {
+                    isvalidated: 1
+                },
+                include: [
+                    {
+                        model: Roles,
+                        required: true,
+                        attributes: ['id', 'role']
+                    },
+                    {
+                        model: Provinces,
+                        required: false,
+                        attributes: ['id', 'province']
+                    },
+                    {
+                        model: Territoires,
+                        required: false,
+                        attributes: ['id', 'territoire']
+                    },
+                    {
+                        model: Villages,
+                        required: false,
+                        attributes: ['id', 'village']
+                    }
+                ]
+            })
+                .then(user => {
+                    transaction.commit()
+                    return Responder(res, HttpStatusCode.Ok, { ...user })
                 })
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
