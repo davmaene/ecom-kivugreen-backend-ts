@@ -42,6 +42,6 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`< ========== ${APP_NAME} TEST APP ON ${APP_PORT} ========== >`);
+    console.log(`< ========== > ${APP_NAME} TEST APP ON ${APP_PORT} < ========== >`);
 });
 
