@@ -53,3 +53,21 @@ export interface IVillages extends globalInterface {
     provincecode: string,
     idterritoire: number
 }
+
+export interface ICooperative extends globalInterface {
+    sigle?: string,
+    cooperative?: string,
+    id_province?: number,
+    id_territoire?: number,
+    id_responsable?: number,
+    id_adjoint?: number,
+    description: string,
+    coordonnees_gps?: string,
+    adresse: string,
+    phone: string,
+    email: string,
+    num_enregistrement: string,
+    file: string,
+    isformel?: number,
+    id_category?: number
+}
