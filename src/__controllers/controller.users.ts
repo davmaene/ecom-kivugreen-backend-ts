@@ -24,8 +24,9 @@ dotenv.config()
 const { APP_EXIPRES_IN_ADMIN, APP_EXIPRES_IN_ALL, APP_ESCAPESTRING, APP_NAME } = process.env
 
 export const __controllerUsers = {
-    auth: async (req: Request, res: Response, next: NextFunction) => {
+    signin: async (req: Request, res: Response, next: NextFunction) => {
         const { phone, password } = req.body;
+        const role = [1, 3, 2, 4, 5]// allowed roles to connect 
 
         try {
 
@@ -84,35 +85,240 @@ export const __controllerUsers = {
                             .then(verified => {
                                 if (verified) {
                                     if (isvalidated === 1) {
-                                        Middleware.onSignin({
-                                            expiresIn: APP_EXIPRES_IN_ADMIN || '45m',
-                                            data: {
-                                                phone: user && user['phone'],
-                                                uuid: user && user['uuid'],
-                                                __id: user && user['id'],
-                                                roles 
-                                            }
-                                        },
-                                            (reject: string, token: string) => {
-                                                if (token) {
-                                                    log(token)
-                                                    // user = formatUserModel({ model: user })
-                                                    if (user !== null) {
-                                                        if (user.hasOwnProperty('isvalidated')) {
-                                                            delete user['isvalidated']
-                                                        }
-                                                        if (user.hasOwnProperty('password')) {
-                                                            delete user['password']
-                                                        }
-                                                    }
-                                                    transaction.commit()
-                                                    return Responder(res, HttpStatusCode.Ok, { token, user })
-                                                } else {
-                                                    transaction.rollback()
-                                                    return Responder(res, HttpStatusCode.Forbidden, "Your refresh token already expired ! you must login to get a new one !")
+                                        if (Array.from(roles).some(r => role.includes(r))) {
+                                            Middleware.onSignin({
+                                                expiresIn: APP_EXIPRES_IN_ADMIN || '45m',
+                                                data: {
+                                                    phone: user && user['phone'],
+                                                    uuid: user && user['uuid'],
+                                                    __id: user && user['id'],
+                                                    roles
                                                 }
-                                            })
+                                            },
+                                                (reject: string, token: string) => {
+                                                    if (token) {
+                                                        // user = formatUserModel({ model: user })
+                                                        if (user !== null) {
+                                                            if (user.hasOwnProperty('isvalidated')) {
+                                                                delete user['isvalidated']
+                                                            }
+                                                            if (user.hasOwnProperty('password')) {
+                                                                delete user['password']
+                                                            }
+                                                        }
+                                                        transaction.commit()
+                                                        return Responder(res, HttpStatusCode.Ok, { token, user })
+                                                    } else {
+                                                        transaction.rollback()
+                                                        return Responder(res, HttpStatusCode.Forbidden, "Your refresh token already expired ! you must login to get a new one !")
+                                                    }
+                                                })
+                                        } else {
+                                            transaction.rollback()
+                                            return Responder(res, HttpStatusCode.Unauthorized, "You dont have right access please contact admin system !")
+                                        }
                                     } else {
+                                        transaction.rollback()
+                                        return Responder(res, HttpStatusCode.NotAcceptable, "Account not validated !")
+                                    }
+                                } else {
+                                    transaction.rollback()
+                                    return Responder(res, HttpStatusCode.Forbidden, "Phone | Email or Password incorrect !")
+                                }
+                            })
+                            .catch(err => {
+                                transaction.rollback()
+                                return Responder(res, HttpStatusCode.Forbidden, "Phone | Email or Password incorrect !")
+                            })
+                    } else {
+                        transaction.rollback()
+                        return Responder(res, HttpStatusCode.Forbidden, "Phone | Email or Password incorrect !")
+                    }
+                })
+                .catch(err => Responder(res, HttpStatusCode.Conflict, err))
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    signup: async (req: Request, res: Response, next: NextFunction) => {
+        const { nom, postnom, prenom, email, phone, adresse, idprovince, idterritoire, idvillage, date_naiss, genre, password, avatar } = req.body;
+        if (!nom || !postnom || !phone || !password)
+            return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least ==> nom & postnom & phone & password")
+        const code = randomLongNumber({ length: 6 })
+        const idroles: number[] = [5]
+
+        try {
+            const pwd = await hashPWD({ plaintext: password })
+            const transaction = await connect.transaction();
+            const uuid = uuidv4();
+
+            Users.create({
+                uuid,
+                nom: capitalizeWords({ text: nom }),
+                postnom: capitalizeWords({ text: postnom }),
+                prenom: prenom ? capitalizeWords({ text: prenom }) : APP_ESCAPESTRING,
+                email: email || fillphone({ phone }),
+                phone: fillphone({ phone }),
+                idprovince,
+                idterritoire,
+                idvillage,
+                date_naiss,
+                sexe: genre,
+                password: pwd
+            }, { transaction })
+                .then(user => {
+                    if (user instanceof Users) {
+
+                        user = user.toJSON();
+                        delete user['password'];
+                        delete user['idprovince'];
+                        delete user['idterritoire'];
+                        delete user['idvillage'];
+                        delete user['isvalidated'];
+                        const { id, } = user
+
+                        Services.addRoleToUser({
+                            inputs: {
+                                idroles,
+                                iduser: id
+                            },
+                            transaction,
+                            cb: (err: any, done: any) => {
+                                if (done) {
+                                    const { code } = done;
+                                    if (code === 200) {
+
+                                        if (email) {
+                                            let chaine = JSON.stringify({
+                                                email: email,
+                                                phone: user['phone'],
+                                            })
+                                        }
+
+                                        Services.onSendSMS({
+                                            is_flash: false,
+                                            to: fillphone({ phone }),
+                                            content: `Bonjour ${capitalizeWords({ text: nom })} votre compte a été crée avec succès. Ceci est votre code de vérirification ${code}`,
+                                        })
+                                        transaction.commit()
+                                        return Responder(res, HttpStatusCode.Created, user)
+                                    } else {
+                                        transaction.rollback()
+                                        return Responder(res, HttpStatusCode.InternalServerError, "Role not initialized correctly !")
+                                    }
+                                } else {
+                                    transaction.rollback()
+                                    return Responder(res, HttpStatusCode.InternalServerError, "Role not initialized correctly !")
+                                }
+                            }
+                        })
+                    } else return Responder(res, HttpStatusCode.BadRequest, user)
+                })
+                .catch(err => {
+                    transaction.rollback()
+                    const { name, errors } = err;
+                    const { message } = errors[0];
+                    return Responder(res, HttpStatusCode.Conflict, { name, error: message })
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    auth: async (req: Request, res: Response, next: NextFunction) => {
+        const { phone, password } = req.body;
+        const role = [1, 3, 2]// allowed roles to connect 
+
+        try {
+
+            const transaction = await connect.transaction();
+
+            Users.belongsToMany(Roles, { through: Hasroles });
+            Roles.belongsToMany(Users, { through: Hasroles });
+
+            Provinces.hasOne(Users, { foreignKey: "id" });
+            Users.belongsTo(Provinces, { foreignKey: "idprovince" });
+
+            Territoires.hasOne(Users, { foreignKey: "id" });
+            Users.belongsTo(Territoires, { foreignKey: "idterritoire" });
+
+            Villages.hasOne(Users, { foreignKey: "id" });
+            Users.belongsTo(Villages, { foreignKey: "idvillage" });
+
+            Users.findOne({
+                where: {
+                    [Op.or]: [
+                        { email: phone },
+                        { phone: fillphone({ phone }) }
+                    ]
+                },
+                include: [
+                    {
+                        model: Roles,
+                        required: true,
+                        attributes: ['id', 'role']
+                    },
+                    {
+                        model: Provinces,
+                        required: false,
+                        attributes: ['id', 'province']
+                    },
+                    {
+                        model: Territoires,
+                        required: false,
+                        attributes: ['id', 'territoire']
+                    },
+                    {
+                        model: Villages,
+                        required: false,
+                        attributes: ['id', 'village']
+                    }
+                ]
+            })
+                .then(user => {
+                    if (user instanceof Users) {
+                        const { password: aspassword, isvalidated, __tbl_ecom_roles } = user.toJSON();
+                        const roles = Array.from(__tbl_ecom_roles).map((role: any) => role['id']);
+                        comparePWD({
+                            hashedtext: aspassword || '',
+                            plaintext: password
+                        })
+                            .then(verified => {
+                                if (verified) {
+                                    if (isvalidated === 1) {
+                                        if (Array.from(roles).some(r => role.includes(r))) {
+                                            Middleware.onSignin({
+                                                expiresIn: APP_EXIPRES_IN_ADMIN || '45m',
+                                                data: {
+                                                    phone: user && user['phone'],
+                                                    uuid: user && user['uuid'],
+                                                    __id: user && user['id'],
+                                                    roles
+                                                }
+                                            },
+                                                (reject: string, token: string) => {
+                                                    if (token) {
+                                                        // user = formatUserModel({ model: user })
+                                                        if (user !== null) {
+                                                            if (user.hasOwnProperty('isvalidated')) {
+                                                                delete user['isvalidated']
+                                                            }
+                                                            if (user.hasOwnProperty('password')) {
+                                                                delete user['password']
+                                                            }
+                                                        }
+                                                        transaction.commit()
+                                                        return Responder(res, HttpStatusCode.Ok, { token, user })
+                                                    } else {
+                                                        transaction.rollback()
+                                                        return Responder(res, HttpStatusCode.Forbidden, "Your refresh token already expired ! you must login to get a new one !")
+                                                    }
+                                                })
+                                        } else {
+                                            transaction.rollback()
+                                            return Responder(res, HttpStatusCode.Unauthorized, "You dont have right access please contact admin system !")
+                                        }
+                                    } else {
+                                        transaction.rollback()
                                         return Responder(res, HttpStatusCode.NotAcceptable, "Account not validated !")
                                     }
                                 } else {
