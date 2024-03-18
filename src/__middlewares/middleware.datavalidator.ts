@@ -10,39 +10,44 @@ export const validateGender = (v: string) => {
     return ["M", "F"].indexOf(v) !== -1 ? true : false
 };
 
-export const validateIsformel = (v: number) => {
-    return [0, 1].indexOf(v) !== -1 ? true : false
+export const validateIsformel = (v: string) => {
+    v = (v ? v : '0')
+    return [0, 1].indexOf(parseInt(v)) !== -1 ? true : false
 };
 
-export const validateCategoryCoopec = (v: number) => {
+export const validateCategoryCoopec = (v: string) => {
     const categs = Array.from(categoriescooperatives).map(categ => categ['id'])
-    return [...categs].indexOf(v) !== -1 ? true : false
+    v = (v ? v : '0')
+    return [...categs].indexOf(parseInt(v)) !== -1 ? true : false
 };
 
 export const roleValidator = async (v: number[]) => {
     const t = (await Services.rawRolesAsTableOfIds());
     return v.every(index => [...t].indexOf((index)) !== -1 ? true : false)
-    // return [...t].indexOf((v)) !== -1 ? true : false;
 };
 
-export const provinceValidator = async (v: number) => {
+export const provinceValidator = async (v: string) => {
     const t = (await Services.rawProvincesAsTableOfIds());
-    return [...t].indexOf((v)) !== -1 ? true : false;
+    v = (v ? v : '0')
+    return [...t].indexOf(parseInt(v)) !== -1 ? true : false;
 };
 
-export const territoireValidator = async (v: number) => {
-    const t = (await Services.rawTerritoiresAsTableOfIds());
-    return [...t].indexOf((v)) !== -1 ? true : false;
+export const territoireValidator = async (v: string) => {
+    v = (v ? v : '0')
+    const t = (await Services.rawTerritoiresAsTableOfIds({ idprovince: parseInt(v) }));
+    return [...t].indexOf(parseInt(v)) !== -1 ? true : false;
 };
 
-export const userValidator = async (v: number) => {
+export const userValidator = async (v: string) => {
     const t = (await Services.rawUsersAsTableOfIds());
-    return [...t].indexOf((v)) !== -1 ? true : false;
+    v = (v ? v : '0')
+    return [...t].indexOf(parseInt(v)) !== -1 ? true : false;
 };
 
-export const villageValidator = async (v: number) => {
-    const t = (await Services.rawVillagesAsTableOfIds());
-    return [...t].indexOf((v)) !== -1 ? true : false;
+export const villageValidator = async (v: string) => {
+    v = (v ? v : '0')
+    const t = (await Services.rawVillagesAsTableOfIds({ idterritoire: parseInt(v) }));
+    return [...t].indexOf(parseInt(v)) !== -1 ? true : false;
 };
 
 export const coopecModelValidator = [
@@ -50,7 +55,6 @@ export const coopecModelValidator = [
     body('cooperative').notEmpty().isString().withMessage("name of `cooperative` is required and it can not be empty ! must be string"),
     body('id_province').isNumeric().custom(async (v, { req }) => {
         const validator = await provinceValidator(v);
-        log(v)
         return new Promise((resolve, reject) => {
             if (validator) resolve(true);
             else reject(false);
@@ -65,7 +69,6 @@ export const coopecModelValidator = [
     }).withMessage("`id_territoire` the value for id_territoire is not invalid ! this must be integer !"),
     body('id_responsable').isNumeric().custom(async (v, { req }) => {
         const validator = await userValidator(v);
-        log("Resposable == > ", v, validator)
         return new Promise((resolve, reject) => {
             if (validator) resolve(true);
             else reject(false);

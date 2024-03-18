@@ -1548,8 +1548,8 @@ export const Services = {
             return rows.map(r => r && r['id'])
         }
     },
-    rawTerritoiresAsTableOfIds: async () => {
-        const { count, rows } = await Territoires.findAndCountAll({ where: {}, raw: true, attributes: ['id'] });
+    rawTerritoiresAsTableOfIds: async ({ idprovince }: { idprovince: number }) => {
+        const { count, rows } = await Territoires.findAndCountAll({ where: { idprovince }, raw: true, attributes: ['id'] });
         if (count <= 0) return [];
         else {
             return rows.map(r => r && r['id'])
@@ -1562,7 +1562,7 @@ export const Services = {
             return rows.map(r => r && r['id'])
         }
     },
-    rawVillagesAsTableOfIds: async () => {
+    rawVillagesAsTableOfIds: async ({ idterritoire }: { idterritoire: number }) => {
         const { count, rows } = await Villages.findAndCountAll({ where: {}, raw: true, attributes: ['id'] });
         if (count <= 0) return [];
         else {
