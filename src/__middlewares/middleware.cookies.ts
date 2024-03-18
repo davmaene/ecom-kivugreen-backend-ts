@@ -12,6 +12,8 @@ if (!APPAPIKEY || !APPCOOKIESNAME)
 
 export const exludedRoutes: string[] = [
     "/users/user/register",
+    "/users/user/signin",
+    "/users/user/signup",
     "/users/user/auth",
 ];
 

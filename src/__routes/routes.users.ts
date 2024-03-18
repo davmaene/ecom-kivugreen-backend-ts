@@ -8,6 +8,7 @@ __routesUsers.post("/user/auth", onValidate(userModelOnSignin), __controllerUser
 __routesUsers.post("/user/signin", onValidate(userModelOnSignin), __controllerUsers.signin)
 __routesUsers.post("/user/signup", __controllerUsers.signup)
 __routesUsers.post("/user/register", onValidate(userModelValidator),__controllerUsers.register)
+__routesUsers.post("/user/add", onValidate(userModelValidator),__controllerUsers.register)
 __routesUsers.put("/user/validate/:iduser",__controllerUsers.validate)
 __routesUsers.get("/list",__controllerUsers.list)
 __routesUsers.get("/user/:iduser",__controllerUsers.profile)
