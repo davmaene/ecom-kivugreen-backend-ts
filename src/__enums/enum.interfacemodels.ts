@@ -33,6 +33,21 @@ export interface IHasrole extends globalInterface {
     TblEcomRoleId: number
 }
 
+export interface IUnite extends globalInterface {
+    unity?: string,
+    description?: string,
+    equival_kgs?: number
+}
+
+export interface Produit extends globalInterface {
+    produit?: string,
+    description?: string,
+    id_unity?: number,
+    image?: string,
+    id_category?: number,
+    id_souscategory?: number
+}
+
 export interface IHasmember extends globalInterface {
     TblEcomUserId: number,
     TblEcomCooperativesId: number
