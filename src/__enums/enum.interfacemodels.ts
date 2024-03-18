@@ -39,7 +39,7 @@ export interface IUnite extends globalInterface {
     equival_kgs?: number
 }
 
-export interface Produit extends globalInterface {
+export interface IProduit extends globalInterface {
     produit?: string,
     description?: string,
     id_unity?: number,
