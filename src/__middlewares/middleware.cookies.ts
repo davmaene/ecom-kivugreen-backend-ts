@@ -11,7 +11,6 @@ if (!APPAPIKEY || !APPCOOKIESNAME)
     throw Error("The variables APPAPIKEY or APPCOOKIESNAME is not defined in environement variable !")
 
 export const exludedRoutes: string[] = [
-    "/users/user/register",
     "/users/user/signin",
     "/users/user/signup",
     "/users/user/auth",
