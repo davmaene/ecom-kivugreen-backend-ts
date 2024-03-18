@@ -1,4 +1,4 @@
-import randomstring from "ts-randomstring/lib";
+import { generateRandomString } from "ts-randomstring/lib";
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -14,7 +14,7 @@ export const generateIdentifier = ({ prefix }: { prefix: string }) => {
 
 export const generateFilename = ({ prefix, tempname }: { prefix: string, tempname: string }) => {
     const extension = tempname.substring(tempname.lastIndexOf("."));
-    return `${prefix ? prefix + "-" : ""}${randomstring.generateRandomString()}${extension}`;
+    return `${prefix ? prefix + "-" : ""}${generateRandomString({ length: 23 })}${extension}`;
 };
 
 export const randomLongNumber = ({ length }: { length: number }) => {
@@ -44,4 +44,4 @@ export const randomLongNumberWithPrefix = ({ length }: { length: number }) => {
     return `${prefix}${m.trim()}`;
 };
 
-export const randomString = () => randomstring.generateRandomString({ length: 32 })
+export const randomString = () => generateRandomString({ length: 32 })

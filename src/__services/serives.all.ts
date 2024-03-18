@@ -1569,14 +1569,14 @@ export const Services = {
             return rows.map(r => r && r['id'])
         }
     },
-    uploadfile: async ({ inputs: { file, type, saveas } }: { inputs: { file: any, type: string, saveas: string } }) => {
+    uploadfile: async ({ inputs: { file, type, saveas } }: { inputs: { file: any, type: string, saveas: string } }): Promise<{ code: number, message: string, data: any }> => {
         return new Promise((resolve, reject) => {
             if (!file || !type) return reject({ code: 401, message: "This request must have at least file, and type of file !", data: { file, type } });
             try {
-                tempfolder = saveas ? `as_assets` : tempfolder;
+                tempfolder = saveas || tempfolder;
                 const __file = file['files'][type];
                 const filename = generateFilename({ prefix: type, tempname: __file['name'] });
-                const uploadPath = 'assets/' + tempfolder + '/' + filename;
+                const uploadPath = 'src/__assets/' + tempfolder + '/' + filename;
 
                 __file.mv(uploadPath, function (err: any) {
                     if (err) return reject({ code: 500, message: "An error was occured when trying to upload file", data: err })

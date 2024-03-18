@@ -32,9 +32,10 @@ export const provinceValidator = async (v: string) => {
     return [...t].indexOf(parseInt(v)) !== -1 ? true : false;
 };
 
-export const territoireValidator = async (v: string) => {
+export const territoireValidator = async ({ v, vv }: { v: string, vv: string }) => {
     v = (v ? v : '0')
-    const t = (await Services.rawTerritoiresAsTableOfIds({ idprovince: parseInt(v) }));
+    vv = (vv ? vv : '0')
+    const t = (await Services.rawTerritoiresAsTableOfIds({ idprovince: parseInt(vv) }));
     return [...t].indexOf(parseInt(v)) !== -1 ? true : false;
 };
 
@@ -61,7 +62,8 @@ export const coopecModelValidator = [
         });
     }).withMessage("`id_province` the value for id_province is not invalid ! this must be integer !"),
     body('id_territoire').isNumeric().custom(async (v, { req }) => {
-        const validator = await territoireValidator(v);
+        const { id_province } = req.body
+        const validator = await territoireValidator({ v, vv: id_province });
         return new Promise((resolve, reject) => {
             if (validator) resolve(true);
             else reject(false);
@@ -86,7 +88,6 @@ export const coopecModelValidator = [
     body('adresse').optional().isAscii().withMessage("`adresse` is required and it can not be empty ! must be string"),
     body('phone').notEmpty().isMobilePhone('fr-CD').trim().withMessage("`phone` the value entered for the phone it seems to be not a valide phone number !"),
     body('email').optional().isEmail().trim().withMessage("`email` the value entered for email it seems to be not a valide email adresse !"),
-    // body('file').optional().isF().trim().withMessage("`file` the value entered for email it seems to be not a valide email adresse !"),
     body('isformel').notEmpty().isNumeric().isLength({ max: 1, min: 1 }).custom(validateIsformel).withMessage("`isformel` the value for isformel is not invalid ! this can only be 1 or 0"),
     body('id_category').notEmpty().isNumeric().isLength({ max: 1, min: 1 }).custom(validateCategoryCoopec).withMessage("`id_category` the value for id_category is not invalid ! this can only be 1 or 0"),
 ]
