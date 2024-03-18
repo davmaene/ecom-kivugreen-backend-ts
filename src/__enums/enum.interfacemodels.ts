@@ -71,3 +71,14 @@ export interface ICooperative extends globalInterface {
     isformel?: number,
     id_category?: number
 }
+
+export interface ICategorie extends globalInterface {
+    category?: string,
+    description?: string
+}
+
+export interface ISCategorie extends globalInterface {
+    souscategory?: string,
+    id_category?: number,
+    description?: string
+}
