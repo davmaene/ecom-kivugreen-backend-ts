@@ -105,3 +105,7 @@
 ::ffff:127.0.0.1 - - [18/Mar/2024:21:01:39 +0000] "POST /api/cooperatives/cooperative/add HTTP/1.1" 422 509 "-" "PostmanRuntime/7.36.3"
 ::ffff:127.0.0.1 - - [18/Mar/2024:21:05:25 +0000] "POST /api/cooperatives/cooperative/add HTTP/1.1" 422 553 "-" "PostmanRuntime/7.36.3"
 ::ffff:127.0.0.1 - - [18/Mar/2024:21:05:45 +0000] "POST /api/cooperatives/cooperative/add HTTP/1.1" 422 221 "-" "PostmanRuntime/7.36.3"
+::ffff:127.0.0.1 - - [18/Mar/2024:21:20:45 +0000] "GET /api/territoires/list HTTP/1.1" 200 58 "-" "PostmanRuntime/7.36.3"
+::ffff:127.0.0.1 - - [18/Mar/2024:21:22:37 +0000] "GET /api/territoires/list HTTP/1.1" 200 20004 "-" "PostmanRuntime/7.36.3"
+::ffff:127.0.0.1 - - [18/Mar/2024:21:23:12 +0000] "GET /api/territoires/list HTTP/1.1" 200 20274 "-" "PostmanRuntime/7.36.3"
+::ffff:127.0.0.1 - - [18/Mar/2024:21:24:17 +0000] "GET /api/territoires/listbyprovince/19 HTTP/1.1" 200 524 "-" "PostmanRuntime/7.36.3"
