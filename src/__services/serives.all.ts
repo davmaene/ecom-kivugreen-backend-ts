@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import axios from 'axios';
 import { Hasroles } from '../__models/model.hasroles';
-import { randomLongNumber } from '../__helpers/helper.random';
+import { generateFilename, randomLongNumber } from '../__helpers/helper.random';
 import { capitalizeWords } from '../__helpers/helper.all';
 import nodemailer from 'nodemailer';
 import { Roles } from '../__models/model.roles';
@@ -15,6 +15,8 @@ import { Users } from '../__models/model.users';
 dotenv.config()
 
 const { API_SMS_ENDPOINT, APP_NAME, API_SMS_TOKEN, API_SMS_IS_FLASH } = process.env
+
+let tempfolder: string = 'as_assets'
 
 export const Services = {
     onSendSMS: async ({ to, content, is_flash }: { to: string, content: string, is_flash: boolean }) => {
@@ -1567,4 +1569,23 @@ export const Services = {
             return rows.map(r => r && r['id'])
         }
     },
+    uploadfile: async ({ inputs: { file, type, saveas } }: { inputs: { file: any, type: string, saveas: string } }) => {
+        return new Promise((resolve, reject) => {
+            if (!file || !type) return reject({ code: 401, message: "This request must have at least file, and type of file !", data: { file, type } });
+            try {
+                tempfolder = saveas ? `as_assets` : tempfolder;
+                const __file = file['files'][type];
+                const filename = generateFilename({ prefix: type, tempname: __file['name'] });
+                const uploadPath = 'assets/' + tempfolder + '/' + filename;
+
+                __file.mv(uploadPath, function (err: any) {
+                    if (err) return reject({ code: 500, message: "An error was occured when trying to upload file", data: err })
+                    else return resolve({ code: 200, message: "File uploaded done", data: { filename, fullpath: uploadPath } })
+                });
+
+            } catch (error) {
+                return reject({ code: 500, message: "An error was occured !", data: error })
+            }
+        })
+    }
 }

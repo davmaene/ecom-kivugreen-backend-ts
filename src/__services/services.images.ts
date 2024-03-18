@@ -7,7 +7,6 @@ let tempfolder = 'as_tempfolder';
 export const ServiceImage = {
 
     onUploadImage: async ({ inputs: { file, type, saveas }, callBack }: { inputs: { file: any, type: string, saveas: string }, callBack: Function }) => {
-        // const { file, type, saveas } = inputs;
         if (!file || !type) return callBack(undefined, { code: 401, message: "This request must have at least file, and type of file !", data: { file, type, saveas } });
         try {
             tempfolder = saveas ? `as_assets` : tempfolder;

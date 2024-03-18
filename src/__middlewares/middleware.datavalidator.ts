@@ -47,30 +47,30 @@ export const villageValidator = async (v: number) => {
 
 export const coopecModelValidator = [
     body('sigle').notEmpty().isAscii().withMessage("`sigle` is required and it can not be empty ! must be string"),
-    body('cooperative').notEmpty().isAscii().withMessage("name of `cooperative` is required and it can not be empty ! must be string"),
-    body('id_province').optional().isNumeric().custom(async (v, { req }) => {
+    body('cooperative').notEmpty().isString().withMessage("name of `cooperative` is required and it can not be empty ! must be string"),
+    body('id_province').isNumeric().custom(async (v, { req }) => {
         const validator = await provinceValidator(v);
         return new Promise((resolve, reject) => {
             if (validator) resolve(true);
             else reject(false);
         });
     }).withMessage("`id_province` the value for id_province is not invalid ! this must be integer !"),
-    body('id_territoire').optional().isNumeric().custom(async (v, { req }) => {
+    body('id_territoire').isNumeric().custom(async (v, { req }) => {
         const validator = await territoireValidator(v);
         return new Promise((resolve, reject) => {
             if (validator) resolve(true);
             else reject(false);
         });
     }).withMessage("`id_territoire` the value for id_territoire is not invalid ! this must be integer !"),
-    body('id_responsable').optional().isNumeric().custom(async (v, { req }) => {
-        const validator = await territoireValidator(v);
+    body('id_responsable').isNumeric().custom(async (v, { req }) => {
+        const validator = await userValidator(v);
         return new Promise((resolve, reject) => {
             if (validator) resolve(true);
             else reject(false);
         });
     }).withMessage("`id_responsable` the value for id_responsable is not invalid ! this must be integer !"),
-    body('id_adjoint').optional().isNumeric().custom(async (v, { req }) => {
-        const validator = await territoireValidator(v);
+    body('id_adjoint').isNumeric().custom(async (v, { req }) => {
+        const validator = await userValidator(v);
         return new Promise((resolve, reject) => {
             if (validator) resolve(true);
             else reject(false);
@@ -81,7 +81,7 @@ export const coopecModelValidator = [
     body('adresse').optional().isAscii().withMessage("`adresse` is required and it can not be empty ! must be string"),
     body('phone').notEmpty().isMobilePhone('fr-CD').trim().withMessage("`phone` the value entered for the phone it seems to be not a valide phone number !"),
     body('email').optional().isEmail().trim().withMessage("`email` the value entered for email it seems to be not a valide email adresse !"),
-    body('file').optional().isEmail().trim().withMessage("`file` the value entered for email it seems to be not a valide email adresse !"),
+    // body('file').optional().isF().trim().withMessage("`file` the value entered for email it seems to be not a valide email adresse !"),
     body('isformel').notEmpty().isNumeric().isLength({ max: 1, min: 1 }).custom(validateIsformel).withMessage("`isformel` the value for isformel is not invalid ! this can only be 1 or 0"),
     body('id_category').notEmpty().isNumeric().isLength({ max: 1, min: 1 }).custom(validateCategoryCoopec).withMessage("`id_category` the value for id_category is not invalid ! this can only be 1 or 0"),
 ]
