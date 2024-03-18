@@ -11,6 +11,7 @@ import { Villages } from '../__models/model.villages';
 import { completeCodeCountryToPhoneNumber } from '../__helpers/helper.fillphone';
 import { log } from 'console';
 import { Users } from '../__models/model.users';
+import { Hasmembers } from '../__models/model.hasmembers';
 
 dotenv.config()
 
@@ -1525,6 +1526,25 @@ export const Services = {
                         id: parseInt(randomLongNumber({ length: 6 })),
                         TblEcomRoleId: role,
                         TblEcomUserId: iduser
+                    }, { transaction })
+                    done.push(r)
+                }
+                return cb(undefined, { code: 200, message: "Done", data: done })
+            }
+        } catch (error) {
+            return cb(undefined, { code: 500, message: "Error", data: error })
+        }
+    },
+    addMembersToCoopec: async ({ inputs: { idmembers, idcooperative }, transaction, cb }: { inputs: { idmembers?: number[], idcooperative: number }, transaction: any, cb: Function }) => {
+        if (!idmembers || !idcooperative) return cb(undefined, { code: 401, message: "This request must have at least !", data: { idmembers, idcooperative } });
+        try {
+            if (Array.isArray(idmembers)) {
+                const done = []
+                for (let member of idmembers) {
+                    const r = await Hasmembers.create({
+                        id: parseInt(randomLongNumber({ length: 6 })),
+                        TblEcomCooperativeId: idcooperative,
+                        TblEcomUserId: member
                     }, { transaction })
                     done.push(r)
                 }

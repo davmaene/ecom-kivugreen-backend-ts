@@ -20,7 +20,7 @@ export const Hasmembers = connect.define<Hasmember>('__tbl_ecom_hasmembers', {
             key: 'id'
         }
     },
-    TblEcomCooperativesId: {
+    TblEcomCooperativeId: {
         type: DataTypes.INTEGER,
         references: {
             model: Roles,
@@ -34,7 +34,7 @@ export const Hasmembers = connect.define<Hasmember>('__tbl_ecom_hasmembers', {
     indexes: [
         {
             unique: true,
-            fields: ['TblEcomCooperativesId', 'TblEcomUserId']
+            fields: ['TblEcomCooperativeId', 'TblEcomUserId']
         }
     ]
 });

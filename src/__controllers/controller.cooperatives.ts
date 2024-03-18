@@ -5,11 +5,13 @@ import { NextFunction, Request, Response } from "express"
 import { Services } from "../__services/serives.all"
 import { log } from "console"
 import { Users } from "../__models/model.users"
+import { Hasmembers } from "../__models/model.hasmembers"
 
 export const __controllerCooperatives = {
     list: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            Cooperatives.belongsTo(Users, {foreignKey: "id_responsable"})
+            Users.belongsToMany(Cooperatives, { through: Hasmembers });
+            Cooperatives.belongsToMany(Users, { through: Hasmembers });
             Cooperatives.findAndCountAll({
                 where: {},
                 include: [
@@ -48,7 +50,7 @@ export const __controllerCooperatives = {
                 if (code === 200) {
                     const { filename, fullpath } = data
                     payload['file'] = fullpath
-                }else{
+                } else {
                     return Responder(res, HttpStatusCode.NotAcceptable, "The file was not successfuly uploaded, Error on uploading the file !")
                 }
             }
@@ -62,16 +64,43 @@ export const __controllerCooperatives = {
             Cooperatives.create({
                 ...payload
             })
-            .then(coopec => {
-                if(coopec instanceof Cooperatives) return Responder(res, HttpStatusCode.Ok, coopec)
-                else return Responder(res, HttpStatusCode.Conflict, coopec)
-            })
-            .catch(err => {
-                return Responder(res, HttpStatusCode.Conflict, err)
-            })
+                .then(coopec => {
+                    if (coopec instanceof Cooperatives) return Responder(res, HttpStatusCode.Ok, coopec)
+                    else return Responder(res, HttpStatusCode.Conflict, coopec)
+                })
+                .catch(err => {
+                    return Responder(res, HttpStatusCode.Conflict, err)
+                })
 
         } catch (error) {
             log(error)
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    addmemebers: async (req: Request, res: Response, next: NextFunction) => {
+        const { ids_members, id_cooperative } = req.body;
+        if (!ids_members || !id_cooperative) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least ids_members and id_cooperative !")
+        try {
+            Services.addMembersToCoopec({
+                inputs: {
+                    idcooperative: parseInt(id_cooperative),
+                    idmembers: [...ids_members],
+                },
+                transaction: null,
+                cb: (err: any, done: any) => {
+                    if (done) {
+                        const { code, message, data } = done;
+                        if (code === 200) {
+                            return Responder(res, HttpStatusCode.Ok, data)
+                        } else {
+                            return Responder(res, HttpStatusCode.InternalServerError, "Error on initializing members table !")
+                        }
+                    } else {
+                        return Responder(res, HttpStatusCode.InternalServerError, "Error on initializing members table !")
+                    }
+                }
+            })
+        } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     }

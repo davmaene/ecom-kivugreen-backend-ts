@@ -50,7 +50,7 @@ export interface IProduit extends globalInterface {
 
 export interface IHasmember extends globalInterface {
     TblEcomUserId: number,
-    TblEcomCooperativesId: number
+    TblEcomCooperativeId: number
 }
 
 export interface IProvinces {
