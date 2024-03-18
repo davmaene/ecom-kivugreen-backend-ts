@@ -18,5 +18,12 @@ export const __controllerCooperatives = {
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
+    },
+    add: async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
     }
 }

@@ -4,9 +4,19 @@ import { Services } from '../__services/serives.all';
 import { HttpStatusCode } from '../__enums/enum.httpsstatuscode';
 import { Responder } from '../__helpers/helper.responseserver';
 import { log } from 'console';
+import { categoriescooperatives } from '../__enums/enum.categoriescooperatives';
 
 export const validateGender = (v: string) => {
     return ["M", "F"].indexOf(v) !== -1 ? true : false
+};
+
+export const validateIsformel = (v: number) => {
+    return [0, 1].indexOf(v) !== -1 ? true : false
+};
+
+export const validateCategoryCoopec = (v: number) => {
+    const categs = Array.from(categoriescooperatives).map(categ => categ['id'])
+    return [...categs].indexOf(v) !== -1 ? true : false
 };
 
 export const roleValidator = async (v: number[]) => {
@@ -25,10 +35,56 @@ export const territoireValidator = async (v: number) => {
     return [...t].indexOf((v)) !== -1 ? true : false;
 };
 
+export const userValidator = async (v: number) => {
+    const t = (await Services.rawUsersAsTableOfIds());
+    return [...t].indexOf((v)) !== -1 ? true : false;
+};
+
 export const villageValidator = async (v: number) => {
     const t = (await Services.rawVillagesAsTableOfIds());
     return [...t].indexOf((v)) !== -1 ? true : false;
 };
+
+export const coopecModelValidator = [
+    body('sigle').notEmpty().isAscii().withMessage("`sigle` is required and it can not be empty ! must be string"),
+    body('cooperative').notEmpty().isAscii().withMessage("name of `cooperative` is required and it can not be empty ! must be string"),
+    body('id_province').optional().isNumeric().custom(async (v, { req }) => {
+        const validator = await provinceValidator(v);
+        return new Promise((resolve, reject) => {
+            if (validator) resolve(true);
+            else reject(false);
+        });
+    }).withMessage("`id_province` the value for id_province is not invalid ! this must be integer !"),
+    body('id_territoire').optional().isNumeric().custom(async (v, { req }) => {
+        const validator = await territoireValidator(v);
+        return new Promise((resolve, reject) => {
+            if (validator) resolve(true);
+            else reject(false);
+        });
+    }).withMessage("`id_territoire` the value for id_territoire is not invalid ! this must be integer !"),
+    body('id_responsable').optional().isNumeric().custom(async (v, { req }) => {
+        const validator = await territoireValidator(v);
+        return new Promise((resolve, reject) => {
+            if (validator) resolve(true);
+            else reject(false);
+        });
+    }).withMessage("`id_responsable` the value for id_responsable is not invalid ! this must be integer !"),
+    body('id_adjoint').optional().isNumeric().custom(async (v, { req }) => {
+        const validator = await territoireValidator(v);
+        return new Promise((resolve, reject) => {
+            if (validator) resolve(true);
+            else reject(false);
+        });
+    }).withMessage("`id_adjoint` the value for id_adjoint is not invalid ! this must be integer !"),
+    body('description').notEmpty().isAscii().withMessage("`description` is required and it can not be empty ! must be string"),
+    body('coordonnees_gps').optional().isAscii().withMessage("`coordonnees_gps` is required and it can not be empty ! must be string"),
+    body('adresse').optional().isAscii().withMessage("`adresse` is required and it can not be empty ! must be string"),
+    body('phone').notEmpty().isMobilePhone('fr-CD').trim().withMessage("`phone` the value entered for the phone it seems to be not a valide phone number !"),
+    body('email').optional().isEmail().trim().withMessage("`email` the value entered for email it seems to be not a valide email adresse !"),
+    body('file').optional().isEmail().trim().withMessage("`file` the value entered for email it seems to be not a valide email adresse !"),
+    body('isformel').notEmpty().isNumeric().isLength({ max: 1, min: 1 }).custom(validateIsformel).withMessage("`isformel` the value for isformel is not invalid ! this can only be 1 or 0"),
+    body('id_category').notEmpty().isNumeric().isLength({ max: 1, min: 1 }).custom(validateCategoryCoopec).withMessage("`id_category` the value for id_category is not invalid ! this can only be 1 or 0"),
+]
 
 export const userModelValidator = [
     body('nom').notEmpty().isAscii().withMessage("`nom` is required and it can not be empty !"),

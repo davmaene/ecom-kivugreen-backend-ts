@@ -10,6 +10,7 @@ import { Territoires } from '../__models/model.territoires';
 import { Villages } from '../__models/model.villages';
 import { completeCodeCountryToPhoneNumber } from '../__helpers/helper.fillphone';
 import { log } from 'console';
+import { Users } from '../__models/model.users';
 
 dotenv.config()
 
@@ -1547,6 +1548,13 @@ export const Services = {
     },
     rawTerritoiresAsTableOfIds: async () => {
         const { count, rows } = await Territoires.findAndCountAll({ where: {}, raw: true, attributes: ['id'] });
+        if (count <= 0) return [];
+        else {
+            return rows.map(r => r && r['id'])
+        }
+    },
+    rawUsersAsTableOfIds: async () => {
+        const { count, rows } = await Users.findAndCountAll({ where: {}, raw: true, attributes: ['id'] });
         if (count <= 0) return [];
         else {
             return rows.map(r => r && r['id'])
