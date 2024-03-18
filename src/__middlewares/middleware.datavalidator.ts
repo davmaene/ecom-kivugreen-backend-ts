@@ -50,6 +50,7 @@ export const coopecModelValidator = [
     body('cooperative').notEmpty().isString().withMessage("name of `cooperative` is required and it can not be empty ! must be string"),
     body('id_province').isNumeric().custom(async (v, { req }) => {
         const validator = await provinceValidator(v);
+        log(v)
         return new Promise((resolve, reject) => {
             if (validator) resolve(true);
             else reject(false);
@@ -64,6 +65,7 @@ export const coopecModelValidator = [
     }).withMessage("`id_territoire` the value for id_territoire is not invalid ! this must be integer !"),
     body('id_responsable').isNumeric().custom(async (v, { req }) => {
         const validator = await userValidator(v);
+        log("Resposable == > ", v, validator)
         return new Promise((resolve, reject) => {
             if (validator) resolve(true);
             else reject(false);
