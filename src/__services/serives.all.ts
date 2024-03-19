@@ -1531,8 +1531,8 @@ export const Services = {
                 }
                 return cb(undefined, { code: 200, message: "Done", data: done })
             }
-        } catch (error) {
-            return cb(undefined, { code: 500, message: "Error", data: error })
+        } catch (error: any) {
+            return cb(undefined, { code: 500, message: "Error", data: error.toString() })
         }
     },
     addMembersToCoopec: async ({ inputs: { idmembers, idcooperative }, transaction, cb }: { inputs: { idmembers?: number[], idcooperative: number }, transaction: any, cb: Function }) => {

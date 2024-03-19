@@ -5,6 +5,7 @@ import { __routesServices } from "./routes.services";
 import { __routesCooperatives } from "./routes.cooperatives";
 import { __routesProvinces } from "./routes.provinces";
 import { __routesTerritoires } from "./routes.territoires";
+import { __routesProduits } from "./routes.produits";
 
 export const routes = express.Router();
 
@@ -14,4 +15,5 @@ routes.use('/services', __routesServices)
 routes.use('/cooperatives', __routesCooperatives)
 routes.use('/provinces', __routesProvinces)
 routes.use('/territoires', __routesTerritoires)
+routes.use('/produits', __routesProduits)
 

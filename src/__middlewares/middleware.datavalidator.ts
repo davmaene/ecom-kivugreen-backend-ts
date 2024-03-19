@@ -92,6 +92,14 @@ export const coopecModelValidator = [
     body('id_category').notEmpty().isNumeric().isLength({ max: 1, min: 1 }).custom(validateCategoryCoopec).withMessage("`id_category` the value for id_category is not invalid ! this can only be 1 or 0"),
 ]
 
+export const produitValidator = [
+    body('produit').notEmpty().isAscii().withMessage("the name of the `produit` is required and it can not be empty !"),
+    body('description').notEmpty().isAscii().withMessage("`description` is required and it can not be empty !"),
+    body('id_unity').notEmpty().isAscii().withMessage("`id_unity` is required and it can not be empty !"),
+    body('id_category').notEmpty().isAscii().withMessage("`id_category` is required and it can not be empty !"),
+    body('id_souscategory').notEmpty().isAscii().withMessage("`id_souscategory` is required and it can not be empty !"),
+]
+
 export const userModelValidator = [
     body('nom').notEmpty().isAscii().withMessage("`nom` is required and it can not be empty !"),
     body('postnom').notEmpty().isAscii().withMessage("`postnom` is required and it can not be empty !"),

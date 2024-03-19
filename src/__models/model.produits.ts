@@ -15,6 +15,7 @@ export const Produits = connect.define<Produit>('__tbl_ecom_produits', {
     id_category: DataTypes.STRING,
     id_souscategory: DataTypes.STRING,
     description: DataTypes.STRING,
+    createdby: DataTypes.INTEGER,
 
 }, { paranoid: true, timestamps: false, freezeTableName: true });
 

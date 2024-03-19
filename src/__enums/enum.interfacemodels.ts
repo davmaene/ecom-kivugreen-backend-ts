@@ -45,7 +45,8 @@ export interface IProduit extends globalInterface {
     id_unity?: number,
     image?: string,
     id_category?: number,
-    id_souscategory?: number
+    id_souscategory?: number,
+    createdby?: number
 }
 
 export interface IHasmember extends globalInterface {

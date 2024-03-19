@@ -23,11 +23,12 @@ export const __controllerRoles = {
         }
     },
     addtouser: async (req: Request, res: Response, next: NextFunction) => {
-        const { idrole, iduser } = req.body;
+        const { id_role, id_user } = req.body;
         try {
             Services.addRoleToUser({
                 inputs: {
-                    idroles: [idrole]
+                    idroles: [id_role],
+                    iduser: id_user
                 },
                 transaction: null,
                 cb: (err: any, ro: any) => {
@@ -35,8 +36,8 @@ export const __controllerRoles = {
                         const { code, message, data } = ro
                         if (code === 200) {
                             return Responder(res, HttpStatusCode.Ok, ro)
-                        }else return Responder(res, HttpStatusCode.BadRequest, ro)
-                    } else return Responder(res, HttpStatusCode.BadRequest, ro)
+                        }else return Responder(res, HttpStatusCode.BadRequest, data)
+                    } else return Responder(res, HttpStatusCode.BadRequest, err)
                 }
             })
         } catch (error) {
