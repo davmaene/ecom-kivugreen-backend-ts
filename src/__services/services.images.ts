@@ -26,8 +26,6 @@ export const ServiceImage = {
     },
 
     onRemoveBGFromImage: async ({ inputs: { filename, directory, saveas, fullpath }, callBack }: { inputs: { filename: string, directory: string, saveas: string, fullpath: string }, callBack: Function }) => {
-        // const { filename, directory, saveas,fullpath } = inputs;
-        // log(inputs)
         if (!filename || !callBack || !directory) return callBack(undefined, { code: 401, message: "This request must have at least {input: filename} and callback" });
         (async () => {
             const input = sharp(fullpath);
@@ -38,12 +36,6 @@ export const ServiceImage = {
 
             const output = await rembg.remove(input);
             const path = `src/__assets/${directory}/`;
-
-            // await output.webp().toFile(`assets/avatar/${filename}`);
-            // output.jpeg().toFile()
-
-            // optionally you can use .trim() too!
-            // ${randomstring.generate({ length: 32, readable: true, capitalization: true })}.webp
 
             output.trim().jpeg().toFile(`${path}${filename}`)
                 .then(rmvd => {
