@@ -25,9 +25,9 @@ export const ServiceImage = {
         }
     },
 
-    onRemoveBGFromImage: async ({ inputs, callBack }: { inputs: any, callBack: Function }) => {
-        const { filename, directory, saveas,fullpath } = inputs;
-        log(inputs)
+    onRemoveBGFromImage: async ({ inputs: { filename, directory, saveas, fullpath }, callBack }: { inputs: { filename: string, directory: string, saveas: string, fullpath: string }, callBack: Function }) => {
+        // const { filename, directory, saveas,fullpath } = inputs;
+        // log(inputs)
         if (!filename || !callBack || !directory) return callBack(undefined, { code: 401, message: "This request must have at least {input: filename} and callback" });
         (async () => {
             const input = sharp(fullpath);
@@ -45,7 +45,7 @@ export const ServiceImage = {
             // optionally you can use .trim() too!
             // ${randomstring.generate({ length: 32, readable: true, capitalization: true })}.webp
 
-            output.trim().webp().toFile(`${path}${filename}`)
+            output.trim().jpeg().toFile(`${path}${filename}`)
                 .then(rmvd => {
                     return callBack(undefined, { code: 200, message: "Done removing bg", data: { ...rmvd, filename, path: `${path + filename}` } })
                 })

@@ -10,6 +10,8 @@ import morgan from 'morgan';
 import fileUpload from 'express-fileupload'
 import { accessValidator } from "../__middlewares/middleware.accessvalidator";
 import { routes } from "../__routes/index";
+import { ServiceImage } from '../__services/services.images';
+import { log } from 'console';
 
 dotenv.config();
 
@@ -37,6 +39,17 @@ const ___logAccess = fs.createWriteStream(path.join(__dirname, 'access.log'), { 
 app.use(morgan("combined", { stream: ___logAccess }));
 
 app.get('/', (req: Request, res: Response, next: NextFunction) => {
+    ServiceImage.onRemoveBGFromImage({
+        inputs: {
+            directory: '/',
+            filename: 'image-FOMXDGpKl2cMktE5N3rnqlS.jpg',
+            fullpath: "src/__assets/as_images/image-FOMXDGpKl2cMktE5N3rnqlS.jpg",
+            saveas: 'as_images'
+        },
+        callBack: (err: any, done: any) => {
+            log(done, err)
+        }
+    })
     return Responder(res, HttpStatusCode.Ok, { ...HttpStatusMessages })
 })
 

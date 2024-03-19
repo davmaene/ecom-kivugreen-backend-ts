@@ -31,7 +31,6 @@ export const __controllerProduits = {
                                     directory: saveas
                                 },
                                 callBack: (er: any, success: any) => {
-                                    log(er, success)
                                     if (success) {
                                         const { code, message, data } = success;
                                         if (code === 200) {
