@@ -1,3 +1,4 @@
+import { log } from "console";
 import { generateFilename } from "../__helpers/helper.random";
 import { Rembg } from "rembg-node";
 import sharp from "sharp";
@@ -12,7 +13,7 @@ export const ServiceImage = {
             tempfolder = saveas ? `as_assets` : tempfolder;
             const __file = file['files'][type];
             const filename = generateFilename({ prefix: type, tempname: __file['name'] });
-            const uploadPath = 'assets/' + tempfolder + '/' + filename;
+            const uploadPath = 'src/__assets/' + tempfolder + '/' + filename;
 
             __file.mv(uploadPath, function (err: any) {
                 if (err) return callBack(undefined, { code: 500, message: "An error was occured when trying to upload file", data: err })
@@ -25,17 +26,18 @@ export const ServiceImage = {
     },
 
     onRemoveBGFromImage: async ({ inputs, callBack }: { inputs: any, callBack: Function }) => {
-        const { filename, directory } = inputs;
+        const { filename, directory, saveas,fullpath } = inputs;
+        log(inputs)
         if (!filename || !callBack || !directory) return callBack(undefined, { code: 401, message: "This request must have at least {input: filename} and callback" });
         (async () => {
-            const input = sharp(`assets/${tempfolder}/${filename}`);
+            const input = sharp(fullpath);
 
             const rembg = new Rembg({
                 logging: true,
             });
 
             const output = await rembg.remove(input);
-            const path = `assets/${directory}/`;
+            const path = `src/__assets/${directory}/`;
 
             // await output.webp().toFile(`assets/avatar/${filename}`);
             // output.jpeg().toFile()

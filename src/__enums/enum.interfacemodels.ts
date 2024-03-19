@@ -40,10 +40,10 @@ export interface IUnite extends globalInterface {
 }
 
 export interface IProduit extends globalInterface {
-    produit?: string,
+    produit: string,
     description?: string,
     id_unity?: number,
-    image?: string,
+    image: string,
     id_category?: number,
     id_souscategory?: number,
     createdby?: number
