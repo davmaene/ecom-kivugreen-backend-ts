@@ -208,11 +208,11 @@ export const __controllerUsers = {
                                                         to: fillphone({ phone }),
                                                         content: `Bonjour ${capitalizeWords({ text: nom })} votre compte a été crée avec succès. Ceci est votre code de vérirification ${code_}`,
                                                     })
-                                                        .then(suc => { 
+                                                        .then(suc => {
                                                             transaction.commit()
                                                             return Responder(res, HttpStatusCode.Created, user)
                                                         })
-                                                        .catch(err => { 
+                                                        .catch(err => {
                                                             transaction.rollback()
                                                             return Responder(res, HttpStatusCode.InternalServerError, extras)
                                                         })
@@ -422,11 +422,11 @@ export const __controllerUsers = {
                                             transaction.commit()
                                             return Responder(res, HttpStatusCode.Created, user)
                                         })
-                                        .catch(er => {
-                                            transaction.rollback()
-                                            log(er)
-                                            return Responder(res, HttpStatusCode.InternalServerError, "Role not initialized correctly !")
-                                        })
+                                            .catch(er => {
+                                                transaction.rollback()
+                                                log(er)
+                                                return Responder(res, HttpStatusCode.InternalServerError, "Role not initialized correctly !")
+                                            })
                                     } else {
                                         transaction.rollback()
                                         return Responder(res, HttpStatusCode.InternalServerError, "Role not initialized correctly !")
@@ -648,6 +648,109 @@ export const __controllerUsers = {
                 .then(user => {
                     transaction.commit()
                     return Responder(res, HttpStatusCode.Ok, { ...user })
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    verify: async (req: Request, res: Response, next: NextFunction) => {
+        const { id_user, verification_code } = req.body
+        if (!id_user || !verification_code) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !id_user || !verification_code")
+        try {
+            Users.hasOne(Extras, { foreignKey: "id_user" })
+            Users.findOne({
+                include: [
+                    {
+                        model: Extras,
+                        required: true
+                    }
+                ],
+                attributes: {
+                    exclude: ['password']
+                },
+                where: {
+                    [Op.or]: [
+                        { id: parseInt(id_user) },
+                        { phone: fillphone({ phone: id_user }) },
+                        { uuid: id_user }
+                    ]
+                }
+            })
+                .then(user => {
+                    if (user instanceof Users) {
+                        const { isvalidated, __tbl_ecom_extra } = user.toJSON()
+                        if (isvalidated === 0) {
+                            const { verification } = __tbl_ecom_extra;
+                            if (String(verification_code).trim() === String(verification).toString()) {
+                                user.update({
+                                    isvalidated: 1
+                                })
+                                    .then(U => {
+                                        return Responder(res, HttpStatusCode.Ok, user)
+                                    })
+                                    .catch(Err => {
+                                        return Responder(res, HttpStatusCode.BadRequest, Err)
+                                    })
+                            } else {
+                                return Responder(res, HttpStatusCode.Forbidden, `Wrong code was used --- ${verification_code}`)
+                            }
+                        } else {
+                            return Responder(res, HttpStatusCode.Conflict, "User is still verified !")
+                        }
+                    } else {
+                        return Responder(res, HttpStatusCode.NotFound, "Record not found in Users ---list")
+                    }
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    resendcode: async (req: Request, res: Response, next: NextFunction) => {
+        const { id_user, verification_code } = req.body
+        if (!id_user) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !id_user")
+        try {
+            Users.hasOne(Extras, { foreignKey: "id_user" })
+            Users.findOne({
+                include: [
+                    {
+                        model: Extras,
+                        required: true
+                    }
+                ],
+                attributes: {
+                    exclude: ['password']
+                },
+                where: {
+                    [Op.or]: [
+                        { id: parseInt(id_user) },
+                        { phone: fillphone({ phone: id_user }) },
+                        { uuid: id_user }
+                    ]
+                }
+            })
+                .then(user => {
+                    if (user instanceof Users) {
+                        const { isvalidated, __tbl_ecom_extra, phone, nom } = user.toJSON()
+                        if (isvalidated === 0) {
+                            const { verification } = __tbl_ecom_extra;
+                            const code_ = randomLongNumber({ length: 6 })
+                            Services.onSendSMS({
+                                is_flash: false,
+                                to: fillphone({ phone }),
+                                content: `Bonjour ${capitalizeWords({ text: nom })} votre compte a été crée avec succès. Ceci est votre code de vérirification ${code_}`,
+                            })
+                                .then(suc => {
+                                    return Responder(res, HttpStatusCode.Created, user)
+                                })
+                                .catch(err => {
+                                    return Responder(res, HttpStatusCode.InternalServerError, err)
+                                })
+                        } else {
+                            return Responder(res, HttpStatusCode.Conflict, "User is still verified !")
+                        }
+                    } else {
+                        return Responder(res, HttpStatusCode.NotFound, "Record not found in Users ---list")
+                    }
                 })
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
