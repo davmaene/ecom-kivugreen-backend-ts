@@ -210,3 +210,5 @@
 ::ffff:127.0.0.1 - - [19/Mar/2024:11:24:56 +0000] "GET / HTTP/1.1" 200 1807 "-" "PostmanRuntime/7.36.3"
 ::ffff:127.0.0.1 - - [19/Mar/2024:11:26:56 +0000] "GET /api/unities/list HTTP/1.1" 404 98 "-" "PostmanRuntime/7.36.3"
 ::ffff:127.0.0.1 - - [19/Mar/2024:11:27:51 +0000] "POST /api/unities/unity/add HTTP/1.1" 404 104 "-" "PostmanRuntime/7.36.3"
+::ffff:127.0.0.1 - - [19/Mar/2024:12:05:29 +0000] "GET /api/unities/list HTTP/1.1" 404 98 "-" "PostmanRuntime/7.36.3"
+::ffff:127.0.0.1 - - [19/Mar/2024:12:09:50 +0000] "POST /api/unities/unity/add HTTP/1.1" 404 163 "-" "PostmanRuntime/7.36.3"

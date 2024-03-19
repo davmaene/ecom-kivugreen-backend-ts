@@ -8,6 +8,7 @@ import { __routesTerritoires } from "./routes.territoires";
 import { __routesProduits } from "./routes.produits";
 import { __routesCategories } from "./routes.categories";
 import { __routesSouscategories } from "./routes.souscategories";
+import { __rouetesUnities } from "./routes.unitiesmesures";
 
 export const routes = express.Router();
 
@@ -20,4 +21,5 @@ routes.use('/territoires', __routesTerritoires)
 routes.use('/produits', __routesProduits)
 routes.use('/categories', __routesCategories)
 routes.use('/souscategories', __routesSouscategories)
+routes.use('/unities', __rouetesUnities)
 
