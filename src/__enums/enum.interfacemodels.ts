@@ -97,6 +97,12 @@ export interface ICategorie extends globalInterface {
     description?: string
 }
 
+export interface IExtras extends globalInterface {
+    verification?: string,
+    id_user?: number,
+    lastlogin?: number
+}
+
 export interface ISCategorie extends globalInterface {
     souscategory?: string,
     id_category?: number,

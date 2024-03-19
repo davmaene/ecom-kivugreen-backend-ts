@@ -6,6 +6,7 @@ import { Services } from "../__services/serives.all"
 import { log } from "console"
 import { Users } from "../__models/model.users"
 import { Hasmembers } from "../__models/model.hasmembers"
+import { randomLongNumber } from "../__helpers/helper.random"
 
 export const __controllerCooperatives = {
     list: async (req: Request, res: Response, next: NextFunction) => {
@@ -62,7 +63,8 @@ export const __controllerCooperatives = {
             payload['id_territoire'] = parseInt(payload['id_territoire'])
 
             Cooperatives.create({
-                ...payload
+                ...payload,
+                num_enregistrement: randomLongNumber({ length: 12 })
             })
                 .then(coopec => {
                     if (coopec instanceof Cooperatives) return Responder(res, HttpStatusCode.Ok, coopec)
