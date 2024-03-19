@@ -734,7 +734,7 @@ export const __controllerUsers = {
                         const { isvalidated, __tbl_ecom_extra, phone, nom } = user.toJSON()
                         if (isvalidated === 0) {
                             const { verification } = __tbl_ecom_extra;
-                            const code_ = randomLongNumber({ length: 6 })
+                            const code_ = verification || randomLongNumber({ length: 6 })
                             Services.onSendSMS({
                                 is_flash: false,
                                 to: fillphone({ phone }),
@@ -753,6 +753,26 @@ export const __controllerUsers = {
                         return Responder(res, HttpStatusCode.NotFound, "Record not found in Users ---list")
                     }
                 })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    update: async (req: Request, res: Response, next: NextFunction) => {
+        const { iduser } = req.params
+        if(!iduser) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least iduser as param !")
+        if(Object.keys(req.body).length > 0) return Responder(res, HttpStatusCode.NotAcceptable, "The should not be empty")
+        try {
+            Users.update({
+                ...req.body
+            },{
+                where: {
+                    id: parseInt(iduser)
+                }
+            })
+            .then(U => {
+                return Responder(res, HttpStatusCode.Ok, U)
+            })
+            .catch(err => Responder(res, HttpStatusCode.InternalServerError, err))
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
