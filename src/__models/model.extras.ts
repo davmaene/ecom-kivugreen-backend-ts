@@ -14,7 +14,7 @@ export const Extras = connect.define<Extra>('__tbl_ecom_extras', {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
-        allowNull: true,
+        allowNull: true
     },
     id_user: {
         type: DataTypes.INTEGER,
