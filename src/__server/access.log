@@ -186,3 +186,7 @@
 ::ffff:127.0.0.1 - - [19/Mar/2024:10:45:19 +0000] "POST /api/produits/produit/add HTTP/1.1" 406 98 "-" "PostmanRuntime/7.36.3"
 ::ffff:127.0.0.1 - - [19/Mar/2024:10:45:59 +0000] "GET /api/produits/list HTTP/1.1" 404 99 "-" "PostmanRuntime/7.36.3"
 ::ffff:127.0.0.1 - - [19/Mar/2024:10:46:30 +0000] "GET /api/produits/list HTTP/1.1" 406 98 "-" "PostmanRuntime/7.36.3"
+::ffff:127.0.0.1 - - [19/Mar/2024:10:49:56 +0000] "GET /api/produits/list HTTP/1.1" 200 58 "-" "PostmanRuntime/7.36.3"
+::ffff:127.0.0.1 - - [19/Mar/2024:10:59:35 +0000] "GET /api/categories/list HTTP/1.1" 409 667 "-" "PostmanRuntime/7.36.3"
+::ffff:127.0.0.1 - - [19/Mar/2024:11:00:36 +0000] "GET /api/categories/list HTTP/1.1" 200 1028 "-" "PostmanRuntime/7.36.3"
+::ffff:127.0.0.1 - - [19/Mar/2024:11:01:18 +0000] "POST /api/categories/categorie/add HTTP/1.1" 404 111 "-" "PostmanRuntime/7.36.3"
