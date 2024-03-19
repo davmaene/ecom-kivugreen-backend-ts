@@ -1,3 +1,4 @@
+import { HttpStatusMessages } from './../__enums/enum.httpsmessage';
 import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import * as dotenv from 'dotenv'
@@ -34,6 +35,10 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 const ___logAccess = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
 
 app.use(morgan("combined", { stream: ___logAccess }));
+
+app.get('/', (req: Request, res: Response, next: NextFunction) => {
+    return Responder(res, HttpStatusCode.Ok, { ...HttpStatusMessages })
+})
 
 app.use('/api', accessValidator, routes) //
 
