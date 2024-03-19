@@ -18,6 +18,7 @@ import dotenv from 'dotenv';
 import { log } from 'console';
 import { v4 as uuidv4 } from 'uuid';
 import { Services } from '../__services/serives.all';
+import { Extras } from '../__models/model.extras';
 
 dotenv.config()
 
@@ -144,7 +145,7 @@ export const __controllerUsers = {
         const { nom, postnom, prenom, email, phone, adresse, idprovince, idterritoire, idvillage, date_naiss, genre, password, avatar } = req.body;
         if (!nom || !postnom || !phone || !password)
             return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least ==> nom & postnom & phone & password")
-        const code = randomLongNumber({ length: 6 })
+        const code_ = randomLongNumber({ length: 6 })
         const idroles: number[] = [5]
 
         try {
@@ -186,22 +187,44 @@ export const __controllerUsers = {
                             cb: (err: any, done: any) => {
                                 if (done) {
                                     const { code } = done;
+                                    const { id } = user
                                     if (code === 200) {
 
-                                        if (email) {
-                                            let chaine = JSON.stringify({
-                                                email: email,
-                                                phone: user['phone'],
-                                            })
-                                        }
+                                        Extras.create({
+                                            id_user: id,
+                                            verification: code_,
+                                        }, { transaction })
+                                            .then(extras => {
+                                                if (extras instanceof Extras) {
+                                                    if (email) {
+                                                        let chaine = JSON.stringify({
+                                                            email: email,
+                                                            phone: user['phone'],
+                                                        })
+                                                    }
 
-                                        Services.onSendSMS({
-                                            is_flash: false,
-                                            to: fillphone({ phone }),
-                                            content: `Bonjour ${capitalizeWords({ text: nom })} votre compte a été crée avec succès. Ceci est votre code de vérirification ${code}`,
-                                        })
-                                        transaction.commit()
-                                        return Responder(res, HttpStatusCode.Created, user)
+                                                    Services.onSendSMS({
+                                                        is_flash: false,
+                                                        to: fillphone({ phone }),
+                                                        content: `Bonjour ${capitalizeWords({ text: nom })} votre compte a été crée avec succès. Ceci est votre code de vérirification ${code_}`,
+                                                    })
+                                                        .then(suc => { 
+                                                            transaction.commit()
+                                                            return Responder(res, HttpStatusCode.Created, user)
+                                                        })
+                                                        .catch(err => { 
+                                                            transaction.rollback()
+                                                            return Responder(res, HttpStatusCode.InternalServerError, extras)
+                                                        })
+                                                } else {
+                                                    transaction.rollback()
+                                                    return Responder(res, HttpStatusCode.InternalServerError, extras)
+                                                }
+                                            })
+                                            .catch(er => {
+                                                transaction.rollback()
+                                                return Responder(res, HttpStatusCode.InternalServerError, er)
+                                            })
                                     } else {
                                         transaction.rollback()
                                         return Responder(res, HttpStatusCode.InternalServerError, "Role not initialized correctly !")
@@ -379,7 +402,7 @@ export const __controllerUsers = {
                                 iduser: id
                             },
                             transaction,
-                            cb: (err: any, done: any) => {
+                            cb: async (err: any, done: any) => {
                                 if (done) {
                                     const { code } = done;
                                     if (code === 200) {
@@ -391,13 +414,19 @@ export const __controllerUsers = {
                                             })
                                         }
 
-                                        Services.onSendSMS({
+                                        await Services.onSendSMS({
                                             is_flash: false,
                                             to: fillphone({ phone }),
                                             content: `Bonjour ${capitalizeWords({ text: nom })} votre compte a été crée avec succès. Ceci est votre mot de passe ${password}`,
+                                        }).then(sms => {
+                                            transaction.commit()
+                                            return Responder(res, HttpStatusCode.Created, user)
                                         })
-                                        transaction.commit()
-                                        return Responder(res, HttpStatusCode.Created, user)
+                                        .catch(er => {
+                                            transaction.rollback()
+                                            log(er)
+                                            return Responder(res, HttpStatusCode.InternalServerError, "Role not initialized correctly !")
+                                        })
                                     } else {
                                         transaction.rollback()
                                         return Responder(res, HttpStatusCode.InternalServerError, "Role not initialized correctly !")

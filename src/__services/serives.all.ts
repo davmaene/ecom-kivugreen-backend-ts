@@ -20,7 +20,7 @@ const { API_SMS_ENDPOINT, APP_NAME, API_SMS_TOKEN, API_SMS_IS_FLASH } = process.
 let tempfolder: string = 'as_assets'
 
 export const Services = {
-    onSendSMS: async ({ to, content, is_flash }: { to: string, content: string, is_flash: boolean }) => {
+    onSendSMS: async ({ to, content, is_flash }: { to: string, content: string, is_flash: boolean }): Promise<{ code: number, message: string, data: any }> => {
         return new Promise(async (resolve, reject) => {
             try {
                 const payload = {
@@ -38,12 +38,12 @@ export const Services = {
                         Authorization: `Bearer ${API_SMS_TOKEN}`
                     }
                 })
-
+                log("Message was sent to ==> ", to, "Content ==> ", content, "is_flash ==> ", is_flash)
                 if (status === 200 || status === 201) return resolve({ code: status, message: "Message was succefuly sent ", data: data })
                 else return reject({ code: status, message: statusText, data })
 
             } catch (error: any) {
-                return reject({ code: 500, message: "Error on sending message", data: error })
+                return reject({ code: 500, message: "Error on sending message", data: error.toString() })
             }
         })
     },

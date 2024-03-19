@@ -12,6 +12,12 @@ export const connect = new Sequelize(
     host,
     dialect,
     logging,
+    retry: {
+        match: [/Deadlock/i],
+        max: 3,
+        backoffBase: 1000,
+        backoffExponent: 1.5
+    },
     pool: {
         max: 10,
         min: 0,
