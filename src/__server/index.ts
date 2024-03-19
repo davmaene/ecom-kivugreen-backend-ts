@@ -42,8 +42,8 @@ app.get('/', (req: Request, res: Response, next: NextFunction) => {
     ServiceImage.onRemoveBGFromImage({
         inputs: {
             directory: '/',
-            filename: 'image-FOMXDGpKl2cMktE5N3rnqlS.jpg',
-            fullpath: "src/__assets/as_images/image-FOMXDGpKl2cMktE5N3rnqlS.jpg",
+            filename: 'image-bAWMArU5VYl15KFjDSK6nvz.jpg',
+            fullpath: "src/__assets/as_images/image-bAWMArU5VYl15KFjDSK6nvz.jpg",
             saveas: 'as_images'
         },
         callBack: (err: any, done: any) => {

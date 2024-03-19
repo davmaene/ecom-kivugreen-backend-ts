@@ -11,7 +11,10 @@ export const Produits = connect.define<Produit>('__tbl_ecom_produits', {
         autoIncrement: true,
         allowNull: true,
     },
-    produit: DataTypes.STRING,
+    produit: {
+        type: DataTypes.STRING,
+        unique: true
+    },
     image: DataTypes.STRING,
     id_unity: DataTypes.STRING,
     id_category: DataTypes.STRING,
