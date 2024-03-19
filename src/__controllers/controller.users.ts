@@ -383,7 +383,8 @@ export const __controllerUsers = {
                 idvillage,
                 date_naiss,
                 sexe: genre,
-                password: pwd
+                password: pwd,
+                isvalidated: 1
             }, { transaction })
                 .then(user => {
                     if (user instanceof Users) {
@@ -740,7 +741,7 @@ export const __controllerUsers = {
                                 content: `Bonjour ${capitalizeWords({ text: nom })} votre compte a été crée avec succès. Ceci est votre code de vérirification ${code_}`,
                             })
                                 .then(suc => {
-                                    return Responder(res, HttpStatusCode.Created, user)
+                                    return Responder(res, HttpStatusCode.Ok, `New Verification code was sent to ${phone} user`)
                                 })
                                 .catch(err => {
                                     return Responder(res, HttpStatusCode.InternalServerError, err)

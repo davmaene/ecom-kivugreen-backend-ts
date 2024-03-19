@@ -11,5 +11,6 @@ __routesUsers.post("/user/register", onValidate(userModelValidator),__controller
 __routesUsers.post("/user/add", onValidate(userModelValidator),__controllerUsers.register)
 __routesUsers.put("/user/validate/:iduser",__controllerUsers.validate)
 __routesUsers.put("/user/verify",__controllerUsers.verify)
+__routesUsers.put("/user/resendcode",__controllerUsers.resendcode)
 __routesUsers.get("/list",__controllerUsers.list)
 __routesUsers.get("/user/:iduser",__controllerUsers.profile)
