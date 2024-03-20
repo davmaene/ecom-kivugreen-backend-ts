@@ -16,9 +16,9 @@ export const Produits = connect.define<Produit>('__tbl_ecom_produits', {
         unique: true
     },
     image: DataTypes.STRING,
-    id_unity: DataTypes.STRING,
-    id_category: DataTypes.STRING,
-    id_souscategory: DataTypes.STRING,
+    id_unity: DataTypes.INTEGER,
+    id_category: DataTypes.INTEGER,
+    id_souscategory: DataTypes.INTEGER,
     description: DataTypes.STRING,
     createdby: DataTypes.INTEGER,
 

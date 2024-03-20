@@ -35,7 +35,8 @@ export const Stocks = connect.define<Stock>('__tbl_ecom_stocks', {
         type: DataTypes.STRING,
         allowNull: true,
         defaultValue: APP_ESCAPESTRING
-    }
+    },
+    createdby: DataTypes.INTEGER
 
 }, { paranoid: true, timestamps: true });
 
