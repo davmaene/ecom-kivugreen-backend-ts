@@ -102,8 +102,7 @@
   },
   "include": [
     "src/**/*.ts",
-    "config/**/*.ts",
-    ".env"
+    "config/**/*.ts"
   ],
   "exclude": [
     "node_modules"
