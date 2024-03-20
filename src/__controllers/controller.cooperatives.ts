@@ -105,5 +105,43 @@ export const __controllerCooperatives = {
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
+    },
+    delete: async (req: Request, res: Response) => {
+        const { idcooperative } = req.params;
+        try {
+            Cooperatives.findByPk(idcooperative)
+                .then(coopec => {
+                    if (coopec instanceof Cooperatives) {
+                        coopec.destroy({ force: true })
+                            .then(D => Responder(res, HttpStatusCode.Ok, D))
+                            .catch(Er => Responder(res, HttpStatusCode.InternalServerError, Er))
+                    } else {
+                        return Responder(res, HttpStatusCode.NotFound, coopec)
+                    }
+                })
+                .catch(err => {
+                    return Responder(res, HttpStatusCode.InternalServerError, err)
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    update: async (res: Response, req: Request) => {
+        const { idcooperative } = req.params
+        if (idcooperative) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least idccoperative !")
+        if (Object.keys(req.body).length <= 0) return Responder(res, HttpStatusCode.NotAcceptable, "The body should not be empty !")
+        try {
+            Cooperatives.update({
+                ...req.body,
+            }, {
+                where: {
+                    id: parseInt(idcooperative)
+                }
+            })
+            .then(U => Responder(res, HttpStatusCode.Ok, U))
+            .catch(Err => Responder(res, HttpStatusCode.InternalServerError, Err))
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
     }
 }

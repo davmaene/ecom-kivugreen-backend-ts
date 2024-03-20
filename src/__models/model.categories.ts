@@ -1,6 +1,6 @@
 import { DataTypes, Model } from 'sequelize'
 import { connect } from '../__databases/connecte'
-import { ICategorie, IProvinces, IRoles, IUsers } from '../__enums/enum.interfacemodels';
+import { ICategorie } from '../__enums/enum.interfacemodels';
 
 export interface Category extends Model<ICategorie>, ICategorie { }
 
