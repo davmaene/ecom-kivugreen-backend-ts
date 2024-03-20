@@ -28,6 +28,14 @@ export interface IRoles extends globalInterface {
     description: string
 }
 
+export interface IStocks extends globalInterface {
+    transaction: string,
+    description?: string,
+    items: number[],
+    id_cooperative: number,
+    createdby: number
+}
+
 export interface IHasrole extends globalInterface {
     TblEcomUserId: number,
     TblEcomRoleId: number

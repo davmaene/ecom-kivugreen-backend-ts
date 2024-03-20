@@ -9,6 +9,7 @@ import { Hasmembers } from "../__models/model.hasmembers"
 import { randomLongNumber } from "../__helpers/helper.random"
 
 export const __controllerCooperatives = {
+    
     list: async (req: Request, res: Response, next: NextFunction) => {
         try {
             Users.belongsToMany(Cooperatives, { through: Hasmembers });

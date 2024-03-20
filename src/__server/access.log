@@ -237,3 +237,8 @@
 ::ffff:127.0.0.1 - - [19/Mar/2024:12:58:42 +0000] "GET / HTTP/1.1" 200 1807 "-" "PostmanRuntime/7.36.3"
 ::ffff:127.0.0.1 - - [19/Mar/2024:12:59:16 +0000] "GET / HTTP/1.1" 200 1807 "-" "PostmanRuntime/7.36.3"
 ::ffff:127.0.0.1 - - [19/Mar/2024:12:59:32 +0000] "GET / HTTP/1.1" 200 1807 "-" "PostmanRuntime/7.36.3"
+::ffff:127.0.0.1 - - [20/Mar/2024:11:51:23 +0000] "DELETE /api/cooperatives/cooperative/10000 HTTP/1.1" 401 74 "-" "PostmanRuntime/7.36.3"
+::ffff:127.0.0.1 - - [20/Mar/2024:11:55:34 +0000] "DELETE /api/cooperatives/cooperative/10000 HTTP/1.1" 401 74 "-" "PostmanRuntime/7.36.3"
+::ffff:127.0.0.1 - - [20/Mar/2024:11:56:16 +0000] "POST /api/users/user/auth HTTP/1.1" 200 2209 "-" "PostmanRuntime/7.36.3"
+::ffff:127.0.0.1 - - [20/Mar/2024:11:58:32 +0000] "POST /api/stocks/stock/in HTTP/1.1" 404 131 "-" "PostmanRuntime/7.36.3"
+::ffff:127.0.0.1 - - [20/Mar/2024:11:59:19 +0000] "GET /api/stocks/list HTTP/1.1" 404 97 "-" "PostmanRuntime/7.36.3"
