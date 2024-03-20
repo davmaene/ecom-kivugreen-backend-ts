@@ -1,9 +1,9 @@
 import { randomLongNumber } from './../__helpers/helper.random';
-import { Stocks } from "__models/model.stocks";
+import { Stocks } from "../__models/model.stocks";
 import { HttpStatusCode } from "../__enums/enum.httpsstatuscode";
 import { Responder } from "../__helpers/helper.responseserver";
 import { Response, Request } from "express";
-import { Produits } from '__models/model.produits';
+import { Produits } from '../__models/model.produits';
 import { log } from 'console';
 
 export const __controllerStocks = {
