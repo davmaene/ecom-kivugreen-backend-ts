@@ -18,7 +18,7 @@ export const __controllerStocks = {
         try {
             const treated: any[] = []
             for (let index = 0; index < array.length; index++) {
-                const { id_produit, qte }: any = array[index];
+                const { id_produit, qte, prix_unitaire, currency }: any = array[index];
                 try {
                     const prd = await Produits.findOne({
                         attributes: ['id', 'produit', 'id_unity', 'id_category', 'id_souscategory', 'image'],
@@ -29,6 +29,8 @@ export const __controllerStocks = {
                     if (prd instanceof Produits) {
                         const { id, produit, id_unity, id_category, id_souscategory, image } = prd.toJSON() as any
                         treated.push({
+                            prix_unitaire,
+                            currency,
                             id,
                             produit,
                             id_unity,
