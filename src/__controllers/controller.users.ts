@@ -77,7 +77,7 @@ export const __controllerUsers = {
             })
                 .then(user => {
                     if (user instanceof Users) {
-                        const { password: aspassword, isvalidated, __tbl_ecom_roles } = user.toJSON();
+                        const { password: aspassword, isvalidated, __tbl_ecom_roles } = user.toJSON() as any;
                         const roles = Array.from(__tbl_ecom_roles).map((role: any) => role['id']);
                         comparePWD({
                             hashedtext: aspassword || '',
@@ -299,7 +299,7 @@ export const __controllerUsers = {
             })
                 .then(user => {
                     if (user instanceof Users) {
-                        const { password: aspassword, isvalidated, __tbl_ecom_roles } = user.toJSON();
+                        const { password: aspassword, isvalidated, __tbl_ecom_roles } = user.toJSON() as any;
                         const roles = Array.from(__tbl_ecom_roles).map((role: any) => role['id']);
                         comparePWD({
                             hashedtext: aspassword || '',
@@ -679,7 +679,7 @@ export const __controllerUsers = {
             })
                 .then(user => {
                     if (user instanceof Users) {
-                        const { isvalidated, __tbl_ecom_extra } = user.toJSON()
+                        const { isvalidated, __tbl_ecom_extra } = user.toJSON() as any
                         if (isvalidated === 0) {
                             const { verification } = __tbl_ecom_extra;
                             if (String(verification_code).trim() === String(verification).toString()) {
@@ -731,7 +731,7 @@ export const __controllerUsers = {
             })
                 .then(user => {
                     if (user instanceof Users) {
-                        const { isvalidated, __tbl_ecom_extra, phone, nom } = user.toJSON()
+                        const { isvalidated, __tbl_ecom_extra, phone, nom } = user.toJSON() as any
                         if (isvalidated === 0) {
                             const { verification } = __tbl_ecom_extra;
                             const code_ = verification || randomLongNumber({ length: 6 })

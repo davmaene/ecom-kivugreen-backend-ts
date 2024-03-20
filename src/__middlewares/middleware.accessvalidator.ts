@@ -31,7 +31,7 @@ export const accessValidator = (req: Request, res: Response, next: NextFunction)
                         res
                     }, (err: any, done: any) => {
                         if (done) {
-                            req.currentuser = { ...done };
+                            (req as any).currentuser = { ...done };
                             return next();
                         } else {
                             return Responder(res, HttpStatusCode.Unauthorized, "Your Token has expired !")

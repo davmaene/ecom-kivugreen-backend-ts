@@ -9,7 +9,7 @@ import { NextFunction, Request, Response } from "express";
 export const __controllerProduits = {
     add: async (req: Request, res: Response, next: NextFunction) => {
         const { id_unity, id_category, id_souscategory, description, produit } = req.body;
-        const { currentuser } = req;
+        const { currentuser } = req as any;
         const { __id, roles, uuid, phone } = currentuser
         if (!req.files) return Responder(res, HttpStatusCode.NotAcceptable, "Please provide the image file for the product !")
         try {
