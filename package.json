@@ -11,7 +11,7 @@
   },
   "scripts": {
     "start": "node ./src/server/index.js",
-    "build": "npx tsc",
+    "build": "tsc",
     "dev": "ts-node-dev --respawn --transpile-only ./src/__server/",
     "postinstall": "node-config-ts"
   },
@@ -70,5 +70,7 @@
     "sharp": "^0.33.2",
     "ts-randomstring": "^1.0.8",
     "uuid": "^9.0.1"
-  }
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
 }
