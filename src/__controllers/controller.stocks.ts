@@ -28,6 +28,15 @@ export const __controllerStocks = {
                     })
                     if (prd instanceof Produits) {
                         const { id, produit, id_unity, id_category, id_souscategory, image } = prd.toJSON() as any
+                        treated.push({
+                            id,
+                            produit,
+                            id_unity,
+                            id_category,
+                            id_souscategory,
+                            image,
+                            qte
+                        })
                     }
                 } catch (error) {
                     log("Error on treatement on object => ", id_produit)
