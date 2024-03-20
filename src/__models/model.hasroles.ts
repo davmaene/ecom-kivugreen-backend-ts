@@ -38,3 +38,12 @@ export const Hasroles = connect.define<Hasrole>('__tbl_ecom_hasroles', {
         }
     ]
 });
+
+Hasroles.sync({ alter: true })
+    .then(() => {
+        console.log('=======> Cerated done `table Hasroles` ');
+    })
+    .catch((error) => {
+        console.error('Une erreur s\'est produite lors de la création de la table :', error);
+    });
+

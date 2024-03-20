@@ -50,3 +50,11 @@ export const Users = connect.define<User>('__tbl_ecom_users', {
         }
     ]
 });
+
+Users.sync({ alter: true })
+    .then(() => {
+        console.log('=======> Cerated done `table Users` ');
+    })
+    .catch((error) => {
+        console.error('Une erreur s\'est produite lors de la création de la table :', error);
+    });
