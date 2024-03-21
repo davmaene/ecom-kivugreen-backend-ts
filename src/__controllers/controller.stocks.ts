@@ -11,7 +11,7 @@ import { connect } from '../__databases/connecte';
 
 export const __controllerStocks = {
     in: async (req: Request, res: Response) => {
-        const { id_ccoperative, items } = req.body;
+        const { id_ccoperative, items, description } = req.body;
         const { currentuser } = req as any;
         if (!id_ccoperative || !items) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !id_ccoperative || !items")
         if (!Array.isArray(items) || Array.from(items).length === 0) return Responder(res, HttpStatusCode.NotAcceptable, "Items must be a type of Array")
@@ -24,7 +24,8 @@ export const __controllerStocks = {
                 items: [],
                 createdby: __id,
                 id_cooperative: id_ccoperative,
-                transaction: randomLongNumber({ length: 15 })
+                transaction: randomLongNumber({ length: 15 }),
+                description
             }, { transaction })
                 .then(async stock => {
                     if (stock instanceof Stocks) {
@@ -57,17 +58,17 @@ export const __controllerStocks = {
                                                 TblEcomStockId: asstockid || 0,
                                                 TblEcomUnitesmesureId: id_unity,
                                                 qte
-                                            }
+                                            },
+                                            transaction
                                         })
-                                        if (!created) {
+                                        if (created) {
+                                            nottreated.push(array[index])
+                                        } else {
+                                            const { qte: asqte } = item.toJSON()
                                             item.update({
-                                                qte,
-                                                prix_unitaire,
-                                                currency
+                                                qte: qte + asqte
                                             })
-                                            treated.push(item.toJSON())
-                                        }else{
-                                            nottreated.push(item.toJSON())
+                                            treated.push(array[index])
                                         }
                                     }
                                 } else {
@@ -101,9 +102,16 @@ export const __controllerStocks = {
     list: (req: Request, res: Response) => {
         try {
             Stocks.belongsTo(Cooperatives, { foreignKey: "id_cooperative" })
+            Stocks.belongsToMany(Produits, { through: Hasproducts, })// as: 'produits'
             Stocks.findAndCountAll({
                 where: {},
                 include: [
+                    {
+                        model: Produits,
+                        // as: 'produits',
+                        required: true,
+                        attributes: ['id', 'produit']
+                    },
                     {
                         model: Cooperatives,
                         required: true,
@@ -112,8 +120,12 @@ export const __controllerStocks = {
                 ]
             })
                 .then(({ count, rows }) => Responder(res, HttpStatusCode.Ok, { count, rows }))
-                .catch(error => Responder(res, HttpStatusCode.Conflict, error))
+                .catch(error => {
+                    log(error)
+                    return Responder(res, HttpStatusCode.Conflict, error)
+                })
         } catch (error) {
+            log(error)
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     }
