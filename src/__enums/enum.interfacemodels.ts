@@ -124,7 +124,10 @@ export interface ICommande extends globalInterface {
     id_produit: string,
     qte: number,
     type_livraison: number,
-    description?: string
+    description?: string,
+    prix_achat: string,
+    currency: string,
+    payament_phone: string
 }
 
 export interface IExtras extends globalInterface {
