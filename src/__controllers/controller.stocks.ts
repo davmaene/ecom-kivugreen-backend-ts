@@ -30,7 +30,7 @@ export const __controllerStocks = {
                     })
                     if (prd instanceof Produits) {
                         const { id, produit, id_unity, id_category, id_souscategory, image } = prd.toJSON() as any
-                        if (!produit || !id_category || !id_souscategory || !id_unity)
+                        if (produit && id_category && id_souscategory && id_unity) {
                             treated.push({
                                 prix_unitaire,
                                 currency,
@@ -42,6 +42,7 @@ export const __controllerStocks = {
                                 image,
                                 qte
                             })
+                        }
                     } else {
                         nottreated.push(array[index])
                     }
@@ -77,7 +78,8 @@ export const __controllerStocks = {
                 include: [
                     {
                         model: Cooperatives,
-                        required: true
+                        required: true,
+                        attributes: ['id', 'coordonnees_gps', 'phone', 'num_enregistrement', 'email', 'sigle', 'cooperative', 'description']
                     }
                 ]
             })
