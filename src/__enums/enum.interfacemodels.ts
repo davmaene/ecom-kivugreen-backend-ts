@@ -32,6 +32,8 @@ export interface IStocks extends globalInterface {
     transaction: string,
     description?: string,
     items: number[],
+    date_production: string,
+    date_expiration: string,
     id_cooperative: number,
     createdby: number
 }
@@ -115,6 +117,13 @@ export interface ICooperative extends globalInterface {
 
 export interface ICategorie extends globalInterface {
     category?: string,
+    description?: string
+}
+
+export interface ICommande extends globalInterface {
+    id_produit: string,
+    qte: number,
+    type_livraison: number,
     description?: string
 }
 

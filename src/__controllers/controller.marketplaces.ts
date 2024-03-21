@@ -10,6 +10,62 @@ import { Stocks } from "../__models/model.stocks";
 import { Cooperatives } from "../__models/model.cooperatives";
 
 export const __controllerMarketplace = {
+    placecommand: async (req: Request, res: Response, next: NextFunction) => {
+        const { qte, id_produit } = req.body
+        const { currentuser } = req as any;
+        const { __id, roles, uuid, phone } = currentuser;
+        if (!qte || !id_produit) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least id_produit and qte !")
+        try {
+            Hasproducts.belongsTo(Produits) // , { foreignKey: 'TblEcomProduitId' }
+            Hasproducts.belongsTo(Unites) // , { foreignKey: 'TblEcomUnitesmesureId' }
+            Hasproducts.belongsTo(Stocks) // , { foreignKey: 'TblEcomStockId' }
+            Hasproducts.belongsTo(Cooperatives) // , { foreignKey: 'TblEcomCooperativeId' }
+            Hasproducts.findOne({
+                include: [
+                    {
+                        model: Produits,
+                        required: true,
+                        attributes: ['id', 'produit', 'image', 'description']
+                    },
+                    {
+                        model: Unites,
+                        required: true,
+                        attributes: ['id', 'unity', 'equival_kgs']
+                    },
+                    {
+                        model: Stocks,
+                        required: true,
+                        attributes: ['id', 'transaction']
+                    },
+                    {
+                        model: Cooperatives,
+                        required: true,
+                        attributes: ['id', 'coordonnees_gps', 'phone', 'num_enregistrement', 'cooperative', 'sigle']
+                    }
+                ],
+                where: {
+                    id: id_produit
+                }
+            })
+                .then(has => {
+                    if (has instanceof Hasproducts) {
+                        const { id, qte: asqte, prix_unitaire, currency, __tbl_ecom_produit, __tbl_ecom_unitesmesure, __tbl_ecom_stock, __tbl_ecom_cooperative } = has.toJSON() as any
+                        if (qte <= asqte) {
+                            return Responder(res, HttpStatusCode.NotAcceptable, has)
+                        } else { 
+                            return Responder(res, HttpStatusCode.NotAcceptable, `Commande received but the commanded qte is 'gt' the current store ! STORE:::${asqte} <==> QRY:::${qte}`)
+                        }
+                    } else {
+                        return Responder(res, HttpStatusCode.NotFound, has)
+                    }
+                })
+                .catch(err => {
+                    return Responder(res, HttpStatusCode.Conflict, err)
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
     marketplace: async (req: Request, res: Response, next: NextFunction) => {
         let { page_size, page_number } = req.query as any;
         page_number = page_number ? parseInt(page_number) : 0
@@ -50,7 +106,6 @@ export const __controllerMarketplace = {
                         attributes: ['id', 'coordonnees_gps', 'phone', 'num_enregistrement', 'cooperative', 'sigle']
                     }
                 ],
-                logging: false,
                 where: {
                     qte: { [Op.gte]: 0 }
                 }

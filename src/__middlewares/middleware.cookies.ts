@@ -14,7 +14,7 @@ export const exludedRoutes: string[] = [
     "/users/user/signin",
     "/users/user/signup",
     "/users/user/auth",
-    "/marketplace/commande",
+    // "/marketplace/commande",
     "/marketplace"
 ];
 
