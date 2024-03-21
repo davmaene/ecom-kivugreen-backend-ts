@@ -8,7 +8,7 @@ import { log } from 'console';
 import { Cooperatives } from '../__models/model.cooperatives';
 import { Hasproducts } from '../__models/model.hasproducts';
 import { connect } from '../__databases/connecte';
-import { Configs } from '__models/model.configs';
+import { Configs } from '../__models/model.configs';
 
 export const __controllerStocks = {
     in: async (req: Request, res: Response) => {

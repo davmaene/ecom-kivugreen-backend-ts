@@ -12,6 +12,7 @@ import { __rouetesUnities } from "./routes.unitiesmesures";
 import { __routesStocks } from "./routes.stocks";
 import { __routesMarketplace } from "./routes.marketplace";
 import { __routesCommandes } from "./routes.commandes";
+import { __routesConfigurations } from "./routes.configurations";
 
 export const routes = express.Router();
 
@@ -28,4 +29,5 @@ routes.use('/unities', __rouetesUnities)
 routes.use('/stocks', __routesStocks)
 routes.use('/marketplace', __routesMarketplace)
 routes.use('/commandes', __routesCommandes)
+routes.use('/configurations', __routesConfigurations)
 
