@@ -127,7 +127,9 @@ export interface ICommande extends globalInterface {
     description?: string,
     prix_achat: string,
     currency: string,
-    payament_phone: string
+    payament_phone: string,
+    is_pending: number,
+    state: number
 }
 
 export interface IExtras extends globalInterface {

@@ -17,7 +17,9 @@ export const Commandes = connect.define<Commande>('__tbl_ecom_commandes', {
     currency: DataTypes.STRING,
     payament_phone: DataTypes.STRING,
     type_livraison: DataTypes.INTEGER,
-    description: DataTypes.STRING
+    description: DataTypes.STRING,
+    is_pending: DataTypes.INTEGER,
+    state: DataTypes.INTEGER
 
 }, { paranoid: true, timestamps: false, freezeTableName: true });
 
