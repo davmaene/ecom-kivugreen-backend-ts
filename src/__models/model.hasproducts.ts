@@ -18,6 +18,11 @@ export const Hasproducts = connect.define<Hasproduit>('__tbl_ecom_hasproducts', 
     },
     qte: DataTypes.INTEGER,
     prix_unitaire: DataTypes.FLOAT,
+    prix_plus_commission: {
+        type: DataTypes.FLOAT,
+        allowNull: true,
+        defaultValue: 0.0
+    },
     currency: DataTypes.STRING,
     TblEcomProduitId: {
         type: DataTypes.INTEGER,
