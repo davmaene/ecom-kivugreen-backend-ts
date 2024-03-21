@@ -120,5 +120,6 @@ export const __controllerMarketplace = {
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
-    }
+    },
+    
 }
