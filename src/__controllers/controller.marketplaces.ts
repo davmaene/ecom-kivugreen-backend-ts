@@ -52,7 +52,7 @@ export const __controllerMarketplace = {
                         const { id, qte: asqte, prix_unitaire, currency, __tbl_ecom_produit, __tbl_ecom_unitesmesure, __tbl_ecom_stock, __tbl_ecom_cooperative } = has.toJSON() as any
                         if (qte <= asqte) {
                             return Responder(res, HttpStatusCode.NotAcceptable, has)
-                        } else { 
+                        } else {
                             return Responder(res, HttpStatusCode.NotAcceptable, `Commande received but the commanded qte is 'gt' the current store ! STORE:::${asqte} <==> QRY:::${qte}`)
                         }
                     } else {
@@ -121,5 +121,11 @@ export const __controllerMarketplace = {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     },
-    
+    addtopanier: async (req: Request, res: Response) => {
+        try {
+            
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    }
 }
