@@ -123,7 +123,25 @@ export const __controllerMarketplace = {
     },
     addtopanier: async (req: Request, res: Response) => {
         try {
+
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    deletepanier: async (req: Request, res: Response) => {
+        const { idpanier } = req.body
+        if (!idpanier) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least idpanier !")
+        try {
             
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    validatepanier: async (req: Request, res: Response) => {
+        const { idpanier } = req.body
+        if (!idpanier) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least idpanier !")
+        try {
+
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
