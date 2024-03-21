@@ -6,6 +6,8 @@ import { Response, Request } from "express";
 import { Produits } from '../__models/model.produits';
 import { log } from 'console';
 import { Cooperatives } from '../__models/model.cooperatives';
+import { Hasproducts } from '../__models/model.hasproducts';
+import { connect } from '../__databases/connecte';
 
 export const __controllerStocks = {
     in: async (req: Request, res: Response) => {
@@ -17,55 +19,81 @@ export const __controllerStocks = {
         const { __id, roles, uuid, phone } = currentuser
 
         try {
-            const treated: any[] = []
-            const nottreated: any[] = []
-            for (let index = 0; index < array.length; index++) {
-                const { id_produit, qte, prix_unitaire, currency }: any = array[index];
-                try {
-                    const prd = await Produits.findOne({
-                        attributes: ['id', 'produit', 'id_unity', 'id_category', 'id_souscategory', 'image'],
-                        where: {
-                            id: id_produit
+            const transaction = await connect.transaction()
+            Stocks.create({
+                items: [],
+                createdby: __id,
+                id_cooperative: id_ccoperative,
+                transaction: randomLongNumber({ length: 15 })
+            }, { transaction })
+                .then(async stock => {
+                    if (stock instanceof Stocks) {
+                        const treated: any[] = []
+                        const nottreated: any[] = []
+                        for (let index = 0; index < array.length; index++) {
+                            const { id_produit, qte, prix_unitaire, currency }: any = array[index];
+                            try {
+                                const prd = await Produits.findOne({
+                                    attributes: ['id', 'produit', 'id_unity', 'id_category', 'id_souscategory', 'image'],
+                                    where: {
+                                        id: id_produit
+                                    }
+                                })
+                                if (prd instanceof Produits) {
+                                    const { id, produit, id_unity, id_category, id_souscategory, image } = prd.toJSON() as any
+                                    const { id: asstockid } = stock.toJSON()
+                                    if (produit && id_category && id_souscategory && id_unity) {
+                                        const [item, created] = await Hasproducts.findOrCreate({
+                                            where: {
+                                                TblEcomProduitId: id_produit,
+                                                TblEcomCooperativeId: id_ccoperative
+                                            },
+                                            defaults: {
+                                                currency,
+                                                prix_unitaire,
+                                                TblEcomCategorieId: id_category,
+                                                TblEcomCooperativeId: id_ccoperative,
+                                                TblEcomProduitId: id_produit,
+                                                TblEcomStockId: asstockid || 0,
+                                                TblEcomUnitesmesureId: id_unity,
+                                                qte
+                                            }
+                                        })
+                                        if (!created) {
+                                            item.update({
+                                                qte,
+                                                prix_unitaire,
+                                                currency
+                                            })
+                                            treated.push(item.toJSON())
+                                        }else{
+                                            nottreated.push(item.toJSON())
+                                        }
+                                    }
+                                } else {
+                                    nottreated.push(array[index])
+                                }
+                            } catch (error) {
+                                nottreated.push(array[index])
+                                log("Error on treatement on object => ", id_produit)
+                            }
                         }
-                    })
-                    if (prd instanceof Produits) {
-                        const { id, produit, id_unity, id_category, id_souscategory, image } = prd.toJSON() as any
-                        if (produit && id_category && id_souscategory && id_unity) {
-                            treated.push({
-                                prix_unitaire,
-                                currency,
-                                id,
-                                produit,
-                                id_unity,
-                                id_category,
-                                id_souscategory,
-                                image,
-                                qte
-                            })
-                        }
+                        stock.update({
+                            items: treated
+                        })
+                        transaction.commit()
+                        return Responder(res, HttpStatusCode.Ok, stock)
+
                     } else {
-                        nottreated.push(array[index])
+                        transaction.rollback()
+                        return Responder(res, HttpStatusCode.Conflict, {})
                     }
-                } catch (error) {
-                    nottreated.push(array[index])
-                    log("Error on treatement on object => ", id_produit)
-                }
-            }
-            if (treated.length > 0) {
-                Stocks.create({
-                    items: treated,
-                    createdby: __id,
-                    id_cooperative: id_ccoperative,
-                    transaction: randomLongNumber({ length: 15 })
                 })
-                    .then(stock => {
-                        if (stock instanceof Stocks) Responder(res, HttpStatusCode.Ok, stock)
-                        else return Responder(res, HttpStatusCode.Conflict, {})
-                    })
-                    .catch(err => Responder(res, HttpStatusCode.Conflict, err))
-            } else {
-                return Responder(res, HttpStatusCode.NotAcceptable, { rejected: nottreated, resolved: treated })
-            }
+                .catch(err => {
+                    transaction.rollback()
+                    return Responder(res, HttpStatusCode.Conflict, err)
+                })
+
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
