@@ -23,5 +23,25 @@ export const __controllerConfigs = {
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
+    },
+    get: async (req: Request, res: Response) => {
+        try {
+            Configs.findOne({
+                limit: 1,
+                order: [['id', 'desc']],
+                where: {
+                    // id: 
+                }
+            })
+                .then(conf => {
+                    if (conf instanceof Configs) return Responder(res, HttpStatusCode.Ok, conf)
+                    else return Responder(res, HttpStatusCode.NotAcceptable, {})
+                })
+                .catch(err => {
+                    return Responder(res, HttpStatusCode.InternalServerError, err)
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
     }
 }
