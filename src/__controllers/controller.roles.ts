@@ -23,11 +23,13 @@ export const __controllerRoles = {
         }
     },
     addtouser: async (req: Request, res: Response, next: NextFunction) => {
-        const { id_role, id_user } = req.body;
+        const { id_roles, id_user } = req.body;
+        if(!id_roles || !id_user) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !id_roles || !id_user")
+        if(!Array.isArray(id_roles)) return Responder(res, HttpStatusCode.NotAcceptable, "id_roles must be a type of array !")
         try {
             Services.addRoleToUser({
                 inputs: {
-                    idroles: [id_role],
+                    idroles: [...id_roles],
                     iduser: id_user
                 },
                 transaction: null,
@@ -36,7 +38,7 @@ export const __controllerRoles = {
                         const { code, message, data } = ro
                         if (code === 200) {
                             return Responder(res, HttpStatusCode.Ok, ro)
-                        }else return Responder(res, HttpStatusCode.BadRequest, data)
+                        } else return Responder(res, HttpStatusCode.BadRequest, data)
                     } else return Responder(res, HttpStatusCode.BadRequest, err)
                 }
             })

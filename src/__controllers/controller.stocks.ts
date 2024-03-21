@@ -5,6 +5,7 @@ import { Responder } from "../__helpers/helper.responseserver";
 import { Response, Request } from "express";
 import { Produits } from '../__models/model.produits';
 import { log } from 'console';
+import { Cooperatives } from '../__models/model.cooperatives';
 
 export const __controllerStocks = {
     in: async (req: Request, res: Response) => {
@@ -17,6 +18,7 @@ export const __controllerStocks = {
 
         try {
             const treated: any[] = []
+            const nottreated: any[] = []
             for (let index = 0; index < array.length; index++) {
                 const { id_produit, qte, prix_unitaire, currency }: any = array[index];
                 try {
@@ -40,27 +42,49 @@ export const __controllerStocks = {
                                 image,
                                 qte
                             })
+                    } else {
+                        nottreated.push(array[index])
                     }
                 } catch (error) {
+                    nottreated.push(array[index])
                     log("Error on treatement on object => ", id_produit)
                 }
             }
-            Stocks.create({
-                items: treated,
-                createdby: __id,
-                id_cooperative: id_ccoperative,
-                transaction: randomLongNumber({ length: 15 })
-            })
-                .then(stock => {
-                    if (stock instanceof Stocks) Responder(res, HttpStatusCode.Ok, stock)
-                    else return Responder(res, HttpStatusCode.Conflict, {})
+            if (treated.length > 0) {
+                Stocks.create({
+                    items: treated,
+                    createdby: __id,
+                    id_cooperative: id_ccoperative,
+                    transaction: randomLongNumber({ length: 15 })
                 })
-                .catch(err => Responder(res, HttpStatusCode.Conflict, err))
+                    .then(stock => {
+                        if (stock instanceof Stocks) Responder(res, HttpStatusCode.Ok, stock)
+                        else return Responder(res, HttpStatusCode.Conflict, {})
+                    })
+                    .catch(err => Responder(res, HttpStatusCode.Conflict, err))
+            } else {
+                return Responder(res, HttpStatusCode.NotAcceptable, { rejected: nottreated, resolved: treated })
+            }
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     },
     list: (req: Request, res: Response) => {
-
+        try {
+            Stocks.belongsTo(Cooperatives, { foreignKey: "id_cooperative" })
+            Stocks.findAndCountAll({
+                where: {},
+                include: [
+                    {
+                        model: Cooperatives,
+                        required: true
+                    }
+                ]
+            })
+                .then(({ count, rows }) => Responder(res, HttpStatusCode.Ok, { count, rows }))
+                .catch(error => Responder(res, HttpStatusCode.Conflict, error))
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
     }
 }

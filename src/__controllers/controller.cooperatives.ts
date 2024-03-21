@@ -19,7 +19,7 @@ export const __controllerCooperatives = {
                 include: [
                     {
                         model: Users,
-                        required: true,
+                        required: false,
                         attributes: ['id', 'nom', 'postnom', 'prenom', 'phone', 'email']
                         // isAliased: false,
                         // as: "resposable"

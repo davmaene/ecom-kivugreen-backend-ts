@@ -17,9 +17,9 @@ export const Stocks = connect.define<Stock>('__tbl_ecom_stocks', {
         allowNull: true,
     },
     id_cooperative: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
         allowNull: true,
-        defaultValue: APP_ESCAPESTRING
+        defaultValue: 0
     },
     transaction: {
         type: DataTypes.STRING,
