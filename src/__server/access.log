@@ -278,3 +278,6 @@
 ::ffff:127.0.0.1 - - [21/Mar/2024:07:50:55 +0000] "GET /api/cooperatives/list HTTP/1.1" 200 502 "-" "PostmanRuntime/7.36.3"
 ::ffff:127.0.0.1 - - [21/Mar/2024:07:51:10 +0000] "POST /api/stocks/stock/in HTTP/1.1" 200 420 "-" "PostmanRuntime/7.36.3"
 ::ffff:127.0.0.1 - - [21/Mar/2024:07:51:22 +0000] "GET /api/stocks/list HTTP/1.1" 200 1555 "-" "PostmanRuntime/7.36.3"
+::ffff:127.0.0.1 - - [21/Mar/2024:07:54:24 +0000] "GET /api/stocks/list HTTP/1.1" 200 1155 "-" "PostmanRuntime/7.36.3"
+::ffff:127.0.0.1 - - [21/Mar/2024:07:59:01 +0000] "GET /api/unities/list HTTP/1.1" 200 382 "-" "PostmanRuntime/7.36.3"
+::ffff:127.0.0.1 - - [21/Mar/2024:08:00:00 +0000] "GET /api/marketplace HTTP/1.1" 404 97 "-" "PostmanRuntime/7.36.3"

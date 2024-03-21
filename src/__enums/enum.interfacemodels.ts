@@ -62,6 +62,18 @@ export interface IHasmember extends globalInterface {
     TblEcomCooperativeId: number
 }
 
+export interface IHasproducts extends globalInterface {
+    prix_unitaire: number,
+    currency: string,
+    qte: number,
+    TblEcomProduitId: number,
+    TblEcomCategorieId: number,
+    TblEcomUnitesmesureId: number,
+    TblEcomUserId: number,
+    TblEcomCooperativeId: number
+    TblEcomStockId: number
+}
+
 export interface IProvinces {
     id?: number,
     province: number,
