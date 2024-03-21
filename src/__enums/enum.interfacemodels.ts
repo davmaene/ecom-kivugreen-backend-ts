@@ -86,7 +86,7 @@ export interface IProvinces {
 
 export interface IConfigs extends globalInterface {
     taux_change?: number,
-    commission_price?: string,
+    commission_price?: number,
 }
 
 export interface ITerritoires extends globalInterface {

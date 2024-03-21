@@ -12,7 +12,7 @@ export const Configs = connect.define<Config>('__tbl_ecom_configs', {
         allowNull: true,
     },
     taux_change: DataTypes.FLOAT,
-    commission_price: DataTypes.STRING
+    commission_price: DataTypes.FLOAT
 
 }, { paranoid: true, timestamps: false, freezeTableName: true });
 
