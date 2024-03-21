@@ -1,6 +1,6 @@
 import { DataTypes, Model } from 'sequelize'
 import { connect } from '../__databases/connecte'
-import { IHasmember, IHasproducts, IHasrole, IRoles, IUsers } from '__enums/enum.interfacemodels';
+import { IHasproducts } from '__enums/enum.interfacemodels';
 import { Produits } from './model.produits';
 import { Cooperatives } from './model.cooperatives';
 import { Categories } from './model.categories';
