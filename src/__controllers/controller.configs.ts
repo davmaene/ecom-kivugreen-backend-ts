@@ -8,9 +8,13 @@ export const __controllerConfigs = {
         const { taux_change, commission_price } = req.body;
         if (!taux_change || !commission_price) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !taux_change || !commission_price")
         try {
-            Configs.create({
+            Configs.update({
                 taux_change: parseFloat(taux_change),
                 commission_price: parseFloat(commission_price)
+            }, {
+                where: {
+                    id: 1
+                }
             })
                 .then(conf => {
                     if (conf instanceof Configs) {
