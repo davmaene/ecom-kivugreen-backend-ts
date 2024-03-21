@@ -31,7 +31,7 @@ export interface IRoles extends globalInterface {
 export interface IStocks extends globalInterface {
     transaction: string,
     description?: string,
-    items: number[],
+    // items: number[],
     date_production: string,
     date_expiration: string,
     id_cooperative: number,

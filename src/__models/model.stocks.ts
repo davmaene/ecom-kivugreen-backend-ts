@@ -26,11 +26,11 @@ export const Stocks = connect.define<Stock>('__tbl_ecom_stocks', {
         allowNull: false,
         unique: true
     },
-    items: {
-        type: DataTypes.JSON,
-        allowNull: true,
-        defaultValue: []
-    },
+    // items: {
+    //     type: DataTypes.JSON,
+    //     allowNull: true,
+    //     defaultValue: []
+    // },
     description: {
         type: DataTypes.STRING,
         allowNull: true,
