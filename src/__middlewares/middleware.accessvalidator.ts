@@ -13,7 +13,8 @@ if (!APP_CONNEXIONTOAPPMOB || !APP_CONNEXIONTOAPPWEB)
     throw Error("Connexion from web or mobile missing !");
 
 export const accessValidator = (req: Request, res: Response, next: NextFunction) => {
-    const { headers, url } = req;
+    let { headers, url }: any = req as any;
+    url = String(url).includes("?") ? String(url).substring(0, String(url).indexOf("?")) : String(url)
     if (headers && url) {
         if (exludedRoutes.indexOf(url) === -1) {
             if (headers && headers.hasOwnProperty(APP_CONNEXIONTOAPPWEB)) {
