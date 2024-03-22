@@ -3,12 +3,6 @@
   "version": "1.0.6",
   "description": "Ecommerce app de kivugreen, ",
   "main": "index.js",
-  "compilerOptions": {
-    "target": "es2018", 
-    "module": "commonjs",
-    "outDir": "./dist",
-    "strict": true
-  },
   "scripts": {
     "start": "node ./src/server/index.js",
     "build": "tsc",
