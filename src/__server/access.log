@@ -339,3 +339,8 @@
 ::ffff:127.0.0.1 - - [22/Mar/2024:14:12:36 +0000] "GET /api/marketplace?page_size=100&page_number=1 HTTP/1.1" 401 74 "-" "PostmanRuntime/7.36.3"
 ::ffff:127.0.0.1 - - [22/Mar/2024:14:15:19 +0000] "GET /api/marketplace?page_size=100&page_number=1 HTTP/1.1" 200 1511 "-" "PostmanRuntime/7.36.3"
 ::ffff:127.0.0.1 - - [22/Mar/2024:14:15:39 +0000] "GET /api/marketplace?page_size=100&page_number=1 HTTP/1.1" 200 1511 "-" "PostmanRuntime/7.36.3"
+::ffff:127.0.0.1 - - [22/Mar/2024:21:01:41 +0000] "GET /api/villages/list/byterritory/140 HTTP/1.1" 406 97 "-" "PostmanRuntime/7.36.3"
+::ffff:127.0.0.1 - - [22/Mar/2024:21:02:04 +0000] "GET /api/villages/list/byterritory/140 HTTP/1.1" 406 97 "-" "PostmanRuntime/7.36.3"
+::ffff:127.0.0.1 - - [22/Mar/2024:21:02:31 +0000] "GET /api/villages/list/byterritory/140 HTTP/1.1" 200 58 "-" "PostmanRuntime/7.36.3"
+::ffff:127.0.0.1 - - [22/Mar/2024:21:02:43 +0000] "GET /api/villages/list HTTP/1.1" 200 594298 "-" "PostmanRuntime/7.36.3"
+::ffff:127.0.0.1 - - [22/Mar/2024:21:03:25 +0000] "GET /api/villages/list HTTP/1.1" 200 594298 "-" "PostmanRuntime/7.36.3"

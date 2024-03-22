@@ -11,7 +11,11 @@ export const Villages = connect.define<Village>('__tbl_ecom_villages', {
         autoIncrement: true,
         allowNull: true,
     },
-    idterritoire: DataTypes.STRING,
+    idterritoire: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0
+    },
     village: DataTypes.STRING,
     latitude: DataTypes.STRING,
     longitude: DataTypes.STRING,
