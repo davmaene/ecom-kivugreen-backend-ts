@@ -13,14 +13,14 @@ class Database {
     dialect: any;
 
     constructor() {
-        this.dbName = config.get('dbName');
-        this.username = config.get('username');
-        this.password = config.get('password');
-        this.logging = config.get('logging');
-        this.timeZone = config.get('timeZone');
-        this.host = config.get('host');
-        this.dialect = config.get('dialect');
-        this.port = config.get('port');
+        this.dbName = config.get<string>('dbName');
+        this.username = config.get<string>('username');
+        this.password = config.get<string>('password');
+        this.logging = config.get<boolean>('logging');
+        this.timeZone = config.get<string>('timeZone');
+        this.host = config.get<string>('host');
+        this.dialect = config.get<string>('dialect');
+        this.port = config.get<number>('port');
     }
 
     public static getInstance(): Database {
