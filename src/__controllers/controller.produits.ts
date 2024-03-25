@@ -21,6 +21,7 @@ export const __controllerProduits = {
                     saveas
                 },
                 callBack: (err: any, done: any) => {
+                    log("On upload Image ==> ", done, err)
                     if (done) {
                         const { code, message, data } = done;
                         if (code === 200) {
@@ -31,6 +32,7 @@ export const __controllerProduits = {
                                     directory: saveas
                                 },
                                 callBack: (er: any, success: any) => {
+                                    log("On remove Bg ==> ", success, er)
                                     if (success) {
                                         const { code, message, data } = success;
                                         if (code === 200) {
@@ -44,13 +46,13 @@ export const __controllerProduits = {
                                                 id_souscategory: parseInt(id_souscategory),
                                                 createdby: __id
                                             })
-                                            .then(prd => {
-                                                if(prd instanceof Produits) return Responder(res, HttpStatusCode.Ok, prd)
-                                                else return Responder(res, HttpStatusCode.BadRequest, prd)
-                                            })
-                                            .catch(err => {
-                                                return Responder(res, HttpStatusCode.Conflict, err)
-                                            })
+                                                .then(prd => {
+                                                    if (prd instanceof Produits) return Responder(res, HttpStatusCode.Ok, prd)
+                                                    else return Responder(res, HttpStatusCode.BadRequest, prd)
+                                                })
+                                                .catch(err => {
+                                                    return Responder(res, HttpStatusCode.Conflict, err)
+                                                })
                                         } else {
                                             return Responder(res, HttpStatusCode.BadRequest, "Failed to remove bg to the file sorry !")
                                         }
