@@ -10,7 +10,7 @@ class Database {
     host: string;
     sequence: any;
     port: number;
-    dialect: any;
+    dialect: string;
 
     constructor() {
         this.dbName = config.get<string>('dbName');
