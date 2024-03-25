@@ -14,6 +14,7 @@ import { __routesMarketplace } from "./routes.marketplace";
 import { __routesCommandes } from "./routes.commandes";
 import { __routesConfigurations } from "./routes.configurations";
 import { __routesVillages } from "./routes.villages";
+import { __routesTypelivraison } from "./routes.typelivraisons";
 
 export const routes = express.Router();
 
@@ -32,4 +33,5 @@ routes.use('/marketplace', __routesMarketplace)
 routes.use('/commandes', __routesCommandes)
 routes.use('/configurations', __routesConfigurations)
 routes.use('/villages', __routesVillages)
+routes.use('/typeslivraisons', __routesTypelivraison)
 

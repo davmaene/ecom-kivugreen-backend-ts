@@ -11,7 +11,7 @@ export const Territoires = connect.define<Territoire>('__tbl_ecom_territoires', 
         autoIncrement: true,
         allowNull: true,
     },
-    idprovince: DataTypes.STRING,
+    idprovince: DataTypes.INTEGER,
     territoire: DataTypes.STRING,
 
 }, { paranoid: true, timestamps: false });

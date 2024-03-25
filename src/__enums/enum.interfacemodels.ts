@@ -126,6 +126,11 @@ export interface ICategorie extends globalInterface {
     description?: string
 }
 
+export interface ITypelivraison extends globalInterface {
+    type: string,
+    description?: string
+}
+
 export interface ICommande extends globalInterface {
     id_produit: string,
     qte: number,
