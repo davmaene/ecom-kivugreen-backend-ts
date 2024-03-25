@@ -10,7 +10,7 @@ class Database {
     host: string;
     sequence: any;
     port: number;
-    dialect: string;
+    dialect: any;
 
     constructor() {
         this.dbName = config.get<string>('dbName');
@@ -19,7 +19,7 @@ class Database {
         this.logging = config.get<boolean>('logging');
         this.timeZone = config.get<string>('timeZone');
         this.host = config.get<string>('host');
-        this.dialect = config.get<string>('dialect');
+        this.dialect = config.get<any>('dialect');
         this.port = config.get<number>('port');
     }
 
