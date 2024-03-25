@@ -67,7 +67,12 @@ export const __controllerMarketplace = {
                 }
             }
 
-            return Responder(res, HttpStatusCode.Ok, { treated, nottreated })
+            if (treated.length > 0) {
+                return Responder(res, HttpStatusCode.Ok, { treated, nottreated })
+            } else {
+                return Responder(res, HttpStatusCode.InternalServerError, "Commande can not be proceded cause the table of all commande is empty !")
+            }
+
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
