@@ -131,7 +131,7 @@ export interface IPayement extends globalInterface {
     phone: string,
     amount: number,
     currency: string,
-    category: string,
+    category: number,
     description: string
 }
 

@@ -3,10 +3,11 @@ import { Services } from './serives.all';
 import axios from "axios";
 import dotenv from 'dotenv';
 import { randomLongNumber } from '__helpers/helper.random';
+import { Paiements } from '__models/model.payements';
 
 dotenv.config();
 
-const { FLEXPAYMERCHANTID, FLEXPAYURL, CALLBACKURL, FLEXPAYTOKEN, FLEXPAYURLCHECK } = process.env;
+const { APP_FLEXPAYMERCHANTID, APP_FLEXPAYURL, APP_CALLBACKURL, APP_FLEXPAYTOKEN, APP_FLEXPAYURLCHECK } = process.env;
 
 axios.interceptors.request.use(
     config => {
@@ -36,7 +37,7 @@ export const Payements = {
     pay: async ({ phone, amount, currency }: { phone: string, amount: number, currency: string }): Promise<{ code: number, message: string, data: any }> => {
         return new Promise(async (resolve, reject) => {
             try {
-                const { APP_FLEXPAYMERCHANTID, APP_FLEXPAYURL, APP_CALLBACKURL, APP_FLEXPAYTOKEN } = process.env;
+                // const { APP_FLEXPAYMERCHANTID, APP_FLEXPAYURL, APP_CALLBACKURL, APP_FLEXPAYTOKEN } = process.env;
                 const _opphone = completeCodeCountryToPhoneNumber({ phone: fillphone({ phone }) });
                 const _operationref = randomLongNumber({ length: 13 })
 
@@ -47,16 +48,16 @@ export const Payements = {
                     "reference": _operationref,
                     "amount": amount,
                     "currency": currency.trim().toUpperCase(),
-                    "callbackUrl": CALLBACKURL
+                    "callbackUrl": APP_CALLBACKURL
                 };
 
                 axios({
                     method: 'POST',
-                    url: FLEXPAYURL,
+                    url: APP_FLEXPAYURL,
                     timeout,
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${FLEXPAYTOKEN}`
+                        'Authorization': `Bearer ${APP_FLEXPAYTOKEN}`
                     },
                     data: { ...data }
                 })
@@ -66,56 +67,63 @@ export const Payements = {
                         if (status === 200) {
                             const { code, message, orderNumber } = data;
 
-                            loggerSystemOnPayement({
+                            Services.loggerSystem({
                                 message: JSON.stringify({ ...data, phone: _opphone, amount, currency, orderNumber }),
                                 title: "PAIEMENT AVEC FLEXPAY"
                             });
 
                             if (code === 0 || code === "0") {
-                                Pendingpaiements.create({
-                                    realref: operationref,
+                                Paiements.create({
+                                    realref: _operationref,
                                     reference: orderNumber,
                                     phone: _opphone,
                                     amount,
                                     currency,
-                                    category
+                                    category: 1,
+                                    description: `${status}`
                                 })
                                     .then(resp => {
-                                        if (resp instanceof Pendingpaiements) {
-                                            return cb(undefined, { code: 200, message: "A push message was sent the customer", data: { ...data } });
+                                        if (resp instanceof Paiements) {
+                                            return resolve({ code: 200, message: "A push message was sent the customer", data: { ...data } });
                                         } else {
-                                            return cb(undefined, { code: 400, message: "An error occured when trying to resolve payement !", data: { ...err } });
+                                            return reject({ code: 400, message: "An error occured when trying to resolve payement !", data: { error: resp } });
                                         }
                                     })
                                     .catch(err => {
                                         console.log(err);
-                                        return cb(undefined, { code: 400, message: "An error occured when trying to resolve payement !", data: { ...err } });
+                                        return reject({ code: 400, message: "An error occured when trying to resolve payement !", data: { ...err } });
                                     })
                             } else {
-                                onSendSMS({
-                                    to: `+${_opphone}`,
+                                Services.onSendSMS({
+                                    is_flash: false,
+                                    to: fillphone({ phone: _opphone }),
                                     content: `Désolé une erreur vient de se produire lors du paiement veuillez réessayer plus tard !`
-                                }, (er, dn) => { })
-                                return cb(undefined, { code: 400, message: "An error occured when trying to resolve payement !", data: {} });
+                                })
+                                return reject({ code, message, data })
                             }
 
                         } else {
-                            loggerSystemOnPayement({
-                                message: JSON.stringify({ ...data, phone: _opphone, amount, currency, orderNumber }),
+                            Services.loggerSystem({
+                                message: JSON.stringify({ ...data, phone: _opphone, amount, currency }),
                                 title: "PAIEMENT AVEC FLEXPAY CRASHED"
                             });
-                            return cb(undefined, { code: 400, message: "an error was occured when trying to process with payement !", data: {} })
+                            return reject({ code: 400, message: "an error was occured when trying to process with payement !", data: {} })
                         }
                     })
                     .catch((error) => {
                         console.log("Error on paiement ===> ", error);
-                        return cb(undefined, { code: 400, message: "An error occured when trying to resolve payement !", data: error })
+                        return reject({ code: 400, message: "An error occured when trying to resolve payement !", data: error })
                     });
             } catch (error) {
                 Services.loggerSystem({ title: "Error on paiement ", message: JSON.stringify({ phone, amount, currency }) })
                 console.log(" Une erreur vient de se produire on making paiement => ", error);
 
             }
+        })
+    },
+    check: async ({ phone, amount, currency }: { phone: string, amount: number, currency: string }): Promise<{ code: number, message: string, data: any }> => {
+        return new Promise((resolve, reject) => {
+            
         })
     }
 }

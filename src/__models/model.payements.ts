@@ -14,9 +14,9 @@ export const Paiements = connect.define<Payement>('__tbl_ecom_payements', {
     realref: DataTypes.STRING,
     reference: DataTypes.STRING,
     phone: DataTypes.STRING,
-    amount: DataTypes.STRING,
+    amount: DataTypes.FLOAT,
     currency: DataTypes.STRING,
-    category: DataTypes.STRING,
+    category: DataTypes.INTEGER,
     description: DataTypes.STRING
 
 }, { paranoid: true, timestamps: false, freezeTableName: true });
