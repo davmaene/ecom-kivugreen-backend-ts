@@ -55,6 +55,8 @@ app.get('/', (req: Request, res: Response, next: NextFunction) => {
 
 app.use('/api', accessValidator, routes) //
 
+app.use("/__assets", routes);
+
 app.use((req: Request, res: Response, next: NextFunction) => {
     const { url, method, body } = req
     return Responder(res, HttpStatusCode.NotFound, {

@@ -15,6 +15,7 @@ import { __routesCommandes } from "./routes.commandes";
 import { __routesConfigurations } from "./routes.configurations";
 import { __routesVillages } from "./routes.villages";
 import { __routesTypelivraison } from "./routes.typelivraisons";
+import { __routesAssets } from "./routes.assets";
 
 export const routes = express.Router();
 
@@ -34,4 +35,7 @@ routes.use('/commandes', __routesCommandes)
 routes.use('/configurations', __routesConfigurations)
 routes.use('/villages', __routesVillages)
 routes.use('/typeslivraisons', __routesTypelivraison)
+
+routes.use("/", __routesAssets)
+
 
