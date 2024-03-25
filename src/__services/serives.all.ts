@@ -12,6 +12,7 @@ import { completeCodeCountryToPhoneNumber } from '../__helpers/helper.fillphone'
 import { log } from 'console';
 import { Users } from '../__models/model.users';
 import { Hasmembers } from '../__models/model.hasmembers';
+import fs from 'fs';
 
 dotenv.config()
 
@@ -20,6 +21,14 @@ const { API_SMS_ENDPOINT, APP_NAME, API_SMS_TOKEN, API_SMS_IS_FLASH } = process.
 let tempfolder: string = 'as_assets'
 
 export const Services = {
+    loggerSystem: ({ message, title }: { message: any, title: string }) => {
+        const fl = fs.createWriteStream('__assets/as_log/log.system.infos.ini', {
+            flags: 'a' // 'a' means appending (old data will be preserved)
+        })
+        fl.write(`\n Title => ${title}\n Info => ${message}\n Temps => ${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`);
+        fl.write(`\n--------------------------------------------------------------------`);
+        fl.close()
+    },
     onSendSMS: async ({ to, content, is_flash }: { to: string, content: string, is_flash: boolean }): Promise<{ code: number, message: string, data: any }> => {
         return new Promise(async (resolve, reject) => {
             try {

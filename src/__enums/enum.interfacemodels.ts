@@ -125,6 +125,15 @@ export interface ICategorie extends globalInterface {
     category?: string,
     description?: string
 }
+export interface IPayement extends globalInterface {
+    realref?: string,
+    reference?: string,
+    phone: string,
+    amount: number,
+    currency: string,
+    category: string,
+    description: string
+}
 
 export interface ITypelivraison extends globalInterface {
     type: string,
@@ -132,6 +141,7 @@ export interface ITypelivraison extends globalInterface {
 }
 
 export interface ICommande extends globalInterface {
+    transaction: string,
     id_produit: string,
     qte: number,
     type_livraison: number,
