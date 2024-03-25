@@ -379,3 +379,4 @@
 ::ffff:127.0.0.1 - - [25/Mar/2024:22:26:56 +0000] "POST /api/users/user/auth HTTP/1.1" 500 419 "-" "PostmanRuntime/7.36.3"
 ::ffff:127.0.0.1 - - [25/Mar/2024:22:26:58 +0000] "POST /api/users/user/auth HTTP/1.1" 500 419 "-" "PostmanRuntime/7.36.3"
 ::ffff:127.0.0.1 - - [25/Mar/2024:22:51:03 +0000] "POST /api/produits/produit/add HTTP/1.1" 200 247 "-" "PostmanRuntime/7.36.3"
+::ffff:127.0.0.1 - - [25/Mar/2024:23:07:45 +0000] "POST /api/produits/produit/add HTTP/1.1" 409 401 "-" "PostmanRuntime/7.36.3"

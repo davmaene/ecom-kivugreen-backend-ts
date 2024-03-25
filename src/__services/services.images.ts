@@ -17,7 +17,10 @@ export const ServiceImage = {
 
             __file.mv(uploadPath, function (err: any) {
                 if (err) return callBack(undefined, { code: 500, message: "An error was occured when trying to upload file", data: err })
-                else return callBack(undefined, { code: 200, message: "File uploaded done", data: { filename, fullpath: uploadPath } })
+                else {
+                    const slink: string = String(uploadPath).substring(String(uploadPath).indexOf("/") + 1)
+                    return callBack(undefined, { code: 200, message: "File uploaded done", data: { filename, fullpath: slink } })
+                }
             });
 
         } catch (error) {

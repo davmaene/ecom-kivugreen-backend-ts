@@ -25,6 +25,24 @@ export const __controllerProduits = {
                     if (done) {
                         const { code, message, data } = done;
                         if (code === 200) {
+                            const { filename, fullpath: slink } = data
+                            Produits.create({
+                                produit: capitalizeWords({ text: produit }),
+                                image: slink,
+                                id_unity: parseInt(id_unity),
+                                id_category: parseInt(id_category),
+                                description,
+                                id_souscategory: parseInt(id_souscategory),
+                                createdby: __id
+                            })
+                                .then(prd => {
+                                    if (prd instanceof Produits) return Responder(res, HttpStatusCode.Ok, prd)
+                                    else return Responder(res, HttpStatusCode.BadRequest, prd)
+                                })
+                                .catch(err => {
+                                    return Responder(res, HttpStatusCode.Conflict, err)
+                                })
+                            return false
                             ServiceImage.onRemoveBGFromImage({
                                 inputs: {
                                     ...data,
