@@ -14,13 +14,15 @@ export const Commandes = connect.define<Commande>('__tbl_ecom_commandes', {
     transaction: DataTypes.STRING,
     id_produit: DataTypes.INTEGER,
     qte: DataTypes.INTEGER,
-    prix_achat: DataTypes.FLOAT,
+    prix_total: DataTypes.FLOAT,
+    prix_unit: DataTypes.FLOAT,
     currency: DataTypes.STRING,
     payament_phone: DataTypes.STRING,
     type_livraison: DataTypes.INTEGER,
     description: DataTypes.STRING,
     is_pending: DataTypes.INTEGER,
-    state: DataTypes.INTEGER
+    state: DataTypes.INTEGER,
+    createdby: DataTypes.INTEGER
 
 }, { paranoid: true, timestamps: false, freezeTableName: true });
 

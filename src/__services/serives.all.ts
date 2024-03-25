@@ -13,6 +13,7 @@ import { log } from 'console';
 import { Users } from '../__models/model.users';
 import { Hasmembers } from '../__models/model.hasmembers';
 import fs from 'fs';
+import { Configs } from '../__models/model.configs';
 
 dotenv.config()
 
@@ -21,6 +22,53 @@ const { API_SMS_ENDPOINT, APP_NAME, API_SMS_TOKEN, API_SMS_IS_FLASH } = process.
 let tempfolder: string = 'as_assets'
 
 export const Services = {
+    converterDevise: async ({ amount, currency }: { currency: string, amount: number }) => {
+        const configs = await Configs.findAll({
+            order: [['id', 'DESC']],
+            limit: 1
+            // where: {
+            //     id: 1
+            // }
+        })
+        if (configs.length > 0) {
+            const { id, taux_change, commission_price } = configs[0]
+            const tauxDeChange = taux_change || 3000;
+            currency = currency.toUpperCase()
+            if (currency === 'USD') {
+                return { code: 200, message: `Amount converted from USD to CDF with tx(${tauxDeChange})`, data: { currency, amount: amount * tauxDeChange } };
+            } else if (currency === 'CDF') {
+                return { code: 200, message: 'Currency is still CDF', data: { currency, amount } };
+            } else {
+                return { code: 500, message: 'Not supported currency !', data: { currency, amount } };
+            }
+        } else {
+            return { code: 500, message: 'Error occured ! we can not find Configs :::', data: { currency, amount } };
+        }
+    },
+    convertCurrency: async ({ amount, fromCurrency, toCurrency }: { amount: number, fromCurrency: string, toCurrency: string }) => {
+        const apiKey = 'YOUR_API_KEY';
+        const url = `http://data.fixer.io/api/latest?access_key=${apiKey}&base=${fromCurrency}&symbols=${toCurrency}`;
+
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+
+            if (!response.ok || data.error) {
+                throw new Error(data.error ? data.error.info : 'Erreur lors de la récupération des taux de change');
+            }
+
+            if (!data.rates.hasOwnProperty(toCurrency)) {
+                throw new Error("La devise cible n'est pas prise en charge");
+            }
+
+            const rate = data.rates[toCurrency];
+            const convertedAmount = amount * rate;
+
+            return convertedAmount;
+        } catch (error: any) {
+            return error.message;
+        }
+    },
     loggerSystem: ({ message, title }: { message: any, title: string }) => {
         const fl = fs.createWriteStream('__assets/as_log/log.system.infos.ini', {
             flags: 'a' // 'a' means appending (old data will be preserved)
@@ -32,10 +80,11 @@ export const Services = {
     onSendSMS: async ({ to, content, is_flash }: { to: string, content: string, is_flash: boolean }): Promise<{ code: number, message: string, data: any }> => {
         return new Promise(async (resolve, reject) => {
             try {
+                // || API_SMS_IS_FLASH,
                 const payload = {
                     'phone': completeCodeCountryToPhoneNumber({ phone: to }),
                     'message': content,
-                    'is_flash': is_flash || API_SMS_IS_FLASH,
+                    'is_flash': (is_flash ? 1 : 0),
                     'app': APP_NAME
                 };
                 const { data, status, request, config, headers, statusText } = await axios({
@@ -52,6 +101,7 @@ export const Services = {
                 else return reject({ code: status, message: statusText, data })
 
             } catch (error: any) {
+                log(error)
                 return reject({ code: 500, message: "Error on sending message", data: error.toString() })
             }
         })

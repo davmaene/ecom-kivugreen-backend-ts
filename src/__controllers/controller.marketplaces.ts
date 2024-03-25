@@ -13,18 +13,22 @@ import { Commandes } from '../__models/model.commandes';
 import { Users } from '../__models/model.users';
 import { Services } from '../__services/serives.all';
 import { fillphone } from '../__helpers/helper.fillphone';
+import { connect } from '../__databases/connecte';
 
 export const __controllerMarketplace = {
     placecommand: async (req: Request, res: Response, next: NextFunction) => {
         const { currentuser } = req as any;
         const { __id, roles, uuid } = currentuser;
-        const { items, type_livraison, payament_phone } = req.body;
+        const { items, type_livraison, payament_phone, currency_payement } = req.body;
         if (!items || !Array.isArray(items) || !type_livraison) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least items and can not be empty ! and type_livraison");
 
         try {
             const treated: any[] = []
+            const c_treated: any[] = []
+            const c_nottreated: any[] = []
             const nottreated: any[] = []
             const transaction = randomLongNumber({ length: 13 })
+            const tr_ = await connect.transaction()
             const currentUser = await Users.findOne({
                 where: {
                     id: __id
@@ -41,6 +45,7 @@ export const __controllerMarketplace = {
                     Hasproducts.belongsTo(Cooperatives) // , { foreignKey: 'TblEcomCooperativeId' }
 
                     const has = await Hasproducts.findOne({
+                        transaction: tr_,
                         include: [
                             {
                                 model: Produits,
@@ -81,36 +86,50 @@ export const __controllerMarketplace = {
                 }
 
                 if (treated.length > 0) {
+                    const somme: number[] = []
                     for (let index = 0; index < treated.length; index++) {
                         const { id, qte, prix_unitaire, currency, __tbl_ecom_cooperative, __tbl_ecom_stock, __tbl_ecom_unitesmesure, __tbl_ecom_produit }: any = treated[index] as any;
                         const { produit } = __tbl_ecom_produit
                         const { unity } = __tbl_ecom_unitesmesure
-                        const cmmd = await Commandes.create({
-                            currency,
-                            id_produit: id,
-                            is_pending: 1,
-                            payament_phone: payament_phone || phone,
-                            prix_achat: prix_unitaire,
-                            qte,
-                            state: 0,
-                            transaction,
-                            type_livraison
-                        })
-                        if (cmmd instanceof Commandes) {
-                            Services.onSendSMS({
-                                is_flash: true,
-                                to: fillphone({ phone }),
-                                content: `Bonjour ${nom} nous avons reçu votre commande de (${qte}${unity}) de ${produit}, un push message vous sera envoyé veuillez acceptez le paiement sur votre téléphone`
-                            })
-                            .then(sms => {})
-                            .catch(err => {})
-                        }
+                        let price: number = parseFloat(prix_unitaire) * parseFloat(qte)
+                        let { code, data, message } = await Services.converterDevise({ amount: price, currency: currency_payement || currency });
+                        if (code === 200) {
+                            const { amount: converted_price, currency: converted_currency } = data
+                            somme.push(converted_price)
+                            const cmmd = await Commandes.create({
+                                id_produit: id,
+                                is_pending: 1,
+                                payament_phone: payament_phone || phone,
+                                currency: converted_currency,
+                                prix_total: converted_price,
+                                prix_unit: prix_unitaire,
+                                qte,
+                                state: 0,
+                                transaction,
+                                type_livraison,
+                                createdby: __id
+                            }, { transaction: tr_ })
+                            if (cmmd instanceof Commandes) {
+                                Services.onSendSMS({
+                                    is_flash: true,
+                                    to: fillphone({ phone }),
+                                    content: `Bonjour ${nom} nous avons reçu votre commande de (${qte}${unity}) de ${produit}, un push message vous sera envoyé veuillez acceptez le paiement sur votre téléphone, montant à payer ${converted_price}${converted_currency}, transID: ${transaction}`
+                                })
+                                    .then(sms => { })
+                                    .catch((err: any) => { })
+                                c_treated.push(cmmd)
+                            } else {
+                                c_nottreated.push(cmmd)
+                            }
+                        } else { }
                     }
-                    return Responder(res, HttpStatusCode.Ok, { treated, nottreated })
+                    return Responder(res, HttpStatusCode.Ok, { c_treated, c_nottreated })
                 } else {
+                    tr_.rollback()
                     return Responder(res, HttpStatusCode.InternalServerError, "Commande can not be proceded cause the table of all commande is empty !")
                 }
             } else {
+                tr_.rollback()
                 return Responder(res, HttpStatusCode.InternalServerError, `User can not be found in ---USER:${__id} `)
             }
 

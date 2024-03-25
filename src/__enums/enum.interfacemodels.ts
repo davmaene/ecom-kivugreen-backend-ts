@@ -146,11 +146,13 @@ export interface ICommande extends globalInterface {
     qte: number,
     type_livraison: number,
     description?: string,
-    prix_achat: string,
+    prix_total: number,
+    prix_unit: number,
     currency: string,
     payament_phone: string,
     is_pending: number,
-    state: number
+    state: number,
+    createdby: number
 }
 
 export interface IExtras extends globalInterface {
