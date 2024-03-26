@@ -108,7 +108,7 @@ export const __controllerCooperatives = {
                                 const treated: any[] = []
                                 for (let index = 0; index < Array.from(data).length; index++) {
                                     const { TblEcomCooperativeId: ascoopec, TblEcomUserId: asuser } = Array.from(data)[index] as any;
-                                    const member = await Users.findOne({ where: { id: asuser } })
+                                    const member = await Users.findOne({ where: { id: parseInt(asuser) } })
                                     if (member instanceof Users) {
                                         const { phone, email, id, nom } = member.toJSON() as any
                                         Services.onGenerateCardMember({
@@ -116,9 +116,10 @@ export const __controllerCooperatives = {
                                             id_user: asuser
                                         })
                                             .then(async ({ code, message, data }) => {
+                                                log("Generated card is =======> ", data)
                                                 if (code === 200) {
                                                     const { card, expiresInString, expiresInUnix } = data
-                                                    const ext = await Extras.findOrCreate({
+                                                    const [ext, isnew] = await Extras.findOrCreate({
                                                         where: {
                                                             id_user: id,
                                                         },
@@ -133,13 +134,13 @@ export const __controllerCooperatives = {
                                                         Services.onSendSMS({
                                                             to: fillphone({ phone }),
                                                             is_flash: false,
-                                                            content: `Bonjour ${nom}, votre enregistrement dans la coopérative ${coopec} en date du ${now({ options: {} })}, votre carte de membre sera expiré le ${expiresInString.toString()}`
+                                                            content: `Bonjour ${nom}, votre enregistrement dans la coopérative ${cooperative} en date du ${now({ options: {} })}, votre carte de membre sera expiré le ${expiresInString.toString()}`
                                                         })
                                                             .then(m => { })
                                                             .catch(e => { })
-                                                            treated.push(ext.toJSON())
+                                                        treated.push(ext.toJSON())
                                                     }
-                                                }
+                                                } else { }
                                             })
                                             .catch((err) => {
                                                 log("Error on generating card member of ==> ", ascoopec, asuser, err)
@@ -150,10 +151,12 @@ export const __controllerCooperatives = {
                                 }
                                 return Responder(res, HttpStatusCode.Ok, treated)
                             } else {
+                                log(data)
                                 return Responder(res, HttpStatusCode.InternalServerError, "Error on initializing members table !")
                             }
                         } else {
-                            return Responder(res, HttpStatusCode.InternalServerError, "Error on initializing members table !")
+                            log(done)
+                            return Responder(res, HttpStatusCode.InternalServerError, "Error on initializing members table ! ===")
                         }
                     }
                 })

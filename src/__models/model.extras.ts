@@ -17,7 +17,7 @@ export const Extras = connect.define<Extra>('__tbl_ecom_extras', { // as carte m
         allowNull: true
     },
     carte: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         allowNull: true,
         unique: true,
         defaultValue: APP_ESCAPESTRING
