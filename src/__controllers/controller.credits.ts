@@ -34,7 +34,7 @@ export const __controllersCredits = {
     },
     listbystatus: async (req: Request, res: Response) => {
         const { status } = req.params
-        if(!status) return Responder(res, HttpStatusCode.NoContent, "This request must have at least status")
+        if (!status) return Responder(res, HttpStatusCode.NoContent, "This request must have at least status")
         try {
             Credits.belongsTo(Users, { foreignKey: "id_user" })
             Credits.belongsTo(Cooperatives, { foreignKey: "id_cooperative" })
@@ -68,6 +68,43 @@ export const __controllersCredits = {
                 .then(crd => {
                     if (crd instanceof Credits) return Responder(res, HttpStatusCode.Ok, crd)
                     else return Responder(res, HttpStatusCode.Conflict, crd)
+                })
+                .catch(er => Responder(res, HttpStatusCode.InternalServerError, er))
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    update: async (req: Request, res: Response,) => {
+        const { idcredit } = req.params
+        if (!idcredit) return Responder(res, HttpStatusCode.NoContent, "This request must have at least idcredit")
+        try {
+            Credits.update({
+                ...req.body
+            }, {
+                where: {
+                    id: idcredit
+                }
+            })
+                .then(crd => {
+                    if (crd) return Responder(res, HttpStatusCode.Ok, crd)
+                    else return Responder(res, HttpStatusCode.Conflict, crd)
+                })
+                .catch(er => Responder(res, HttpStatusCode.InternalServerError, er))
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    delete: async (req: Request, res: Response,) => {
+        const { idcredit } = req.params
+        if (!idcredit) return Responder(res, HttpStatusCode.NoContent, "This request must have at least idcredit")
+        try {
+            Credits.destroy({
+                where: {
+                    id: idcredit
+                }
+            })
+                .then(crd => {
+                    return Responder(res, HttpStatusCode.Ok, `Item with id:::${idcredit} was successfuly deleted !`)
                 })
                 .catch(er => Responder(res, HttpStatusCode.InternalServerError, er))
         } catch (error) {
