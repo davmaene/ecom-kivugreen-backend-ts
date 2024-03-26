@@ -1,0 +1,21 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.__routesUsers = void 0;
+const middleware_datavalidator_1 = require("../__middlewares/middleware.datavalidator");
+const controller_users_1 = require("../__controllers/controller.users");
+const express_1 = __importDefault(require("express"));
+exports.__routesUsers = express_1.default.Router();
+exports.__routesUsers.post("/user/auth", (0, middleware_datavalidator_1.onValidate)(middleware_datavalidator_1.userModelOnSignin), controller_users_1.__controllerUsers.auth);
+exports.__routesUsers.post("/user/signin", (0, middleware_datavalidator_1.onValidate)(middleware_datavalidator_1.userModelOnSignin), controller_users_1.__controllerUsers.signin);
+exports.__routesUsers.post("/user/signup", controller_users_1.__controllerUsers.signup);
+exports.__routesUsers.post("/user/register", (0, middleware_datavalidator_1.onValidate)(middleware_datavalidator_1.userModelValidator), controller_users_1.__controllerUsers.register);
+exports.__routesUsers.post("/user/add", (0, middleware_datavalidator_1.onValidate)(middleware_datavalidator_1.userModelValidator), controller_users_1.__controllerUsers.register);
+exports.__routesUsers.put("/user/validate/:iduser", controller_users_1.__controllerUsers.validate);
+exports.__routesUsers.put("/user/verify", controller_users_1.__controllerUsers.verify);
+exports.__routesUsers.put("/user/resendcode", controller_users_1.__controllerUsers.resendcode);
+exports.__routesUsers.get("/list", controller_users_1.__controllerUsers.list);
+exports.__routesUsers.get("/user/:iduser", controller_users_1.__controllerUsers.profile);
+exports.__routesUsers.put("/user/:iduser", controller_users_1.__controllerUsers.update);
