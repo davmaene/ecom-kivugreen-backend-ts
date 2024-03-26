@@ -17,6 +17,7 @@ import { __routesVillages } from "./routes.villages";
 import { __routesTypelivraison } from "./routes.typelivraisons";
 import { __routesAssets } from "./routes.assets";
 import { __routesBanks } from "./routes.banks";
+import { __routesCredits } from "./routes.credits";
 
 export const routes = express.Router();
 
@@ -37,6 +38,7 @@ routes.use('/configurations', __routesConfigurations)
 routes.use('/villages', __routesVillages)
 routes.use('/typeslivraisons', __routesTypelivraison)
 routes.use('/banks', __routesBanks)
+routes.use('/credits', __routesCredits)
 
 routes.use("/", __routesAssets)
 

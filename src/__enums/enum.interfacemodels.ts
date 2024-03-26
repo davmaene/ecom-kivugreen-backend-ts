@@ -89,6 +89,15 @@ export interface IConfigs extends globalInterface {
     commission_price?: number,
 }
 
+export interface ICredits extends globalInterface {
+    id_cooperative: number,
+    id_user?: number,
+    montant: number,
+    currency: string,
+    motif: string,
+    periode_remboursement: number,
+}
+
 export interface ITerritoires extends globalInterface {
     idprovince: number,
     territoire: string
