@@ -37,7 +37,11 @@ export const Banks = connect.define<Bank>('__tbl_ecom_banks', {
         allowNull: false,
         unique: true
     },
-    bank: DataTypes.STRING,
+    bank: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
+    }
 
 }, { paranoid: true, timestamps: true });
 
