@@ -96,6 +96,7 @@ export interface ICredits extends globalInterface {
     currency: string,
     motif: string,
     periode_remboursement: number,
+    status: number
 }
 
 export interface ITerritoires extends globalInterface {

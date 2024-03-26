@@ -1,8 +1,8 @@
-import { HttpStatusCode } from "__enums/enum.httpsstatuscode";
-import { Responder } from "__helpers/helper.responseserver";
-import { Users } from "__models";
-import { Cooperatives } from "__models/model.cooperatives";
-import { Credits } from "__models/model.credits";
+import { HttpStatusCode } from "../__enums/enum.httpsstatuscode";
+import { Responder } from "../__helpers/helper.responseserver";
+import { Users } from "../__models";
+import { Cooperatives } from "../__models/model.cooperatives";
+import { Credits } from "../__models/model.credits";
 import { Request, Response } from "express";
 
 export const __controllersCredits = {
@@ -28,6 +28,48 @@ export const __controllersCredits = {
                 .catch(err => {
                     return Responder(res, HttpStatusCode.InternalServerError, err)
                 })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    listbystatus: async (req: Request, res: Response) => {
+        const { status } = req.params
+        if(!status) return Responder(res, HttpStatusCode.NoContent, "This request must have at least status")
+        try {
+            Credits.belongsTo(Users, { foreignKey: "id_user" })
+            Credits.belongsTo(Cooperatives, { foreignKey: "id_cooperative" })
+            Credits.findAndCountAll({
+                include: [
+                    {
+                        model: Cooperatives,
+                        required: true
+                    },
+                    {
+                        model: Users,
+                        required: false
+                    }
+                ]
+            })
+                .then(({ rows, count }) => {
+                    return Responder(res, HttpStatusCode.Ok, { count, rows })
+                })
+                .catch(err => {
+                    return Responder(res, HttpStatusCode.InternalServerError, err)
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    add: async (req: Request, res: Response,) => {
+        try {
+            Credits.create({
+                ...req.body
+            })
+                .then(crd => {
+                    if (crd instanceof Credits) return Responder(res, HttpStatusCode.Ok, crd)
+                    else return Responder(res, HttpStatusCode.Conflict, crd)
+                })
+                .catch(er => Responder(res, HttpStatusCode.InternalServerError, er))
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
