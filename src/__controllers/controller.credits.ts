@@ -1,3 +1,4 @@
+import { log } from "console";
 import { HttpStatusCode } from "../__enums/enum.httpsstatuscode";
 import { Responder } from "../__helpers/helper.responseserver";
 import { Users } from "../__models";
@@ -77,6 +78,7 @@ export const __controllersCredits = {
     update: async (req: Request, res: Response,) => {
         const { idcredit } = req.params
         if (!idcredit) return Responder(res, HttpStatusCode.NoContent, "This request must have at least idcredit")
+        if(Object.keys(req.body).length <= 0) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least somes keys in body !")
         try {
             Credits.update({
                 ...req.body
@@ -104,7 +106,8 @@ export const __controllersCredits = {
                 }
             })
                 .then(crd => {
-                    return Responder(res, HttpStatusCode.Ok, `Item with id:::${idcredit} was successfuly deleted !`)
+                    if(crd !== 0) return Responder(res, HttpStatusCode.Ok, `Item with id:::${idcredit} was successfuly deleted !`)
+                   else return Responder(res, HttpStatusCode.NotFound, `Item with id:::${idcredit} not found !`)
                 })
                 .catch(er => Responder(res, HttpStatusCode.InternalServerError, er))
         } catch (error) {

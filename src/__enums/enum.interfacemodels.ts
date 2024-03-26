@@ -173,7 +173,8 @@ export interface IExtras extends globalInterface {
     id_user?: number,
     lastlogin?: number,
     carte?: string,
-    date_expiration?: string
+    date_expiration?: string,
+    date_expiration_unix?: string
 }
 
 export interface IBank extends globalInterface {

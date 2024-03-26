@@ -9,7 +9,7 @@ const { APP_ESCAPESTRING } = process.env
 
 export interface Extra extends Model<IExtras>, IExtras { }
 
-export const Extras = connect.define<Extra>('__tbl_ecom_extras', {
+export const Extras = connect.define<Extra>('__tbl_ecom_extras', { // as carte membre
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -18,12 +18,19 @@ export const Extras = connect.define<Extra>('__tbl_ecom_extras', {
     },
     carte: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        unique: true
+        allowNull: true,
+        unique: true,
+        defaultValue: APP_ESCAPESTRING
     },
     date_expiration: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
+        defaultValue: APP_ESCAPESTRING
+    },
+    date_expiration_unix: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: APP_ESCAPESTRING
     },
     id_user: {
         type: DataTypes.INTEGER,
@@ -39,7 +46,7 @@ export const Extras = connect.define<Extra>('__tbl_ecom_extras', {
         type: DataTypes.STRING,
         allowNull: true,
         defaultValue: APP_ESCAPESTRING
-    }
+    },
 
 }, { paranoid: true, timestamps: true });
 
