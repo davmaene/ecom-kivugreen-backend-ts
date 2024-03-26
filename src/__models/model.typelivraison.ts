@@ -1,4 +1,4 @@
-import { DataTypes, Model } from 'sequelize'
+import { DataTypes, FLOAT, Model } from 'sequelize'
 import { connect } from '../__databases/connecte'
 import { ICategorie, ITypelivraison } from '../__enums/enum.interfacemodels';
 
@@ -12,7 +12,18 @@ export const Typelivraisons = connect.define<Type>('__tbl_ecom_typelivraisons', 
         allowNull: true,
     },
     type: DataTypes.STRING,
-    description: DataTypes.STRING
+    description: DataTypes.STRING,
+    lieux: {
+        type: DataTypes.JSON,
+        allowNull: false,
+        defaultValue: []
+    },
+    quantite: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 1
+    },
+    frais_livraison: FLOAT,
 
 }, { paranoid: true, timestamps: false, freezeTableName: true });
 

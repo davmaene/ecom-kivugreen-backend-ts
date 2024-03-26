@@ -137,7 +137,10 @@ export interface IPayement extends globalInterface {
 
 export interface ITypelivraison extends globalInterface {
     type: string,
-    description?: string
+    description?: string,
+    frais_livraison: number,
+    quantite: number,
+    lieux?: number[]
 }
 
 export interface ICommande extends globalInterface {

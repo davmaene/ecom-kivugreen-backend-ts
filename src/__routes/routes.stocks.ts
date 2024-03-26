@@ -4,5 +4,5 @@ import express from 'express'
 export const __routesStocks = express.Router()
 
 __routesStocks.get('/list', __controllerStocks.list)
-__routesStocks.get('/stok/:idcooperative', __controllerStocks.getonebycoopec)
+__routesStocks.get('/stock/:idcooperative', __controllerStocks.getonebycoopec)
 __routesStocks.post('/stock/in', __controllerStocks.in)
