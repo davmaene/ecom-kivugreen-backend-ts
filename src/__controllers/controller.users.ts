@@ -654,6 +654,65 @@ export const __controllerUsers = {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     },
+    listbyrole: async (req: Request, res: Response, next: NextFunction) => {
+        const { idrole } = req.params
+        if(!idrole) return Responder(res, HttpStatusCode.NotAcceptable, "THis request must have at least idrole as param !")
+        try {
+            const transaction = await connect.transaction();
+
+            Users.belongsToMany(Roles, { through: Hasroles });
+            Roles.belongsToMany(Users, { through: Hasroles });
+
+            Provinces.hasOne(Users, { foreignKey: "id" });
+            Users.belongsTo(Provinces, { foreignKey: "idprovince" });
+
+            Territoires.hasOne(Users, { foreignKey: "id" });
+            Users.belongsTo(Territoires, { foreignKey: "idterritoire" });
+
+            Villages.hasOne(Users, { foreignKey: "id" });
+            Users.belongsTo(Villages, { foreignKey: "idvillage" });
+
+            Users.findAndCountAll({
+                where: {
+                    isvalidated: 1
+                },
+                attributes: {
+                    exclude: ['password', 'isvalidated', 'idprovince', 'idterritoire', 'idvillage']
+                },
+                include: [
+                    {
+                        model: Roles,
+                        required: true,
+                        attributes: ['id', 'role'],
+                        where: {
+                            id: parseInt(idrole)
+                        }
+                    },
+                    {
+                        model: Provinces,
+                        required: false,
+                        attributes: ['id', 'province']
+                    },
+                    {
+                        model: Territoires,
+                        required: false,
+                        attributes: ['id', 'territoire']
+                    },
+                    {
+                        model: Villages,
+                        required: false,
+                        attributes: ['id', 'village']
+                    }
+                ]
+            })
+                .then(user => {
+                    transaction.commit()
+                    return Responder(res, HttpStatusCode.Ok, { ...user })
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
     verify: async (req: Request, res: Response, next: NextFunction) => {
         const { id_user, verification_code } = req.body
         if (!id_user || !verification_code) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !id_user || !verification_code")
@@ -759,20 +818,20 @@ export const __controllerUsers = {
     },
     update: async (req: Request, res: Response, next: NextFunction) => {
         const { iduser } = req.params
-        if(!iduser) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least iduser as param !")
-        if(Object.keys(req.body).length > 0) return Responder(res, HttpStatusCode.NotAcceptable, "The should not be empty")
+        if (!iduser) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least iduser as param !")
+        if (Object.keys(req.body).length > 0) return Responder(res, HttpStatusCode.NotAcceptable, "The should not be empty")
         try {
             Users.update({
                 ...req.body
-            },{
+            }, {
                 where: {
                     id: parseInt(iduser)
                 }
             })
-            .then(U => {
-                return Responder(res, HttpStatusCode.Ok, U)
-            })
-            .catch(err => Responder(res, HttpStatusCode.InternalServerError, err))
+                .then(U => {
+                    return Responder(res, HttpStatusCode.Ok, U)
+                })
+                .catch(err => Responder(res, HttpStatusCode.InternalServerError, err))
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
