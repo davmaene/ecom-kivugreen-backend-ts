@@ -16,6 +16,15 @@ export const Extras = connect.define<Extra>('__tbl_ecom_extras', {
         autoIncrement: true,
         allowNull: true
     },
+    carte: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        unique: true
+    },
+    date_expiration: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
     id_user: {
         type: DataTypes.INTEGER,
         allowNull: false,

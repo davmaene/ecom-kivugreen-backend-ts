@@ -171,7 +171,9 @@ export interface ICommande extends globalInterface {
 export interface IExtras extends globalInterface {
     verification?: string,
     id_user?: number,
-    lastlogin?: number
+    lastlogin?: number,
+    carte?: string,
+    date_expiration?: string
 }
 
 export interface IBank extends globalInterface {
