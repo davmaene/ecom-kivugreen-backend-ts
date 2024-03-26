@@ -110,7 +110,7 @@ export const __controllerStocks = {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     },
-    list: (req: Request, res: Response) => {
+    list: async (req: Request, res: Response) => {
         try {
             Stocks.belongsTo(Cooperatives, { foreignKey: "id_cooperative" })
             Stocks.belongsToMany(Produits, { through: Hasproducts, })// as: 'produits'
@@ -137,6 +137,13 @@ export const __controllerStocks = {
                 })
         } catch (error) {
             log(error)
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    getonebycoopec: async (req: Request, res: Response) => {
+        try {
+            
+        } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     }

@@ -14,12 +14,13 @@ export const __controllerBanks = {
                 include: [
                     {
                         model: Users,
-                        required: true
+                        required: true,
+                        attributes: ["id", "nom", "postnom", "prenom", "phone", "email"]
                     }
                 ]
             })
                 .then(({ rows, count }) => {
-                    return Responder(res, HttpStatusCode.Ok, { rows, count })
+                    return Responder(res, HttpStatusCode.Ok, { count, rows, })
                 })
                 .catch(err => Responder(res, HttpStatusCode.Conflict, err))
         } catch (error) {
@@ -71,8 +72,8 @@ export const __controllerBanks = {
                     id: parseInt(idbank)
                 }
             })
-            .then(dest => Responder(res, HttpStatusCode.Ok, `Item with status ${idbank} was successfuly deleted !`))
-            .catch(err => Responder(res, HttpStatusCode.BadRequest, err))
+                .then(dest => Responder(res, HttpStatusCode.Ok, `Item with status ${idbank} was successfuly deleted !`))
+                .catch(err => Responder(res, HttpStatusCode.BadRequest, err))
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
