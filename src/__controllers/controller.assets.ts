@@ -11,10 +11,10 @@ export const __controlerAssets = {
         try {
             return res
                 .status(200)
-                .sendFile(path.resolve(`__assets/${folder}/${ressources}`), (error) => {
+                .sendFile(path.resolve(`src/__assets/${folder}/${ressources}`), (error) => {
                     if (error) {
                         console.log(`no ressource found with the name | Profile | : ${ressources}`);
-                        return res.sendFile(path.resolve(`assets/${folder}/defaultavatar.png`));
+                        return res.sendFile(path.resolve(`src/__assets/${folder}/defaultavatar.png`));
                     }
                 });
         } catch (error) {
@@ -45,8 +45,8 @@ export const __controlerAssets = {
                 .status(200)
                 .sendFile(path.resolve(`src/__assets/${folder}/${ressources}`), (error) => {
                     if (error) {
-                        console.log(`no ressource found with the name | Profile | : ${ressources}`);
-                        return res.sendFile(path.resolve(`__assets/${folder}/defaultavatar.png`));
+                        console.log(`no ressource found with the name : ${ressources}`);
+                        return res.sendFile(path.resolve(`src/__assets/${folder}/defaultproduit.jpg`));
                     }
                 });
         } catch (error) {
