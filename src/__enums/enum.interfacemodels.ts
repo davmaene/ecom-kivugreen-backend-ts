@@ -161,6 +161,15 @@ export interface IExtras extends globalInterface {
     lastlogin?: number
 }
 
+export interface IBank extends globalInterface {
+    bank: string,
+    email: string,
+    phone: string,
+    createdby?: number,
+    description: string,
+    id_responsable: number
+}
+
 export interface ISCategorie extends globalInterface {
     souscategory?: string,
     id_category?: number,
