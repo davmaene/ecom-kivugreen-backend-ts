@@ -24,7 +24,7 @@ export const Banks = connect.define<Bank>('__tbl_ecom_banks', {
     email: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true
+        unique: true,
     },
     description: {
         type: DataTypes.STRING,
@@ -32,7 +32,11 @@ export const Banks = connect.define<Bank>('__tbl_ecom_banks', {
         defaultValue: APP_ESCAPESTRING
     },
     createdby: DataTypes.INTEGER,
-    phone: DataTypes.STRING,
+    phone: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
+    },
     bank: DataTypes.STRING,
 
 }, { paranoid: true, timestamps: true });
