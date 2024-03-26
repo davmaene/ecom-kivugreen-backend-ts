@@ -110,7 +110,7 @@ export const __controllerStocks = {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     },
-    list: (req: Request, res: Response) => {
+    list: async (req: Request, res: Response) => {
         try {
             Stocks.belongsTo(Cooperatives, { foreignKey: "id_cooperative" })
             Stocks.belongsToMany(Produits, { through: Hasproducts, })// as: 'produits'
@@ -137,6 +137,40 @@ export const __controllerStocks = {
                 })
         } catch (error) {
             log(error)
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    getonebycoopec: async (req: Request, res: Response) => {
+        const { idcooperative } = req.params;
+        if (!idcooperative) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least idcooperative")
+        try {
+            Stocks.belongsTo(Cooperatives, { foreignKey: "id_cooperative" })
+            Stocks.belongsToMany(Produits, { through: Hasproducts, })// as: 'produits'
+            Stocks.findAndCountAll({
+                where: {},
+                include: [
+                    {
+                        model: Produits,
+                        // as: 'produits',
+                        required: true,
+                        attributes: ['id', 'produit']
+                    },
+                    {
+                        model: Cooperatives,
+                        required: true,
+                        where: {
+                            id: idcooperative
+                        },
+                        attributes: ['id', 'coordonnees_gps', 'phone', 'num_enregistrement', 'email', 'sigle', 'cooperative', 'description']
+                    }
+                ]
+            })
+                .then(({ count, rows }) => Responder(res, HttpStatusCode.Ok, { count, rows }))
+                .catch(error => {
+                    log(error)
+                    return Responder(res, HttpStatusCode.Conflict, error)
+                })
+        } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     }

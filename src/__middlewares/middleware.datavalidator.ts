@@ -10,6 +10,10 @@ export const validateGender = (v: string) => {
     return ["M", "F"].indexOf(v) !== -1 ? true : false
 };
 
+export const validateCurrency = (v: string) => {
+    return ["USD", "CDF"].indexOf(v) !== -1 ? true : false
+};
+
 export const validateIsformel = (v: string) => {
     v = (v ? v : '0')
     return [0, 1].indexOf(parseInt(v)) !== -1 ? true : false
@@ -90,6 +94,35 @@ export const coopecModelValidator = [
     body('email').optional().isEmail().trim().withMessage("`email` the value entered for email it seems to be not a valide email adresse !"),
     body('isformel').notEmpty().isNumeric().isLength({ max: 1, min: 1 }).custom(validateIsformel).withMessage("`isformel` the value for isformel is not invalid ! this can only be 1 or 0"),
     body('id_category').notEmpty().isNumeric().isLength({ max: 1, min: 1 }).custom(validateCategoryCoopec).withMessage("`id_category` the value for id_category is not invalid ! this can only be 1 or 0"),
+];
+
+export const bankModelValidator = [
+    body('bank').notEmpty().isAscii().withMessage("`bank` is required and it can not be empty ! must be string"),
+    body('id_responsable').isNumeric().custom(async (v, { req }) => {
+        const validator = await userValidator(v);
+        return new Promise((resolve, reject) => {
+            if (validator) resolve(true);
+            else reject(false);
+        });
+    }).withMessage("`id_responsable` the value for id_responsable is not invalid ! this must be integer !"),
+    body('description').notEmpty().isAscii().withMessage("`description` is required and it can not be empty ! must be string"),
+    body('adresse').optional().isAscii().withMessage("`adresse` is required and it can not be empty ! must be string"),
+    body('phone').notEmpty().isMobilePhone('fr-CD').trim().withMessage("`phone` the value entered for the phone it seems to be not a valide phone number !"),
+    body('email').optional().isEmail().trim().withMessage("`email` the value entered for email it seems to be not a valide email adresse !"),
+]
+
+export const creditModelValidator = [
+    body('id_user').optional().isNumeric().custom(async (v, { req }) => {
+        const validator = await userValidator(v);
+        return new Promise((resolve, reject) => {
+            if (validator) resolve(true);
+            else reject(false);
+        });
+    }).withMessage("`id_user` the value for id_user is not invalid ! this must be integer ! and must have corres => in users table"),
+    body('montant').notEmpty().isNumeric().withMessage("`montant` is required and it can not be empty ! must be numeric"),
+    body('currency').notEmpty().isString().isLength({ max: 3, min: 3 }).custom(validateCurrency).isAscii().withMessage("`currency` is required and it can not be empty ! must be string USD || CDF"),
+    body('motif').notEmpty().isAscii().trim().withMessage("`motif` the value entered for the motif it seems to be not a valide string !"),
+    body('periode_remboursement').notEmpty().isNumeric().withMessage("`periode_remboursement` the value entered for periode_remboursement it seems to be not a valide number !"),
 ]
 
 export const produitValidator = [
@@ -98,7 +131,7 @@ export const produitValidator = [
     body('id_unity').notEmpty().isAscii().withMessage("`id_unity` is required and it can not be empty !"),
     body('id_category').notEmpty().isAscii().withMessage("`id_category` is required and it can not be empty !"),
     body('id_souscategory').notEmpty().isAscii().withMessage("`id_souscategory` is required and it can not be empty !"),
-]
+];
 
 export const userModelValidator = [
     body('nom').notEmpty().isAscii().withMessage("`nom` is required and it can not be empty !"),

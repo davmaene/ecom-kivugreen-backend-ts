@@ -1,4 +1,4 @@
-// ###### Offline configuration BD #####
+// // // ###### Offline configuration BD #####
 // export default {
 //   "port": 3306,
 //   "host": "localhost",
@@ -10,7 +10,7 @@
 //   "timeZone": "Etc/GMT+2",
 // };
 
-// #### Online configurations BD #####
+// // // #### Online configurations BD #####
 export default {
   "port": 3306,
   "host": "localhost",

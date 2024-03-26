@@ -7,9 +7,12 @@ import { log } from "console"
 import { Users } from "../__models/model.users"
 import { Hasmembers } from "../__models/model.hasmembers"
 import { randomLongNumber } from "../__helpers/helper.random"
+import { Extras } from "../__models/model.extras"
+import { fillphone } from "../__helpers/helper.fillphone"
+import { now } from "../__helpers/helper.moment"
 
 export const __controllerCooperatives = {
-    
+
     list: async (req: Request, res: Response, next: NextFunction) => {
         try {
             Users.belongsToMany(Cooperatives, { through: Hasmembers });
@@ -84,25 +87,83 @@ export const __controllerCooperatives = {
         const { ids_members, id_cooperative } = req.body;
         if (!ids_members || !id_cooperative) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least ids_members and id_cooperative !")
         try {
-            Services.addMembersToCoopec({
-                inputs: {
-                    idcooperative: parseInt(id_cooperative),
-                    idmembers: [...ids_members],
-                },
-                transaction: null,
-                cb: (err: any, done: any) => {
-                    if (done) {
-                        const { code, message, data } = done;
-                        if (code === 200) {
-                            return Responder(res, HttpStatusCode.Ok, data)
-                        } else {
-                            return Responder(res, HttpStatusCode.InternalServerError, "Error on initializing members table !")
-                        }
-                    } else {
-                        return Responder(res, HttpStatusCode.InternalServerError, "Error on initializing members table !")
-                    }
+            const coopec = await Cooperatives.findOne({
+                where: {
+                    id: id_cooperative
                 }
             })
+
+            if (coopec instanceof Cooperatives) {
+                const { adresse, cooperative, num_enregistrement } = coopec.toJSON() as any
+                Services.addMembersToCoopec({
+                    inputs: {
+                        idcooperative: parseInt(id_cooperative),
+                        idmembers: [...ids_members],
+                    },
+                    transaction: null,
+                    cb: async (err: any, done: any) => {
+                        if (done) {
+                            const { code, message, data } = done;
+                            if (code === 200) {
+                                const treated: any[] = []
+                                for (let index = 0; index < Array.from(data).length; index++) {
+                                    const { TblEcomCooperativeId: ascoopec, TblEcomUserId: asuser } = Array.from(data)[index] as any;
+                                    const member = await Users.findOne({ where: { id: parseInt(asuser) } })
+                                    if (member instanceof Users) {
+                                        const { phone, email, id, nom } = member.toJSON() as any
+                                        Services.onGenerateCardMember({
+                                            id_cooperative: ascoopec,
+                                            id_user: asuser
+                                        })
+                                            .then(async ({ code, message, data }) => {
+                                                log("Generated card is =======> ", data)
+                                                if (code === 200) {
+                                                    const { card, expiresInString, expiresInUnix } = data
+                                                    const [ext, isnew] = await Extras.findOrCreate({
+                                                        where: {
+                                                            id_user: id,
+                                                        },
+                                                        defaults: {
+                                                            id_user: id,
+                                                            carte: String(card),
+                                                            date_expiration: expiresInString,
+                                                            date_expiration_unix: expiresInUnix.toString(),
+                                                        }
+                                                    })
+                                                    if (ext instanceof Extras) {
+                                                        Services.onSendSMS({
+                                                            to: fillphone({ phone }),
+                                                            is_flash: false,
+                                                            content: `Bonjour ${nom}, votre enregistrement dans la coopérative ${cooperative} en date du ${now({ options: {} })}, votre carte de membre sera expiré le ${expiresInString.toString()}`
+                                                        })
+                                                            .then(m => { })
+                                                            .catch(e => { })
+                                                        treated.push(ext.toJSON())
+                                                    }
+                                                } else { }
+                                            })
+                                            .catch((err) => {
+                                                log("Error on generating card member of ==> ", ascoopec, asuser, err)
+                                            })
+                                    } else {
+                                        log("Error on generating card member of ==> user not initialized ", ascoopec, asuser, err)
+                                    }
+                                }
+                                return Responder(res, HttpStatusCode.Ok, treated)
+                            } else {
+                                log(data)
+                                return Responder(res, HttpStatusCode.InternalServerError, "Error on initializing members table !")
+                            }
+                        } else {
+                            log(done)
+                            return Responder(res, HttpStatusCode.InternalServerError, "Error on initializing members table ! ===")
+                        }
+                    }
+                })
+            } else {
+                return Responder(res, HttpStatusCode.NotFound, `We can not process with this request cause ${id_cooperative}has not corres in Coopes table`)
+            }
+
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
@@ -139,8 +200,8 @@ export const __controllerCooperatives = {
                     id: parseInt(idcooperative)
                 }
             })
-            .then(U => Responder(res, HttpStatusCode.Ok, U))
-            .catch(Err => Responder(res, HttpStatusCode.InternalServerError, Err))
+                .then(U => Responder(res, HttpStatusCode.Ok, U))
+                .catch(Err => Responder(res, HttpStatusCode.InternalServerError, Err))
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }

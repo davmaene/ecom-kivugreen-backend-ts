@@ -1,3 +1,4 @@
+import { tries } from './../__middlewares/middleware.cookies';
 import dotenv from 'dotenv';
 import axios from 'axios';
 import { Hasroles } from '../__models/model.hasroles';
@@ -14,6 +15,8 @@ import { Users } from '../__models/model.users';
 import { Hasmembers } from '../__models/model.hasmembers';
 import fs from 'fs';
 import { Configs } from '../__models/model.configs';
+import { addDaysThenReturnUnix, unixToDate } from '../__helpers/helper.moment';
+import base64 from 'base-64';
 
 dotenv.config()
 
@@ -1593,6 +1596,19 @@ export const Services = {
         } catch (error: any) {
             return cb(undefined, { code: 500, message: "Error", data: error.toString() })
         }
+    },
+    onGenerateCardMember: async ({ id_user, id_cooperative }: { id_user: number, id_cooperative: number }): Promise<{ code: number, message: string, data: { card: string, expiresInString: string, expiresInUnix: number } }> => {
+        return new Promise((resolve, reject) => {
+            const expiresIn = addDaysThenReturnUnix({ days: 365 });
+            const expiresInDate = unixToDate({ unix: expiresIn });
+            let card = expiresIn.toString().concat(".").concat(id_user.toString()).concat(".").concat(id_cooperative.toString())
+            let tr = card
+            for (let index = 0; index < tries; index++) {
+                tr = base64.encode(tr)
+            }
+            if (card) resolve({ code: 200, message: "Card created as expiresIn.id_user.id_cooperative", data: { card: tr, expiresInString: expiresInDate, expiresInUnix: expiresIn } })
+            else reject({ code: 500, message: " --- can not encode card ", data: {} })
+        })
     },
     addMembersToCoopec: async ({ inputs: { idmembers, idcooperative }, transaction, cb }: { inputs: { idmembers?: number[], idcooperative: number }, transaction: any, cb: Function }) => {
         if (!idmembers || !idcooperative) return cb(undefined, { code: 401, message: "This request must have at least !", data: { idmembers, idcooperative } });

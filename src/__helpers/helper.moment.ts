@@ -38,27 +38,13 @@ export const daysPerTypeSouscription = ({ type }: { type: any }) => {
 };
 
 export const addDaysThenReturnUnix = ({ days }: { days: number }) => {
-    switch ((days)) {
-        case 1:
-            days = 30;
-            break;
-        case 2:
-            days = 60;
-            break;
-        case 3:
-            days = 90;
-            break;
-        case 4:
-            days = 365;
-            break;
-        default:
-            days = 30;
-            break;
-    }
-    const daysplus = moment().add((days), 'days').unix();
-    return daysplus;
+    return moment().add((days), 'days').unix();
 };
 
 export const dateFormated = ({ longDate }: { longDate: any }) => {
     return moment(longDate).format("L")
 };
+
+export const unixToDate = ({ unix }: {unix: number}) => {
+    return moment.unix(unix).format("LTS, L")
+}

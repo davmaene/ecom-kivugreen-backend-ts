@@ -89,6 +89,16 @@ export interface IConfigs extends globalInterface {
     commission_price?: number,
 }
 
+export interface ICredits extends globalInterface {
+    id_cooperative: number,
+    id_user?: number,
+    montant: number,
+    currency: string,
+    motif: string,
+    periode_remboursement: number,
+    status: number
+}
+
 export interface ITerritoires extends globalInterface {
     idprovince: number,
     territoire: string
@@ -137,7 +147,10 @@ export interface IPayement extends globalInterface {
 
 export interface ITypelivraison extends globalInterface {
     type: string,
-    description?: string
+    description?: string,
+    frais_livraison: number,
+    quantite: number,
+    lieux?: number[]
 }
 
 export interface ICommande extends globalInterface {
@@ -158,7 +171,19 @@ export interface ICommande extends globalInterface {
 export interface IExtras extends globalInterface {
     verification?: string,
     id_user?: number,
-    lastlogin?: number
+    lastlogin?: number,
+    carte?: string,
+    date_expiration?: string,
+    date_expiration_unix?: string
+}
+
+export interface IBank extends globalInterface {
+    bank: string,
+    email: string,
+    phone: string,
+    createdby?: number,
+    description: string,
+    id_responsable: number
 }
 
 export interface ISCategorie extends globalInterface {
