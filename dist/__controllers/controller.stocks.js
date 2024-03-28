@@ -125,7 +125,7 @@ exports.__controllerStocks = {
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
         }
     }),
-    list: (req, res) => {
+    list: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             model_stocks_1.Stocks.belongsTo(model_cooperatives_1.Cooperatives, { foreignKey: "id_cooperative" });
             model_stocks_1.Stocks.belongsToMany(model_produits_1.Produits, { through: model_hasproducts_1.Hasproducts, }); // as: 'produits'
@@ -155,5 +155,41 @@ exports.__controllerStocks = {
             (0, console_1.log)(error);
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
         }
-    }
+    }),
+    getonebycoopec: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        const { idcooperative } = req.params;
+        if (!idcooperative)
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "This request must have at least idcooperative");
+        try {
+            model_stocks_1.Stocks.belongsTo(model_cooperatives_1.Cooperatives, { foreignKey: "id_cooperative" });
+            model_stocks_1.Stocks.belongsToMany(model_produits_1.Produits, { through: model_hasproducts_1.Hasproducts, }); // as: 'produits'
+            model_stocks_1.Stocks.findAndCountAll({
+                where: {},
+                include: [
+                    {
+                        model: model_produits_1.Produits,
+                        // as: 'produits',
+                        required: true,
+                        attributes: ['id', 'produit']
+                    },
+                    {
+                        model: model_cooperatives_1.Cooperatives,
+                        required: true,
+                        where: {
+                            id: idcooperative
+                        },
+                        attributes: ['id', 'coordonnees_gps', 'phone', 'num_enregistrement', 'email', 'sigle', 'cooperative', 'description']
+                    }
+                ]
+            })
+                .then(({ count, rows }) => (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count, rows }))
+                .catch(error => {
+                (0, console_1.log)(error);
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Conflict, error);
+            });
+        }
+        catch (error) {
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
+        }
+    })
 };

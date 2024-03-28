@@ -11,7 +11,18 @@ exports.Typelivraisons = connecte_1.connect.define('__tbl_ecom_typelivraisons', 
         allowNull: true,
     },
     type: sequelize_1.DataTypes.STRING,
-    description: sequelize_1.DataTypes.STRING
+    description: sequelize_1.DataTypes.STRING,
+    lieux: {
+        type: sequelize_1.DataTypes.JSON,
+        allowNull: false,
+        defaultValue: []
+    },
+    quantite: {
+        type: sequelize_1.DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 1
+    },
+    frais_livraison: sequelize_1.FLOAT,
 }, { paranoid: true, timestamps: false, freezeTableName: true });
 exports.Typelivraisons.sync({ alter: true })
     .then(() => {

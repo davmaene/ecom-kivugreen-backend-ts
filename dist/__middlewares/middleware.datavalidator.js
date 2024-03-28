@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.onValidate = exports.dataValidator = exports.userModelOnSignin = exports.userModelOnResendCode = exports.userModelOnVerification = exports.userModelValidator = exports.produitValidator = exports.coopecModelValidator = exports.villageValidator = exports.userValidator = exports.territoireValidator = exports.provinceValidator = exports.roleValidator = exports.validateCategoryCoopec = exports.validateIsformel = exports.validateGender = void 0;
+exports.onValidate = exports.dataValidator = exports.userModelOnSignin = exports.userModelOnResendCode = exports.userModelOnVerification = exports.userModelValidator = exports.produitValidator = exports.creditModelValidator = exports.bankModelValidator = exports.coopecModelValidator = exports.villageValidator = exports.userValidator = exports.territoireValidator = exports.provinceValidator = exports.roleValidator = exports.validateCategoryCoopec = exports.validateIsformel = exports.validateCurrency = exports.validateGender = void 0;
 const express_validator_1 = require("express-validator");
 const serives_all_1 = require("../__services/serives.all");
 const enum_httpsstatuscode_1 = require("../__enums/enum.httpsstatuscode");
@@ -19,6 +19,10 @@ const validateGender = (v) => {
     return ["M", "F"].indexOf(v) !== -1 ? true : false;
 };
 exports.validateGender = validateGender;
+const validateCurrency = (v) => {
+    return ["USD", "CDF"].indexOf(v) !== -1 ? true : false;
+};
+exports.validateCurrency = validateCurrency;
 const validateIsformel = (v) => {
     v = (v ? v : '0');
     return [0, 1].indexOf(parseInt(v)) !== -1 ? true : false;
@@ -107,6 +111,37 @@ exports.coopecModelValidator = [
     (0, express_validator_1.body)('email').optional().isEmail().trim().withMessage("`email` the value entered for email it seems to be not a valide email adresse !"),
     (0, express_validator_1.body)('isformel').notEmpty().isNumeric().isLength({ max: 1, min: 1 }).custom(exports.validateIsformel).withMessage("`isformel` the value for isformel is not invalid ! this can only be 1 or 0"),
     (0, express_validator_1.body)('id_category').notEmpty().isNumeric().isLength({ max: 1, min: 1 }).custom(exports.validateCategoryCoopec).withMessage("`id_category` the value for id_category is not invalid ! this can only be 1 or 0"),
+];
+exports.bankModelValidator = [
+    (0, express_validator_1.body)('bank').notEmpty().isAscii().withMessage("`bank` is required and it can not be empty ! must be string"),
+    (0, express_validator_1.body)('id_responsable').isNumeric().custom((v, { req }) => __awaiter(void 0, void 0, void 0, function* () {
+        const validator = yield (0, exports.userValidator)(v);
+        return new Promise((resolve, reject) => {
+            if (validator)
+                resolve(true);
+            else
+                reject(false);
+        });
+    })).withMessage("`id_responsable` the value for id_responsable is not invalid ! this must be integer !"),
+    (0, express_validator_1.body)('description').notEmpty().isAscii().withMessage("`description` is required and it can not be empty ! must be string"),
+    (0, express_validator_1.body)('adresse').optional().isAscii().withMessage("`adresse` is required and it can not be empty ! must be string"),
+    (0, express_validator_1.body)('phone').notEmpty().isMobilePhone('fr-CD').trim().withMessage("`phone` the value entered for the phone it seems to be not a valide phone number !"),
+    (0, express_validator_1.body)('email').optional().isEmail().trim().withMessage("`email` the value entered for email it seems to be not a valide email adresse !"),
+];
+exports.creditModelValidator = [
+    (0, express_validator_1.body)('id_user').optional().isNumeric().custom((v, { req }) => __awaiter(void 0, void 0, void 0, function* () {
+        const validator = yield (0, exports.userValidator)(v);
+        return new Promise((resolve, reject) => {
+            if (validator)
+                resolve(true);
+            else
+                reject(false);
+        });
+    })).withMessage("`id_user` the value for id_user is not invalid ! this must be integer ! and must have corres => in users table"),
+    (0, express_validator_1.body)('montant').notEmpty().isNumeric().withMessage("`montant` is required and it can not be empty ! must be numeric"),
+    (0, express_validator_1.body)('currency').notEmpty().isString().isLength({ max: 3, min: 3 }).custom(exports.validateCurrency).isAscii().withMessage("`currency` is required and it can not be empty ! must be string USD || CDF"),
+    (0, express_validator_1.body)('motif').notEmpty().isAscii().trim().withMessage("`motif` the value entered for the motif it seems to be not a valide string !"),
+    (0, express_validator_1.body)('periode_remboursement').notEmpty().isNumeric().withMessage("`periode_remboursement` the value entered for periode_remboursement it seems to be not a valide number !"),
 ];
 exports.produitValidator = [
     (0, express_validator_1.body)('produit').notEmpty().isAscii().withMessage("the name of the `produit` is required and it can not be empty !"),

@@ -18,6 +18,9 @@ const console_1 = require("console");
 const model_users_1 = require("../__models/model.users");
 const model_hasmembers_1 = require("../__models/model.hasmembers");
 const helper_random_1 = require("../__helpers/helper.random");
+const model_extras_1 = require("../__models/model.extras");
+const helper_fillphone_1 = require("../__helpers/helper.fillphone");
+const helper_moment_1 = require("../__helpers/helper.moment");
 exports.__controllerCooperatives = {
     list: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
@@ -94,27 +97,86 @@ exports.__controllerCooperatives = {
         if (!ids_members || !id_cooperative)
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "This request must have at least ids_members and id_cooperative !");
         try {
-            serives_all_1.Services.addMembersToCoopec({
-                inputs: {
-                    idcooperative: parseInt(id_cooperative),
-                    idmembers: [...ids_members],
-                },
-                transaction: null,
-                cb: (err, done) => {
-                    if (done) {
-                        const { code, message, data } = done;
-                        if (code === 200) {
-                            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, data);
-                        }
-                        else {
-                            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, "Error on initializing members table !");
-                        }
-                    }
-                    else {
-                        return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, "Error on initializing members table !");
-                    }
+            const coopec = yield model_cooperatives_1.Cooperatives.findOne({
+                where: {
+                    id: id_cooperative
                 }
             });
+            if (coopec instanceof model_cooperatives_1.Cooperatives) {
+                const { adresse, cooperative, num_enregistrement } = coopec.toJSON();
+                serives_all_1.Services.addMembersToCoopec({
+                    inputs: {
+                        idcooperative: parseInt(id_cooperative),
+                        idmembers: [...ids_members],
+                    },
+                    transaction: null,
+                    cb: (err, done) => __awaiter(void 0, void 0, void 0, function* () {
+                        if (done) {
+                            const { code, message, data } = done;
+                            if (code === 200) {
+                                const treated = [];
+                                for (let index = 0; index < Array.from(data).length; index++) {
+                                    const { TblEcomCooperativeId: ascoopec, TblEcomUserId: asuser } = Array.from(data)[index];
+                                    const member = yield model_users_1.Users.findOne({ where: { id: parseInt(asuser) } });
+                                    if (member instanceof model_users_1.Users) {
+                                        const { phone, email, id, nom } = member.toJSON();
+                                        serives_all_1.Services.onGenerateCardMember({
+                                            id_cooperative: ascoopec,
+                                            id_user: asuser
+                                        })
+                                            .then(({ code, message, data }) => __awaiter(void 0, void 0, void 0, function* () {
+                                            (0, console_1.log)("Generated card is =======> ", data);
+                                            if (code === 200) {
+                                                const { card, expiresInString, expiresInUnix } = data;
+                                                const [ext, isnew] = yield model_extras_1.Extras.findOrCreate({
+                                                    where: {
+                                                        id_user: id,
+                                                    },
+                                                    defaults: {
+                                                        id_user: id,
+                                                        carte: String(card),
+                                                        date_expiration: expiresInString,
+                                                        date_expiration_unix: expiresInUnix.toString(),
+                                                    }
+                                                });
+                                                if (ext instanceof model_extras_1.Extras) {
+                                                    serives_all_1.Services.onSendSMS({
+                                                        to: (0, helper_fillphone_1.fillphone)({ phone }),
+                                                        is_flash: false,
+                                                        content: `Bonjour ${nom}, votre enregistrement dans la coopérative ${cooperative} en date du ${(0, helper_moment_1.now)({ options: {} })}, votre carte de membre sera expiré le ${expiresInString.toString()}`
+                                                    })
+                                                        .then(m => { })
+                                                        .catch(e => { });
+                                                    treated.push(ext.toJSON());
+                                                }
+                                            }
+                                            else { }
+                                        }))
+                                            .catch((err) => {
+                                            (0, console_1.log)("Error on generating card member of ==> ", ascoopec, asuser, err);
+                                        });
+                                    }
+                                    else {
+                                        (0, console_1.log)("Error on generating card member of ==> user not initialized ", ascoopec, asuser, err);
+                                    }
+                                }
+                                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, treated);
+                            }
+                            else {
+                                (0, console_1.log)(data);
+                                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, "Error on initializing members table !");
+                            }
+                        }
+                        else {
+                            (0, console_1.log)(done);
+                            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, "Error on initializing members table ! ===");
+                        }
+                    })
+                });
+            }
+            else {
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotFound, `We can not process with this request cause ${id_cooperative}has not corres in Coopes table`);
+            }
         }
         catch (error) {
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);

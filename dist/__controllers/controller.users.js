@@ -654,6 +654,62 @@ exports.__controllerUsers = {
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
         }
     }),
+    listbyrole: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+        const { idrole } = req.params;
+        if (!idrole)
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "THis request must have at least idrole as param !");
+        try {
+            const transaction = yield connecte_1.connect.transaction();
+            model_users_1.Users.belongsToMany(model_roles_1.Roles, { through: model_hasroles_1.Hasroles });
+            model_roles_1.Roles.belongsToMany(model_users_1.Users, { through: model_hasroles_1.Hasroles });
+            model_provinces_1.Provinces.hasOne(model_users_1.Users, { foreignKey: "id" });
+            model_users_1.Users.belongsTo(model_provinces_1.Provinces, { foreignKey: "idprovince" });
+            model_territoires_1.Territoires.hasOne(model_users_1.Users, { foreignKey: "id" });
+            model_users_1.Users.belongsTo(model_territoires_1.Territoires, { foreignKey: "idterritoire" });
+            model_villages_1.Villages.hasOne(model_users_1.Users, { foreignKey: "id" });
+            model_users_1.Users.belongsTo(model_villages_1.Villages, { foreignKey: "idvillage" });
+            model_users_1.Users.findAndCountAll({
+                where: {
+                    isvalidated: 1
+                },
+                attributes: {
+                    exclude: ['password', 'isvalidated', 'idprovince', 'idterritoire', 'idvillage']
+                },
+                include: [
+                    {
+                        model: model_roles_1.Roles,
+                        required: true,
+                        attributes: ['id', 'role'],
+                        where: {
+                            id: parseInt(idrole)
+                        }
+                    },
+                    {
+                        model: model_provinces_1.Provinces,
+                        required: false,
+                        attributes: ['id', 'province']
+                    },
+                    {
+                        model: model_territoires_1.Territoires,
+                        required: false,
+                        attributes: ['id', 'territoire']
+                    },
+                    {
+                        model: model_villages_1.Villages,
+                        required: false,
+                        attributes: ['id', 'village']
+                    }
+                ]
+            })
+                .then(user => {
+                transaction.commit();
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, Object.assign({}, user));
+            });
+        }
+        catch (error) {
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
+        }
+    }),
     verify: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         const { id_user, verification_code } = req.body;
         if (!id_user || !verification_code)

@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Services = void 0;
+const middleware_cookies_1 = require("./../__middlewares/middleware.cookies");
 const dotenv_1 = __importDefault(require("dotenv"));
 const axios_1 = __importDefault(require("axios"));
 const model_hasroles_1 = require("../__models/model.hasroles");
@@ -29,6 +30,8 @@ const model_users_1 = require("../__models/model.users");
 const model_hasmembers_1 = require("../__models/model.hasmembers");
 const fs_1 = __importDefault(require("fs"));
 const model_configs_1 = require("../__models/model.configs");
+const helper_moment_1 = require("../__helpers/helper.moment");
+const base_64_1 = __importDefault(require("base-64"));
 dotenv_1.default.config();
 const { API_SMS_ENDPOINT, APP_NAME, API_SMS_TOKEN, API_SMS_IS_FLASH } = process.env;
 let tempfolder = 'as_assets';
@@ -1591,6 +1594,21 @@ exports.Services = {
         catch (error) {
             return cb(undefined, { code: 500, message: "Error", data: error.toString() });
         }
+    }),
+    onGenerateCardMember: ({ id_user, id_cooperative }) => __awaiter(void 0, void 0, void 0, function* () {
+        return new Promise((resolve, reject) => {
+            const expiresIn = (0, helper_moment_1.addDaysThenReturnUnix)({ days: 365 });
+            const expiresInDate = (0, helper_moment_1.unixToDate)({ unix: expiresIn });
+            let card = expiresIn.toString().concat(".").concat(id_user.toString()).concat(".").concat(id_cooperative.toString());
+            let tr = card;
+            for (let index = 0; index < middleware_cookies_1.tries; index++) {
+                tr = base_64_1.default.encode(tr);
+            }
+            if (card)
+                resolve({ code: 200, message: "Card created as expiresIn.id_user.id_cooperative", data: { card: tr, expiresInString: expiresInDate, expiresInUnix: expiresIn } });
+            else
+                reject({ code: 500, message: " --- can not encode card ", data: {} });
+        });
     }),
     addMembersToCoopec: ({ inputs: { idmembers, idcooperative }, transaction, cb }) => __awaiter(void 0, void 0, void 0, function* () {
         if (!idmembers || !idcooperative)

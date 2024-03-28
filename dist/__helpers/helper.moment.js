@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.dateFormated = exports.addDaysThenReturnUnix = exports.daysPerTypeSouscription = exports.nowInUnix = exports.nowPlusDays = exports.now = void 0;
+exports.unixToDate = exports.dateFormated = exports.addDaysThenReturnUnix = exports.daysPerTypeSouscription = exports.nowInUnix = exports.nowPlusDays = exports.now = void 0;
 const moment_1 = __importDefault(require("moment"));
 moment_1.default.locale("fr");
 const now = ({ options }) => {
@@ -42,28 +42,14 @@ const daysPerTypeSouscription = ({ type }) => {
 };
 exports.daysPerTypeSouscription = daysPerTypeSouscription;
 const addDaysThenReturnUnix = ({ days }) => {
-    switch ((days)) {
-        case 1:
-            days = 30;
-            break;
-        case 2:
-            days = 60;
-            break;
-        case 3:
-            days = 90;
-            break;
-        case 4:
-            days = 365;
-            break;
-        default:
-            days = 30;
-            break;
-    }
-    const daysplus = (0, moment_1.default)().add((days), 'days').unix();
-    return daysplus;
+    return (0, moment_1.default)().add((days), 'days').unix();
 };
 exports.addDaysThenReturnUnix = addDaysThenReturnUnix;
 const dateFormated = ({ longDate }) => {
     return (0, moment_1.default)(longDate).format("L");
 };
 exports.dateFormated = dateFormated;
+const unixToDate = ({ unix }) => {
+    return moment_1.default.unix(unix).format("LTS, L");
+};
+exports.unixToDate = unixToDate;

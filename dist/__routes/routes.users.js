@@ -17,5 +17,6 @@ exports.__routesUsers.put("/user/validate/:iduser", controller_users_1.__control
 exports.__routesUsers.put("/user/verify", controller_users_1.__controllerUsers.verify);
 exports.__routesUsers.put("/user/resendcode", controller_users_1.__controllerUsers.resendcode);
 exports.__routesUsers.get("/list", controller_users_1.__controllerUsers.list);
+exports.__routesUsers.get("/list/byrole/:idrole", controller_users_1.__controllerUsers.listbyrole);
 exports.__routesUsers.get("/user/:iduser", controller_users_1.__controllerUsers.profile);
 exports.__routesUsers.put("/user/:iduser", controller_users_1.__controllerUsers.update);
