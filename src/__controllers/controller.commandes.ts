@@ -89,6 +89,7 @@ export const __controllerCommandes = {
     validate: async (req: Request, res: Response) => {
         const { idcommande } = req.params;
         if (!idcommande) return Responder(res, HttpStatusCode.NotAcceptable, "this request must have at least idcommande in the request !")
+        return Responder(res, HttpStatusCode.Ok, "This --- endpoint is under construction ---- 😃")
         try {
             Commandes.belongsTo(Produits, { foreignKey: "id_produit" })
             Commandes.findAll({
