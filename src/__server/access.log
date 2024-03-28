@@ -1,0 +1,2 @@
+::ffff:127.0.0.1 - - [28/Mar/2024:10:45:45 +0000] "GET /api/coopeccategs/list HTTP/1.1" 200 58 "-" "PostmanRuntime/7.36.3"
+::ffff:127.0.0.1 - - [28/Mar/2024:10:47:05 +0000] "GET /api/coopeccategs/coopeccateg/add HTTP/1.1" 404 114 "-" "PostmanRuntime/7.36.3"

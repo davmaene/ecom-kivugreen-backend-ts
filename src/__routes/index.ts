@@ -18,6 +18,7 @@ import { __routesTypelivraison } from "./routes.typelivraisons";
 import { __routesAssets } from "./routes.assets";
 import { __routesBanks } from "./routes.banks";
 import { __routesCredits } from "./routes.credits";
+import { __routesCategcoope } from "./routes.categcooperatives";
 
 export const routes = express.Router();
 
@@ -39,6 +40,7 @@ routes.use('/villages', __routesVillages)
 routes.use('/typeslivraisons', __routesTypelivraison)
 routes.use('/banks', __routesBanks)
 routes.use('/credits', __routesCredits)
+routes.use('/coopeccategs', __routesCategcoope)
 
 routes.use("/", __routesAssets)
 
