@@ -76,7 +76,7 @@ export const __controllerMarketplace = {
                     if (has instanceof Hasproducts) {
                         const { id, qte: asqte, prix_unitaire, currency, __tbl_ecom_produit, __tbl_ecom_unitesmesure, __tbl_ecom_stock, __tbl_ecom_cooperative } = has.toJSON() as any
                         if (qte <= asqte) {
-                            treated.push(has.toJSON())
+                            treated.push({ ...has.toJSON(), qte })
                         } else {
                             nottreated.push({ item: has.toJSON() as any, message: `Commande received but the commanded qte is 'gt' the current store ! STORE:::${asqte} <==> QRY:::${qte}` })
                         }
