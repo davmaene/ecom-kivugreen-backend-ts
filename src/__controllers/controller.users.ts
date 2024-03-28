@@ -19,6 +19,7 @@ import { log } from 'console';
 import { v4 as uuidv4 } from 'uuid';
 import { Services } from '../__services/serives.all';
 import { Extras } from '../__models/model.extras';
+import { Hasmembers } from '../__models/model.hasmembers';
 
 dotenv.config()
 
@@ -656,7 +657,7 @@ export const __controllerUsers = {
     },
     listbyrole: async (req: Request, res: Response, next: NextFunction) => {
         const { idrole } = req.params
-        if(!idrole) return Responder(res, HttpStatusCode.NotAcceptable, "THis request must have at least idrole as param !")
+        if (!idrole) return Responder(res, HttpStatusCode.NotAcceptable, "THis request must have at least idrole as param !")
         try {
             const transaction = await connect.transaction();
 
@@ -832,6 +833,68 @@ export const __controllerUsers = {
                     return Responder(res, HttpStatusCode.Ok, U)
                 })
                 .catch(err => Responder(res, HttpStatusCode.InternalServerError, err))
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    delete: async (req: Request, res: Response, next: NextFunction) => {
+        const { iduser } = req.params;
+        const transaction = await connect.transaction();
+        try {
+            const user = await Users.findOne({
+                where: {
+                    id: parseInt(iduser)
+                },
+                transaction
+            });
+
+            if (user instanceof Users) {
+                const { id } = user.toJSON() as any
+                Hasroles.destroy({
+                    transaction,
+                    where: {
+                        TblEcomUserId: id
+                    }
+                })
+                    .then(D => {
+                        Hasmembers.destroy({
+                            transaction,
+                            where: {
+                                TblEcomUserId: id
+                            }
+                        })
+                            .then(DD => {
+                                Extras.destroy({
+                                    transaction,
+                                    where: {
+                                        id_user: id
+                                    }
+                                })
+                                .then(DDD => {
+                                    user.destroy()
+                                    .then(DDDD => {
+                                        transaction.commit()
+                                        return Responder(res, HttpStatusCode.Ok, `The user with id ${iduser} was successfuly deleted`)
+                                    })
+                                })
+                                .catch(Err => {
+                                    transaction.rollback()
+                                    return Responder(res, HttpStatusCode.InternalServerError, Err)
+                                })
+                            })
+                            .catch(Err => {
+                                transaction.rollback()
+                                return Responder(res, HttpStatusCode.InternalServerError, Err)
+                            })
+                    })
+                    .catch(Err => {
+                        transaction.rollback()
+                        return Responder(res, HttpStatusCode.InternalServerError, Err)
+                    })
+            } else {
+                transaction.rollback()
+                return Responder(res, HttpStatusCode.NotFound, `The user with id ${iduser} not found in the table user !`)
+            }
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
