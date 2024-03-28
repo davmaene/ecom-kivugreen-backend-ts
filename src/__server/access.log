@@ -20,3 +20,4 @@
 ::ffff:127.0.0.1 - - [28/Mar/2024:17:44:02 +0000] "GET /api/users/list HTTP/1.1" 200 1413 "-" "PostmanRuntime/7.36.3"
 ::ffff:127.0.0.1 - - [28/Mar/2024:17:44:40 +0000] "DELETE /api/users/user/5 HTTP/1.1" 404 96 "-" "PostmanRuntime/7.36.3"
 ::ffff:127.0.0.1 - - [28/Mar/2024:17:44:49 +0000] "GET /api/users/list HTTP/1.1" 200 1413 "-" "PostmanRuntime/7.36.3"
+::ffff:127.0.0.1 - - [28/Mar/2024:17:49:30 +0000] "DELETE /api/users/user/21 HTTP/1.1" 200 82 "-" "PostmanRuntime/7.36.3"
