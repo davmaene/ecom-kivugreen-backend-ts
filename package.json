@@ -1,6 +1,6 @@
 {
   "name": "ecom-kivugreen-api",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "description": "Ecommerce app de kivugreen, ",
   "main": "index.js",
   "scripts": {
@@ -10,7 +10,7 @@
     "postinstall": "node-config-ts"
   },
   "keywords": [],
-  "author": "github.davmaene.com",
+  "author": "github.davmaene.io",
   "license": "ISC",
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
