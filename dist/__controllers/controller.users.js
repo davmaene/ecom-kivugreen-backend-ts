@@ -33,6 +33,7 @@ const console_1 = require("console");
 const uuid_1 = require("uuid");
 const serives_all_1 = require("../__services/serives.all");
 const model_extras_1 = require("../__models/model.extras");
+const model_hasmembers_1 = require("../__models/model.hasmembers");
 dotenv_1.default.config();
 const { APP_EXIPRES_IN_ADMIN, APP_EXIPRES_IN_ALL, APP_ESCAPESTRING, APP_NAME } = process.env;
 exports.__controllerUsers = {
@@ -838,6 +839,69 @@ exports.__controllerUsers = {
                 return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, U);
             })
                 .catch(err => (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, err));
+        }
+        catch (error) {
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
+        }
+    }),
+    delete: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+        const { iduser } = req.params;
+        const transaction = null; //await connect.transaction();
+        try {
+            const user = yield model_users_1.Users.findOne({
+                where: {
+                    id: parseInt(iduser)
+                },
+                transaction
+            });
+            if (user instanceof model_users_1.Users) {
+                const { id } = user.toJSON();
+                yield model_hasroles_1.Hasroles.destroy({
+                    transaction,
+                    where: {
+                        TblEcomUserId: id
+                    }
+                })
+                    .then(D => {
+                    model_hasmembers_1.Hasmembers.destroy({
+                        transaction,
+                        where: {
+                            TblEcomUserId: id
+                        }
+                    })
+                        .then(DD => {
+                        model_extras_1.Extras.destroy({
+                            transaction,
+                            where: {
+                                id_user: id
+                            }
+                        })
+                            .then(DDD => {
+                            user.destroy()
+                                .then(DDDD => {
+                                // transaction.commit()
+                                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, `The user with id ${iduser} was successfuly deleted`);
+                            });
+                        })
+                            .catch(Err => {
+                            // transaction.rollback()
+                            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, Err);
+                        });
+                    })
+                        .catch(Err => {
+                        // transaction.rollback()
+                        return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, Err);
+                    });
+                })
+                    .catch(Err => {
+                    // transaction.rollback()
+                    return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, Err);
+                });
+            }
+            else {
+                // transaction.rollback()
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotFound, `The user with id ${iduser} not found in the table user !`);
+            }
         }
         catch (error) {
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);

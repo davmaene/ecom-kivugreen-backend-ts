@@ -31,8 +31,6 @@ exports.__controllerStocks = {
         const array = Array.from(items);
         const { __id, roles, uuid, phone } = currentuser;
         const configs = yield model_configs_1.Configs.findOne({
-            // raw: true,
-            // order: [['id', "DESC"]]
             where: {
                 id: 1
             }

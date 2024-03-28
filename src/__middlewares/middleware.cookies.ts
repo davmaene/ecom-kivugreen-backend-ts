@@ -15,7 +15,14 @@ export const exludedRoutes: string[] = [
     "/users/user/signup",
     "/users/user/auth",
     "/marketplace/commande",
-    "/marketplace"
+    "/marketplace",
+    "/provinces/list",
+    "/villages/list",
+    "/territoires/list",
+    "/cooperatives/list",
+    "/stocks/list",
+    "/stocks/stock",
+    "/typeslivraisons/list"
 ];
 
 export const tries = 3;

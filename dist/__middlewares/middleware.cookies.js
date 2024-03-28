@@ -25,7 +25,14 @@ exports.exludedRoutes = [
     "/users/user/signup",
     "/users/user/auth",
     "/marketplace/commande",
-    "/marketplace"
+    "/marketplace",
+    "/provinces/list",
+    "/villages/list",
+    "/territoires/list",
+    "/cooperatives/list",
+    "/stocks/list",
+    "/stocks/stock",
+    "/typeslivraisons/list"
 ];
 exports.tries = 3;
 exports.optionsSignin = {
