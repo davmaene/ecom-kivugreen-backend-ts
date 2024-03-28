@@ -10,7 +10,7 @@
     "postinstall": "node-config-ts"
   },
   "keywords": [],
-  "author": "github.davmaene.com",
+  "author": "github.davmaene.io",
   "license": "ISC",
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
