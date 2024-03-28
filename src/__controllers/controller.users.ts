@@ -839,7 +839,8 @@ export const __controllerUsers = {
     },
     delete: async (req: Request, res: Response, next: NextFunction) => {
         const { iduser } = req.params;
-        const transaction = await connect.transaction();
+        const transaction = null //await connect.transaction();
+        
         try {
             const user = await Users.findOne({
                 where: {
@@ -850,7 +851,7 @@ export const __controllerUsers = {
 
             if (user instanceof Users) {
                 const { id } = user.toJSON() as any
-                Hasroles.destroy({
+                await Hasroles.destroy({
                     transaction,
                     where: {
                         TblEcomUserId: id
@@ -873,26 +874,26 @@ export const __controllerUsers = {
                                 .then(DDD => {
                                     user.destroy()
                                     .then(DDDD => {
-                                        transaction.commit()
+                                        // transaction.commit()
                                         return Responder(res, HttpStatusCode.Ok, `The user with id ${iduser} was successfuly deleted`)
                                     })
                                 })
                                 .catch(Err => {
-                                    transaction.rollback()
+                                    // transaction.rollback()
                                     return Responder(res, HttpStatusCode.InternalServerError, Err)
                                 })
                             })
                             .catch(Err => {
-                                transaction.rollback()
+                                // transaction.rollback()
                                 return Responder(res, HttpStatusCode.InternalServerError, Err)
                             })
                     })
                     .catch(Err => {
-                        transaction.rollback()
+                        // transaction.rollback()
                         return Responder(res, HttpStatusCode.InternalServerError, Err)
                     })
             } else {
-                transaction.rollback()
+                // transaction.rollback()
                 return Responder(res, HttpStatusCode.NotFound, `The user with id ${iduser} not found in the table user !`)
             }
         } catch (error) {
