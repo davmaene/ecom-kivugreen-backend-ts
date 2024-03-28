@@ -617,9 +617,9 @@ export const __controllerUsers = {
             Villages.hasOne(Users, { foreignKey: "id" });
             Users.belongsTo(Villages, { foreignKey: "idvillage" });
 
-            Users.findAndCountAll({
+            Users.findAll({
                 where: {
-                    isvalidated: 1
+                    // isvalidated: 1
                 },
                 attributes: {
                     exclude: ['password', 'isvalidated', 'idprovince', 'idterritoire', 'idvillage']
@@ -649,7 +649,7 @@ export const __controllerUsers = {
             })
                 .then(user => {
                     transaction.commit()
-                    return Responder(res, HttpStatusCode.Ok, { ...user })
+                    return Responder(res, HttpStatusCode.Ok, { count: user.length, rows: user })
                 })
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
@@ -673,7 +673,7 @@ export const __controllerUsers = {
             Villages.hasOne(Users, { foreignKey: "id" });
             Users.belongsTo(Villages, { foreignKey: "idvillage" });
 
-            Users.findAndCountAll({
+            Users.findAll({
                 where: {
                     isvalidated: 1
                 },
@@ -708,7 +708,7 @@ export const __controllerUsers = {
             })
                 .then(user => {
                     transaction.commit()
-                    return Responder(res, HttpStatusCode.Ok, { ...user })
+                    return Responder(res, HttpStatusCode.Ok, { count: user.length, rows: user })
                 })
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
@@ -840,7 +840,7 @@ export const __controllerUsers = {
     delete: async (req: Request, res: Response, next: NextFunction) => {
         const { iduser } = req.params;
         const transaction = null //await connect.transaction();
-        
+
         try {
             const user = await Users.findOne({
                 where: {
@@ -871,17 +871,17 @@ export const __controllerUsers = {
                                         id_user: id
                                     }
                                 })
-                                .then(DDD => {
-                                    user.destroy()
-                                    .then(DDDD => {
-                                        // transaction.commit()
-                                        return Responder(res, HttpStatusCode.Ok, `The user with id ${iduser} was successfuly deleted`)
+                                    .then(DDD => {
+                                        user.destroy()
+                                            .then(DDDD => {
+                                                // transaction.commit()
+                                                return Responder(res, HttpStatusCode.Ok, `The user with id ${iduser} was successfuly deleted`)
+                                            })
                                     })
-                                })
-                                .catch(Err => {
-                                    // transaction.rollback()
-                                    return Responder(res, HttpStatusCode.InternalServerError, Err)
-                                })
+                                    .catch(Err => {
+                                        // transaction.rollback()
+                                        return Responder(res, HttpStatusCode.InternalServerError, Err)
+                                    })
                             })
                             .catch(Err => {
                                 // transaction.rollback()

@@ -39,6 +39,7 @@ export const __controllerMarketplace = {
                 const { phone, email, nom } = currentUser.toJSON() as any;
                 for (let index = 0; index < Array.from(items).length; index++) {
                     const { id_produit, qte } = items[index];
+
                     Hasproducts.belongsTo(Produits) // , { foreignKey: 'TblEcomProduitId' }
                     Hasproducts.belongsTo(Unites) // , { foreignKey: 'TblEcomUnitesmesureId' }
                     Hasproducts.belongsTo(Stocks) // , { foreignKey: 'TblEcomStockId' }
@@ -76,7 +77,7 @@ export const __controllerMarketplace = {
                     if (has instanceof Hasproducts) {
                         const { id, qte: asqte, prix_unitaire, currency, __tbl_ecom_produit, __tbl_ecom_unitesmesure, __tbl_ecom_stock, __tbl_ecom_cooperative } = has.toJSON() as any
                         if (qte <= asqte) {
-                            treated.push(has.toJSON())
+                            treated.push({ ...has.toJSON(), qte })
                         } else {
                             nottreated.push({ item: has.toJSON() as any, message: `Commande received but the commanded qte is 'gt' the current store ! STORE:::${asqte} <==> QRY:::${qte}` })
                         }
@@ -119,10 +120,14 @@ export const __controllerMarketplace = {
                                     .catch((err: any) => { })
                                 c_treated.push(cmmd)
                             } else {
+                                // tr_.rollback()
                                 c_nottreated.push(cmmd)
                             }
-                        } else { }
+                        } else { 
+                            // tr_.rollback()
+                        }
                     }
+                    tr_.commit()
                     return Responder(res, HttpStatusCode.Ok, { c_treated, c_nottreated })
                 } else {
                     tr_.rollback()

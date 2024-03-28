@@ -616,9 +616,9 @@ exports.__controllerUsers = {
             model_users_1.Users.belongsTo(model_territoires_1.Territoires, { foreignKey: "idterritoire" });
             model_villages_1.Villages.hasOne(model_users_1.Users, { foreignKey: "id" });
             model_users_1.Users.belongsTo(model_villages_1.Villages, { foreignKey: "idvillage" });
-            model_users_1.Users.findAndCountAll({
+            model_users_1.Users.findAll({
                 where: {
-                    isvalidated: 1
+                // isvalidated: 1
                 },
                 attributes: {
                     exclude: ['password', 'isvalidated', 'idprovince', 'idterritoire', 'idvillage']
@@ -648,7 +648,7 @@ exports.__controllerUsers = {
             })
                 .then(user => {
                 transaction.commit();
-                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, Object.assign({}, user));
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: user.length, rows: user });
             });
         }
         catch (error) {
@@ -669,7 +669,7 @@ exports.__controllerUsers = {
             model_users_1.Users.belongsTo(model_territoires_1.Territoires, { foreignKey: "idterritoire" });
             model_villages_1.Villages.hasOne(model_users_1.Users, { foreignKey: "id" });
             model_users_1.Users.belongsTo(model_villages_1.Villages, { foreignKey: "idvillage" });
-            model_users_1.Users.findAndCountAll({
+            model_users_1.Users.findAll({
                 where: {
                     isvalidated: 1
                 },
@@ -704,7 +704,7 @@ exports.__controllerUsers = {
             })
                 .then(user => {
                 transaction.commit();
-                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, Object.assign({}, user));
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: user.length, rows: user });
             });
         }
         catch (error) {

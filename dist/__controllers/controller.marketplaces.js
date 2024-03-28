@@ -83,7 +83,7 @@ exports.__controllerMarketplace = {
                     if (has instanceof model_hasproducts_1.Hasproducts) {
                         const { id, qte: asqte, prix_unitaire, currency, __tbl_ecom_produit, __tbl_ecom_unitesmesure, __tbl_ecom_stock, __tbl_ecom_cooperative } = has.toJSON();
                         if (qte <= asqte) {
-                            treated.push(has.toJSON());
+                            treated.push(Object.assign(Object.assign({}, has.toJSON()), { qte }));
                         }
                         else {
                             nottreated.push({ item: has.toJSON(), message: `Commande received but the commanded qte is 'gt' the current store ! STORE:::${asqte} <==> QRY:::${qte}` });
@@ -128,11 +128,15 @@ exports.__controllerMarketplace = {
                                 c_treated.push(cmmd);
                             }
                             else {
+                                // tr_.rollback()
                                 c_nottreated.push(cmmd);
                             }
                         }
-                        else { }
+                        else {
+                            // tr_.rollback()
+                        }
                     }
+                    tr_.commit();
                     return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { c_treated, c_nottreated });
                 }
                 else {

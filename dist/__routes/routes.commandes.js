@@ -11,3 +11,4 @@ exports.__routesCommandes = express_1.default.Router();
 exports.__routesCommandes.get("/list", controller_commandes_1.__controllerCommandes.list);
 exports.__routesCommandes.get("/list/bystate/:state", controller_commandes_1.__controllerCommandes.listbystate);
 exports.__routesCommandes.post("/commande/add", controller_marketplaces_1.__controllerMarketplace.placecommand);
+exports.__routesCommandes.post("/commande/add", controller_marketplaces_1.__controllerMarketplace.placecommand);
