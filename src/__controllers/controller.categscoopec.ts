@@ -39,7 +39,7 @@ export const __controllerCategscooperatives = {
     },
     update: async (req: Request, res: Response) => {
         const { category, description } = req.body
-        if (!category || !description) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !category || !description")
+        if (Object.keys(req.body).length <= 0) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !category || !description")
         const { idcateg } = req.params;
         try {
             Categoriescooperatives.update({
