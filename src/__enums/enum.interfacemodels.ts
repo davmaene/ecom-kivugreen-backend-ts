@@ -177,6 +177,11 @@ export interface IExtras extends globalInterface {
     date_expiration_unix?: string
 }
 
+export interface ICategscoopecs extends globalInterface {
+    category: string,
+    description?: string
+}
+
 export interface IBank extends globalInterface {
     bank: string,
     email: string,

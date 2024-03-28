@@ -19,8 +19,6 @@ export const __controllerStocks = {
         const array: any[] = Array.from(items);
         const { __id, roles, uuid, phone } = currentuser;
         const configs = await Configs.findOne({
-            // raw: true,
-            // order: [['id', "DESC"]]
             where: {
                 id: 1
             }
