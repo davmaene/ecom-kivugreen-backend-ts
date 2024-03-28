@@ -22,14 +22,64 @@ export const __controllerCommandes = {
                 .then(commandes => {
                     return Responder(res, HttpStatusCode.Ok, { count: commandes.length, rows: commandes })
                 })
+                .catch(err => {
+                    return Responder(res, HttpStatusCode.InternalServerError, err)
+                })
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     },
     listbyowner: async (req: Request, res: Response) => {
+        const { currentuser } = req as any;
+        const { __id, roles, uuid } = currentuser;
 
+        try {
+            Commandes.belongsTo(Produits, { foreignKey: "id_produit" })
+            Commandes.findAll({
+                include: [
+                    {
+                        model: Produits,
+                        required: false,
+                    }
+                ],
+                where: {
+                    createdby: __id
+                }
+            })
+                .then(commandes => {
+                    return Responder(res, HttpStatusCode.Ok, { count: commandes.length, rows: commandes })
+                })
+                .catch(err => {
+                    return Responder(res, HttpStatusCode.InternalServerError, err)
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
     },
     listbystate: async (req: Request, res: Response) => {
-
+        const { status } = req.params;
+        if (!status) return Responder(res, HttpStatusCode.NotAcceptable, "this request must have at least status in the request !")
+        try {
+            Commandes.belongsTo(Produits, { foreignKey: "id_produit" })
+            Commandes.findAll({
+                include: [
+                    {
+                        model: Produits,
+                        required: false,
+                    }
+                ],
+                where: {
+                    state: parseInt(status)
+                }
+            })
+                .then(commandes => {
+                    return Responder(res, HttpStatusCode.Ok, { count: commandes.length, rows: commandes })
+                })
+                .catch(err => {
+                    return Responder(res, HttpStatusCode.InternalServerError, err)
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
     }
 }

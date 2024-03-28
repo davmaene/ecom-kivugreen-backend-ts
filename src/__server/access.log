@@ -6,3 +6,8 @@
 ::ffff:127.0.0.1 - - [28/Mar/2024:20:37:28 +0000] "GET /api/commandes/list?page_size=100&page_number=1 HTTP/1.1" 200 516 "-" "PostmanRuntime/7.36.3"
 ::ffff:127.0.0.1 - - [28/Mar/2024:20:39:05 +0000] "POST /api/marketplace/command HTTP/1.1" 200 475 "-" "PostmanRuntime/7.36.3"
 ::ffff:127.0.0.1 - - [28/Mar/2024:20:39:12 +0000] "GET /api/commandes/list?page_size=100&page_number=1 HTTP/1.1" 200 1427 "-" "PostmanRuntime/7.36.3"
+::ffff:127.0.0.1 - - [28/Mar/2024:21:30:09 +0000] "GET /api/commandes/byowner/list?page_size=100&page_number=1 HTTP/1.1" 404 136 "-" "PostmanRuntime/7.36.3"
+::ffff:127.0.0.1 - - [28/Mar/2024:21:34:13 +0000] "GET /api/commandes/bystate/1?page_size=100&page_number=1 HTTP/1.1" 404 133 "-" "PostmanRuntime/7.36.3"
+::ffff:127.0.0.1 - - [28/Mar/2024:21:34:29 +0000] "GET /api/commandes/bystate/1?page_size=100&page_number=1 HTTP/1.1" 404 133 "-" "PostmanRuntime/7.36.3"
+::ffff:127.0.0.1 - - [28/Mar/2024:21:35:04 +0000] "GET /api/commandes/list/byowner/?page_size=100&page_number=1 HTTP/1.1" 200 1427 "-" "PostmanRuntime/7.36.3"
+::ffff:127.0.0.1 - - [28/Mar/2024:21:35:13 +0000] "GET /api/commandes/list/bystate/1?page_size=100&page_number=1 HTTP/1.1" 406 106 "-" "PostmanRuntime/7.36.3"
