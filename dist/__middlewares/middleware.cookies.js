@@ -21,6 +21,7 @@ const { APP_APAPPACCESKEY: APPAPIKEY, APP_COOKIESNAME: APPCOOKIESNAME } = proces
 if (!APPAPIKEY || !APPCOOKIESNAME)
     throw Error("The variables APPAPIKEY or APPCOOKIESNAME is not defined in environement variable !");
 exports.exludedRoutes = [
+    "/categories/list",
     "/users/user/signin",
     "/users/user/signup",
     "/users/user/auth",
