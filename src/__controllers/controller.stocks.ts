@@ -172,5 +172,41 @@ export const __controllerStocks = {
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
+    },
+    getonebyid: async (req: Request, res: Response) => {
+        const { idstock } = req.params;
+        if (!idstock) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least idstock")
+        try {
+            Stocks.belongsTo(Cooperatives, { foreignKey: "id_cooperative" })
+            Stocks.belongsToMany(Produits, { through: Hasproducts, })// as: 'produits'
+            Stocks.findAndCountAll({
+                where: {
+                    id: idstock
+                },
+                include: [
+                    {
+                        model: Produits,
+                        // as: 'produits',
+                        required: true,
+                        attributes: ['id', 'produit']
+                    },
+                    {
+                        model: Cooperatives,
+                        required: true,
+                        // where: {
+                        //     id: idcooperative
+                        // },
+                        attributes: ['id', 'coordonnees_gps', 'phone', 'num_enregistrement', 'email', 'sigle', 'cooperative', 'description']
+                    }
+                ]
+            })
+                .then(({ count, rows }) => Responder(res, HttpStatusCode.Ok, { count, rows }))
+                .catch(error => {
+                    log(error)
+                    return Responder(res, HttpStatusCode.Conflict, error)
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
     }
 }

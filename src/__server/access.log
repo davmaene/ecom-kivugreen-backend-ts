@@ -1,0 +1,3 @@
+::ffff:127.0.0.1 - - [29/Mar/2024:09:24:39 +0000] "GET /api/stocks/stock/byid/1 HTTP/1.1" 200 58 "-" "PostmanRuntime/7.36.3"
+::ffff:127.0.0.1 - - [29/Mar/2024:09:26:19 +0000] "GET /api/stocks/stock/byid/12 HTTP/1.1" 200 58 "-" "PostmanRuntime/7.36.3"
+::ffff:127.0.0.1 - - [29/Mar/2024:09:30:47 +0000] "POST /api/users/user/auth HTTP/1.1" 500 419 "-" "PostmanRuntime/7.36.3"
