@@ -14,8 +14,39 @@ const model_commandes_1 = require("../__models/model.commandes");
 const enum_httpsstatuscode_1 = require("../__enums/enum.httpsstatuscode");
 const helper_responseserver_1 = require("../__helpers/helper.responseserver");
 const model_produits_1 = require("../__models/model.produits");
+const model_typelivraison_1 = require("../__models/model.typelivraison");
 exports.__controllerCommandes = {
     list: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            model_commandes_1.Commandes.belongsTo(model_produits_1.Produits, { foreignKey: "id_produit" });
+            model_commandes_1.Commandes.belongsTo(model_typelivraison_1.Typelivraisons, { foreignKey: "type_livraison" });
+            model_commandes_1.Commandes.findAll({
+                include: [
+                    {
+                        model: model_produits_1.Produits,
+                        required: false,
+                    },
+                    {
+                        model: model_typelivraison_1.Typelivraisons,
+                        required: false,
+                    }
+                ],
+                where: {}
+            })
+                .then(commandes => {
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: commandes.length, rows: commandes });
+            })
+                .catch(err => {
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, err);
+            });
+        }
+        catch (error) {
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
+        }
+    }),
+    listbyowner: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        const { currentuser } = req;
+        const { __id, roles, uuid } = currentuser;
         try {
             model_commandes_1.Commandes.belongsTo(model_produits_1.Produits, { foreignKey: "id_produit" });
             model_commandes_1.Commandes.findAll({
@@ -25,18 +56,76 @@ exports.__controllerCommandes = {
                         required: false,
                     }
                 ],
-                where: {}
+                where: {
+                    createdby: __id
+                }
             })
                 .then(commandes => {
                 return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: commandes.length, rows: commandes });
+            })
+                .catch(err => {
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, err);
             });
         }
         catch (error) {
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
         }
     }),
-    listbyowner: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    }),
     listbystate: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        const { status } = req.params;
+        if (!status)
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "this request must have at least status in the request !");
+        try {
+            model_commandes_1.Commandes.belongsTo(model_produits_1.Produits, { foreignKey: "id_produit" });
+            model_commandes_1.Commandes.findAll({
+                include: [
+                    {
+                        model: model_produits_1.Produits,
+                        required: false,
+                    }
+                ],
+                where: {
+                    state: parseInt(status)
+                }
+            })
+                .then(commandes => {
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: commandes.length, rows: commandes });
+            })
+                .catch(err => {
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, err);
+            });
+        }
+        catch (error) {
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
+        }
+    }),
+    validate: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        const { idcommande } = req.params;
+        if (!idcommande)
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "this request must have at least idcommande in the request !");
+        return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, "This --- endpoint is under construction ---- 😃");
+        try {
+            model_commandes_1.Commandes.belongsTo(model_produits_1.Produits, { foreignKey: "id_produit" });
+            model_commandes_1.Commandes.findAll({
+                include: [
+                    {
+                        model: model_produits_1.Produits,
+                        required: false,
+                    }
+                ],
+                where: {
+                    state: parseInt(status)
+                }
+            })
+                .then(commandes => {
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: commandes.length, rows: commandes });
+            })
+                .catch(err => {
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, err);
+            });
+        }
+        catch (error) {
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
+        }
     })
 };
