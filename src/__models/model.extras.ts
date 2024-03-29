@@ -2,6 +2,7 @@ import { DataTypes, Model } from 'sequelize'
 import { connect } from '../__databases/connecte'
 import { IExtras, IRoles, IUsers } from '__enums/enum.interfacemodels';
 import dotenv from 'dotenv';
+import { randomLongNumber } from '../__helpers/helper.random';
 
 dotenv.config()
 
@@ -20,7 +21,7 @@ export const Extras = connect.define<Extra>('__tbl_ecom_extras', { // as carte m
         type: DataTypes.STRING,
         allowNull: true,
         unique: true,
-        defaultValue: APP_ESCAPESTRING
+        defaultValue: randomLongNumber({ length: 19 })
     },
     date_expiration: {
         type: DataTypes.STRING,
