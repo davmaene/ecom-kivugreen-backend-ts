@@ -10,6 +10,11 @@ exports.Cooperatives = connecte_1.connect.define('__tbl_ecom_cooperatives', {
         autoIncrement: true,
         allowNull: true,
     },
+    logo: {
+        type: sequelize_1.DataTypes.STRING,
+        defaultValue: "",
+        allowNull: true
+    },
     id_territoire: sequelize_1.DataTypes.INTEGER,
     id_province: sequelize_1.DataTypes.INTEGER,
     coordonnees_gps: sequelize_1.DataTypes.STRING,

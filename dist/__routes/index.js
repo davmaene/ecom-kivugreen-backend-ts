@@ -25,6 +25,7 @@ const routes_assets_1 = require("./routes.assets");
 const routes_banks_1 = require("./routes.banks");
 const routes_credits_1 = require("./routes.credits");
 const routes_categcooperatives_1 = require("./routes.categcooperatives");
+const routes_memebers_1 = require("./routes.memebers");
 exports.routes = express_1.default.Router();
 exports.routes.use('/users', routes_users_1.__routesUsers);
 exports.routes.use('/roles', routes_roles_1.__routesRoles);
@@ -45,4 +46,5 @@ exports.routes.use('/typeslivraisons', routes_typelivraisons_1.__routesTypelivra
 exports.routes.use('/banks', routes_banks_1.__routesBanks);
 exports.routes.use('/credits', routes_credits_1.__routesCredits);
 exports.routes.use('/coopeccategs', routes_categcooperatives_1.__routesCategcoope);
+exports.routes.use('/members', routes_memebers_1.__routesMembers);
 exports.routes.use("/", routes_assets_1.__routesAssets);

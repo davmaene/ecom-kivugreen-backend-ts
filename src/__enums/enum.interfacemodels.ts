@@ -115,6 +115,7 @@ export interface IVillages extends globalInterface {
 
 export interface ICooperative extends globalInterface {
     sigle?: string,
+    logo?: string,
     cooperative?: string,
     id_province?: number,
     id_territoire?: number,

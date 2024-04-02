@@ -11,6 +11,11 @@ export const Cooperatives = connect.define<Coopec>('__tbl_ecom_cooperatives', {
         autoIncrement: true,
         allowNull: true,
     },
+    logo: {
+        type: DataTypes.STRING,
+        defaultValue: "",
+        allowNull: true
+    },
     id_territoire: DataTypes.INTEGER,
     id_province: DataTypes.INTEGER,
     coordonnees_gps: DataTypes.STRING,

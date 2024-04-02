@@ -190,5 +190,43 @@ exports.__controllerStocks = {
         catch (error) {
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
         }
+    }),
+    getonebyid: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        const { idstock } = req.params;
+        if (!idstock)
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "This request must have at least idstock");
+        try {
+            model_stocks_1.Stocks.belongsTo(model_cooperatives_1.Cooperatives, { foreignKey: "id_cooperative" });
+            model_stocks_1.Stocks.belongsToMany(model_produits_1.Produits, { through: model_hasproducts_1.Hasproducts, }); // as: 'produits'
+            model_stocks_1.Stocks.findAndCountAll({
+                where: {
+                    id: idstock
+                },
+                include: [
+                    {
+                        model: model_produits_1.Produits,
+                        // as: 'produits',
+                        required: true,
+                        attributes: ['id', 'produit']
+                    },
+                    {
+                        model: model_cooperatives_1.Cooperatives,
+                        required: true,
+                        // where: {
+                        //     id: idcooperative
+                        // },
+                        attributes: ['id', 'coordonnees_gps', 'phone', 'num_enregistrement', 'email', 'sigle', 'cooperative', 'description']
+                    }
+                ]
+            })
+                .then(({ count, rows }) => (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count, rows }))
+                .catch(error => {
+                (0, console_1.log)(error);
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Conflict, error);
+            });
+        }
+        catch (error) {
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
+        }
     })
 };
