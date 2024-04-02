@@ -28,21 +28,20 @@ export const __controllerMembers = {
             })
                 .then(async list => {
                     const treated: any[] = []
-                    log(list.length)
-                    // for (let index = 0; index < (list as any).length; index++) {
-                    //     const { TblEcomUserId } = list[index] as any;
-                    //     const item = list[index] as any
-                    //     const extras = await Extras.findOne({
-                    //         where: {
-                    //             id_user: TblEcomUserId
-                    //         }
-                    //     })
-                    //     treated.push({
-                    //         ...item,
-                    //         __tbl_ecom_extra: extras ? extras.toJSON() : null
-                    //     })
 
-                    // }
+                    for (let index = 0; index < (list as any).length; index++) {
+                        const { TblEcomUserId } = list[index] as any;
+                        const item = (list[index]).toJSON()
+                        const extras = await Extras.findOne({
+                            where: {
+                                id_user: TblEcomUserId
+                            }
+                        })
+                        treated.push({
+                            __tbl_ecom_extra: extras ? extras.toJSON() : null,
+                            ...item,
+                        })
+                    }
                     return Responder(res, HttpStatusCode.Ok, { count: treated.length, rows: treated })
                 })
                 .catch(err => {
