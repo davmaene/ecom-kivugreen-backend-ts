@@ -15,8 +15,8 @@ if (!APP_CONNEXIONTOAPPMOB || !APP_CONNEXIONTOAPPWEB)
 export const accessValidator = (req: Request, res: Response, next: NextFunction) => {
     let { headers, url }: any = req as any;
     url = String(url).includes("/list") ?  String(url).substring(0, String(url).lastIndexOf("/list") + 5) : url;
-    url = String(url).includes("/list") ?  String(url).substring(0, String(url).lastIndexOf("/list") + 5) : url;
-    
+    url = String(url).includes("?") ? String(url).substring(0, String(url).indexOf("?")) : String(url);
+
     if(String(url).includes("by/")) return next()
 
     if (headers && url) {
