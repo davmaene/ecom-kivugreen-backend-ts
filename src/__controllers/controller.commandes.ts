@@ -6,6 +6,33 @@ import { Produits } from "../__models/model.produits";
 import { Typelivraisons } from "../__models/model.typelivraison";
 
 export const __controllerCommandes = {
+    listtransaction: async (req: Request, res: Response) => {
+        try {
+            Commandes.belongsTo(Produits, { foreignKey: "id_produit" })
+            Commandes.belongsTo(Typelivraisons, { foreignKey: "type_livraison" })
+            Commandes.findAll({
+                include: [
+                    {
+                        model: Produits,
+                        required: false,
+                    },
+                    {
+                        model: Typelivraisons,
+                        required: false,
+                    }
+                ],
+                where: {}
+            })
+                .then(commandes => {
+                    return Responder(res, HttpStatusCode.Ok, { count: commandes.length, rows: commandes })
+                })
+                .catch(err => {
+                    return Responder(res, HttpStatusCode.InternalServerError, err)
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
     list: async (req: Request, res: Response) => {
         try {
             Commandes.belongsTo(Produits, { foreignKey: "id_produit" })

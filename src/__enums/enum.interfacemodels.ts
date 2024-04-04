@@ -154,6 +154,11 @@ export interface ITypelivraison extends globalInterface {
     lieux?: number[]
 }
 
+export interface INewsletter extends globalInterface {
+    email: string,
+    description?: string,
+}
+
 export interface ICommande extends globalInterface {
     transaction: string,
     id_produit: string,

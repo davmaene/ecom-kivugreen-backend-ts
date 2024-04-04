@@ -1,3 +1,4 @@
+import { Newsletters } from '../__models/model.newsletters';
 import { HttpStatusCode } from '../__enums/enum.httpsstatuscode';
 import { fillphone } from '../__helpers/helper.fillphone';
 import { Responder } from '../__helpers/helper.responseserver';
@@ -19,6 +20,24 @@ export const __controllerServices = {
                 })
                 .catch(er => {
                     return Responder(res, HttpStatusCode.InternalServerError, er)
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    subscribetonewsletter: async (req: Request, res: Response, next: NextFunction) => {
+        const { email, description } = req.params;
+        try {
+            Newsletters.create({
+                email,
+                description
+            })
+                .then(news => {
+                    if (news instanceof Newsletters) {
+                        return Responder(res, HttpStatusCode.Ok, news)
+                    } else {
+                        return Responder(res, HttpStatusCode.InternalServerError, news)
+                    }
                 })
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
