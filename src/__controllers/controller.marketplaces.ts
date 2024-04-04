@@ -123,7 +123,7 @@ export const __controllerMarketplace = {
                                 // tr_.rollback()
                                 c_nottreated.push(cmmd)
                             }
-                        } else { 
+                        } else {
                             // tr_.rollback()
                         }
                     }
@@ -154,7 +154,6 @@ export const __controllerMarketplace = {
             Hasproducts.belongsTo(Cooperatives) // , { foreignKey: 'TblEcomCooperativeId' }
 
             const offset = ((page_number) - 1) * (page_size);
-            log(offset)
 
             Hasproducts.findAll({
                 // attributes: ['id', 'qte', 'currency'],
@@ -218,6 +217,65 @@ export const __controllerMarketplace = {
         if (!idpanier) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least idpanier !")
         try {
 
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    searchbykeyword: async (req: Request, res: Response) => {
+        const { keyword } = req.params
+        const page_number = 1;
+        const page_size = 1000;
+
+        try {
+            Hasproducts.belongsTo(Produits) // , { foreignKey: 'TblEcomProduitId' }
+            Hasproducts.belongsTo(Unites) // , { foreignKey: 'TblEcomUnitesmesureId' }
+            Hasproducts.belongsTo(Stocks) // , { foreignKey: 'TblEcomStockId' }
+            Hasproducts.belongsTo(Cooperatives) // , { foreignKey: 'TblEcomCooperativeId' }
+
+            const offset = ((page_number) - 1) * (page_size);
+
+            Hasproducts.findAll({
+                // attributes: ['id', 'qte', 'currency'],
+                offset: (offset),
+                limit: (page_size),
+                include: [
+                    {
+                        model: Produits,
+                        required: true,
+                        attributes: ['id', 'produit', 'image', 'description'],
+                        where: {
+                            produit: {
+                                [Op.like]: `%${keyword}%`
+                            }
+                        }
+                    },
+                    {
+                        model: Unites,
+                        required: true,
+                        attributes: ['id', 'unity', 'equival_kgs']
+                    },
+                    {
+                        model: Stocks,
+                        required: true,
+                        attributes: ['id', 'transaction']
+                    },
+                    {
+                        model: Cooperatives,
+                        required: true,
+                        attributes: ['id', 'coordonnees_gps', 'phone', 'num_enregistrement', 'cooperative', 'sigle']
+                    }
+                ],
+                where: {
+                    qte: { [Op.gte]: 0 }
+                }
+            })
+                .then((rows) => {
+                    return Responder(res, HttpStatusCode.Ok, rows)
+                })
+                .catch(err => {
+                    log(err)
+                    return Responder(res, HttpStatusCode.Conflict, err)
+                })
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
