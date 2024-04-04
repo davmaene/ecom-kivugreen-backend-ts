@@ -186,7 +186,7 @@ export const __controllerMarketplace = {
                 }
             })
                 .then((rows) => {
-                    return Responder(res, HttpStatusCode.Ok, rows)
+                    return Responder(res, HttpStatusCode.Ok, { count: rows.length, list: rows })
                 })
                 .catch(err => {
                     log(err)
@@ -270,7 +270,121 @@ export const __controllerMarketplace = {
                 }
             })
                 .then((rows) => {
-                    return Responder(res, HttpStatusCode.Ok, rows)
+                    return Responder(res, HttpStatusCode.Ok, { count: rows.length, list: rows })
+                })
+                .catch(err => {
+                    log(err)
+                    return Responder(res, HttpStatusCode.Conflict, err)
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    searchbycooperative: async (req: Request, res: Response) => {
+        const { keyword } = req.params
+        const page_number = 1;
+        const page_size = 1000;
+
+        try {
+            Hasproducts.belongsTo(Produits) // , { foreignKey: 'TblEcomProduitId' }
+            Hasproducts.belongsTo(Unites) // , { foreignKey: 'TblEcomUnitesmesureId' }
+            Hasproducts.belongsTo(Stocks) // , { foreignKey: 'TblEcomStockId' }
+            Hasproducts.belongsTo(Cooperatives) // , { foreignKey: 'TblEcomCooperativeId' }
+
+            const offset = ((page_number) - 1) * (page_size);
+
+            Hasproducts.findAll({
+                // attributes: ['id', 'qte', 'currency'],
+                offset: (offset),
+                limit: (page_size),
+                include: [
+                    {
+                        model: Produits,
+                        required: true,
+                        attributes: ['id', 'produit', 'image', 'description']
+                    },
+                    {
+                        model: Unites,
+                        required: true,
+                        attributes: ['id', 'unity', 'equival_kgs']
+                    },
+                    {
+                        model: Stocks,
+                        required: true,
+                        attributes: ['id', 'transaction']
+                    },
+                    {
+                        model: Cooperatives,
+                        required: true,
+                        attributes: ['id', 'coordonnees_gps', 'phone', 'num_enregistrement', 'cooperative', 'sigle'],
+                        where: {
+                            id: parseInt(keyword)
+                        }
+                    }
+                ],
+                where: {
+                    qte: { [Op.gte]: 0 }
+                }
+            })
+                .then((rows) => {
+                    return Responder(res, HttpStatusCode.Ok, { count: rows.length, list: rows })
+                })
+                .catch(err => {
+                    log(err)
+                    return Responder(res, HttpStatusCode.Conflict, err)
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    searchbyprovince: async (req: Request, res: Response) => {
+        const { keyword } = req.params
+        const page_number = 1;
+        const page_size = 1000;
+
+        try {
+            Hasproducts.belongsTo(Produits) // , { foreignKey: 'TblEcomProduitId' }
+            Hasproducts.belongsTo(Unites) // , { foreignKey: 'TblEcomUnitesmesureId' }
+            Hasproducts.belongsTo(Stocks) // , { foreignKey: 'TblEcomStockId' }
+            Hasproducts.belongsTo(Cooperatives) // , { foreignKey: 'TblEcomCooperativeId' }
+
+            const offset = ((page_number) - 1) * (page_size);
+
+            Hasproducts.findAll({
+                // attributes: ['id', 'qte', 'currency'],
+                offset: (offset),
+                limit: (page_size),
+                include: [
+                    {
+                        model: Produits,
+                        required: true,
+                        attributes: ['id', 'produit', 'image', 'description'],
+                    },
+                    {
+                        model: Unites,
+                        required: true,
+                        attributes: ['id', 'unity', 'equival_kgs']
+                    },
+                    {
+                        model: Stocks,
+                        required: true,
+                        attributes: ['id', 'transaction']
+                    },
+                    {
+                        model: Cooperatives,
+                        required: true,
+                        attributes: ['id', 'coordonnees_gps', 'phone', 'num_enregistrement', 'cooperative', 'sigle', 'id_province'],
+                        where: {
+                            id_province: parseInt(keyword)
+                        }
+                    }
+                ],
+                where: {
+                    qte: { [Op.gte]: 0 }
+                }
+            })
+                .then((rows) => {
+                    return Responder(res, HttpStatusCode.Ok, { count: rows.length, list: rows })
                 })
                 .catch(err => {
                     log(err)
