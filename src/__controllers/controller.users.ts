@@ -322,7 +322,7 @@ export const __controllerUsers = {
                                             },
                                                 async (reject: string, token: string) => {
                                                     if (token) {
-                                                        const { id } = user.toJSON()
+                                                        const { id } = (user as any).toJSON() as any || {}
                                                         const coopec = await Cooperatives.findOne({
                                                             where: {
                                                                 id_responsable: id
@@ -337,8 +337,12 @@ export const __controllerUsers = {
                                                                 delete user['password']
                                                             }
                                                         }
-                                                        if(coopec instanceof Cooperatives){
-                                                            log(coopec.toJSON())
+                                                        if (coopec instanceof Cooperatives && user instanceof Users) {
+                                                            const { id } = coopec.toJSON()
+                                                            user = user.toJSON() as any
+                                                            if(user !== null){
+                                                                (user as any)['id_cooperative'] = id as number
+                                                            }
                                                         }
                                                         transaction.commit()
                                                         return Responder(res, HttpStatusCode.Ok, { token, user })
