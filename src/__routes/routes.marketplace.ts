@@ -10,3 +10,4 @@ __routesMarketplace.post('/card/validate/:idpanier', __controllerMarketplace.add
 __routesMarketplace.get('/by/keyword/:keyword', __controllerMarketplace.searchbykeyword)
 __routesMarketplace.get('/by/cooperative/:keyword', __controllerMarketplace.searchbycooperative)
 __routesMarketplace.get('/by/province/:keyword', __controllerMarketplace.searchbyprovince)
+__routesMarketplace.get('/by/category/:keyword', __controllerMarketplace.searchbycategory)
