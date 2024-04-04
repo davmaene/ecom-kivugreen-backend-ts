@@ -34,6 +34,7 @@ const uuid_1 = require("uuid");
 const serives_all_1 = require("../__services/serives.all");
 const model_extras_1 = require("../__models/model.extras");
 const model_hasmembers_1 = require("../__models/model.hasmembers");
+const model_cooperatives_1 = require("../__models/model.cooperatives");
 dotenv_1.default.config();
 const { APP_EXIPRES_IN_ADMIN, APP_EXIPRES_IN_ALL, APP_ESCAPESTRING, APP_NAME } = process.env;
 exports.__controllerUsers = {
@@ -320,8 +321,14 @@ exports.__controllerUsers = {
                                             __id: user && user['id'],
                                             roles
                                         }
-                                    }, (reject, token) => {
+                                    }, (reject, token) => __awaiter(void 0, void 0, void 0, function* () {
                                         if (token) {
+                                            const { id } = user.toJSON() || {};
+                                            const coopec = yield model_cooperatives_1.Cooperatives.findOne({
+                                                where: {
+                                                    id_responsable: id
+                                                }
+                                            });
                                             // user = formatUserModel({ model: user })
                                             if (user !== null) {
                                                 if (user.hasOwnProperty('isvalidated')) {
@@ -331,6 +338,13 @@ exports.__controllerUsers = {
                                                     delete user['password'];
                                                 }
                                             }
+                                            if (coopec instanceof model_cooperatives_1.Cooperatives && user instanceof model_users_1.Users) {
+                                                const { id } = coopec.toJSON();
+                                                user = user.toJSON();
+                                                if (user !== null) {
+                                                    user['id_cooperative'] = id;
+                                                }
+                                            }
                                             transaction.commit();
                                             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { token, user });
                                         }
@@ -338,7 +352,7 @@ exports.__controllerUsers = {
                                             transaction.rollback();
                                             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Forbidden, "Your refresh token already expired ! you must login to get a new one !");
                                         }
-                                    });
+                                    }));
                                 }
                                 else {
                                     transaction.rollback();

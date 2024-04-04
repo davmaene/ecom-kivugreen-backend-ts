@@ -163,7 +163,6 @@ exports.__controllerMarketplace = {
             model_hasproducts_1.Hasproducts.belongsTo(model_stocks_1.Stocks); // , { foreignKey: 'TblEcomStockId' }
             model_hasproducts_1.Hasproducts.belongsTo(model_cooperatives_1.Cooperatives); // , { foreignKey: 'TblEcomCooperativeId' }
             const offset = ((page_number) - 1) * (page_size);
-            (0, console_1.log)(offset);
             model_hasproducts_1.Hasproducts.findAll({
                 // attributes: ['id', 'qte', 'currency'],
                 offset: (offset),
@@ -195,7 +194,7 @@ exports.__controllerMarketplace = {
                 }
             })
                 .then((rows) => {
-                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, rows);
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: rows.length, list: rows });
             })
                 .catch(err => {
                 (0, console_1.log)(err);
@@ -228,6 +227,173 @@ exports.__controllerMarketplace = {
         if (!idpanier)
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "This request must have at least idpanier !");
         try {
+        }
+        catch (error) {
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
+        }
+    }),
+    searchbykeyword: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        const { keyword } = req.params;
+        const page_number = 1;
+        const page_size = 1000;
+        try {
+            model_hasproducts_1.Hasproducts.belongsTo(model_produits_1.Produits); // , { foreignKey: 'TblEcomProduitId' }
+            model_hasproducts_1.Hasproducts.belongsTo(model_unitemesures_1.Unites); // , { foreignKey: 'TblEcomUnitesmesureId' }
+            model_hasproducts_1.Hasproducts.belongsTo(model_stocks_1.Stocks); // , { foreignKey: 'TblEcomStockId' }
+            model_hasproducts_1.Hasproducts.belongsTo(model_cooperatives_1.Cooperatives); // , { foreignKey: 'TblEcomCooperativeId' }
+            const offset = ((page_number) - 1) * (page_size);
+            model_hasproducts_1.Hasproducts.findAll({
+                // attributes: ['id', 'qte', 'currency'],
+                offset: (offset),
+                limit: (page_size),
+                include: [
+                    {
+                        model: model_produits_1.Produits,
+                        required: true,
+                        attributes: ['id', 'produit', 'image', 'description'],
+                        where: {
+                            produit: {
+                                [sequelize_1.Op.like]: `%${keyword}%`
+                            }
+                        }
+                    },
+                    {
+                        model: model_unitemesures_1.Unites,
+                        required: true,
+                        attributes: ['id', 'unity', 'equival_kgs']
+                    },
+                    {
+                        model: model_stocks_1.Stocks,
+                        required: true,
+                        attributes: ['id', 'transaction']
+                    },
+                    {
+                        model: model_cooperatives_1.Cooperatives,
+                        required: true,
+                        attributes: ['id', 'coordonnees_gps', 'phone', 'num_enregistrement', 'cooperative', 'sigle']
+                    }
+                ],
+                where: {
+                    qte: { [sequelize_1.Op.gte]: 0 }
+                }
+            })
+                .then((rows) => {
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: rows.length, list: rows });
+            })
+                .catch(err => {
+                (0, console_1.log)(err);
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Conflict, err);
+            });
+        }
+        catch (error) {
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
+        }
+    }),
+    searchbycooperative: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        const { keyword } = req.params;
+        const page_number = 1;
+        const page_size = 1000;
+        try {
+            model_hasproducts_1.Hasproducts.belongsTo(model_produits_1.Produits); // , { foreignKey: 'TblEcomProduitId' }
+            model_hasproducts_1.Hasproducts.belongsTo(model_unitemesures_1.Unites); // , { foreignKey: 'TblEcomUnitesmesureId' }
+            model_hasproducts_1.Hasproducts.belongsTo(model_stocks_1.Stocks); // , { foreignKey: 'TblEcomStockId' }
+            model_hasproducts_1.Hasproducts.belongsTo(model_cooperatives_1.Cooperatives); // , { foreignKey: 'TblEcomCooperativeId' }
+            const offset = ((page_number) - 1) * (page_size);
+            model_hasproducts_1.Hasproducts.findAll({
+                // attributes: ['id', 'qte', 'currency'],
+                offset: (offset),
+                limit: (page_size),
+                include: [
+                    {
+                        model: model_produits_1.Produits,
+                        required: true,
+                        attributes: ['id', 'produit', 'image', 'description']
+                    },
+                    {
+                        model: model_unitemesures_1.Unites,
+                        required: true,
+                        attributes: ['id', 'unity', 'equival_kgs']
+                    },
+                    {
+                        model: model_stocks_1.Stocks,
+                        required: true,
+                        attributes: ['id', 'transaction']
+                    },
+                    {
+                        model: model_cooperatives_1.Cooperatives,
+                        required: true,
+                        attributes: ['id', 'coordonnees_gps', 'phone', 'num_enregistrement', 'cooperative', 'sigle'],
+                        where: {
+                            id: parseInt(keyword)
+                        }
+                    }
+                ],
+                where: {
+                    qte: { [sequelize_1.Op.gte]: 0 }
+                }
+            })
+                .then((rows) => {
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: rows.length, list: rows });
+            })
+                .catch(err => {
+                (0, console_1.log)(err);
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Conflict, err);
+            });
+        }
+        catch (error) {
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
+        }
+    }),
+    searchbyprovince: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        const { keyword } = req.params;
+        const page_number = 1;
+        const page_size = 1000;
+        try {
+            model_hasproducts_1.Hasproducts.belongsTo(model_produits_1.Produits); // , { foreignKey: 'TblEcomProduitId' }
+            model_hasproducts_1.Hasproducts.belongsTo(model_unitemesures_1.Unites); // , { foreignKey: 'TblEcomUnitesmesureId' }
+            model_hasproducts_1.Hasproducts.belongsTo(model_stocks_1.Stocks); // , { foreignKey: 'TblEcomStockId' }
+            model_hasproducts_1.Hasproducts.belongsTo(model_cooperatives_1.Cooperatives); // , { foreignKey: 'TblEcomCooperativeId' }
+            const offset = ((page_number) - 1) * (page_size);
+            model_hasproducts_1.Hasproducts.findAll({
+                // attributes: ['id', 'qte', 'currency'],
+                offset: (offset),
+                limit: (page_size),
+                include: [
+                    {
+                        model: model_produits_1.Produits,
+                        required: true,
+                        attributes: ['id', 'produit', 'image', 'description'],
+                    },
+                    {
+                        model: model_unitemesures_1.Unites,
+                        required: true,
+                        attributes: ['id', 'unity', 'equival_kgs']
+                    },
+                    {
+                        model: model_stocks_1.Stocks,
+                        required: true,
+                        attributes: ['id', 'transaction']
+                    },
+                    {
+                        model: model_cooperatives_1.Cooperatives,
+                        required: true,
+                        attributes: ['id', 'coordonnees_gps', 'phone', 'num_enregistrement', 'cooperative', 'sigle', 'id_province'],
+                        where: {
+                            id_province: parseInt(keyword)
+                        }
+                    }
+                ],
+                where: {
+                    qte: { [sequelize_1.Op.gte]: 0 }
+                }
+            })
+                .then((rows) => {
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: rows.length, list: rows });
+            })
+                .catch(err => {
+                (0, console_1.log)(err);
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Conflict, err);
+            });
         }
         catch (error) {
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);

@@ -6560,3 +6560,7 @@
 ::1 - - [04/Apr/2024:09:47:52 +0000] "GET /api/categories/list HTTP/1.1" 304 - "http://localhost:6020/" "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Mobile Safari/537.36"
 ::1 - - [04/Apr/2024:09:47:52 +0000] "GET /api/cooperatives/list HTTP/1.1" 304 - "http://localhost:6020/" "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Mobile Safari/537.36"
 ::1 - - [04/Apr/2024:09:47:53 +0000] "GET /api/users/list/byrole/9 HTTP/1.1" 304 - "http://localhost:6020/" "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Mobile Safari/537.36"
+::1 - - [04/Apr/2024:09:49:19 +0000] "GET /api/typeslivraisons/list HTTP/1.1" 304 - "http://localhost:6020/" "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Mobile Safari/537.36"
+::1 - - [04/Apr/2024:09:49:19 +0000] "GET /api/marketplace/by/keyword/de%20terre HTTP/1.1" 200 58 "-" "PostmanRuntime/7.37.0"
+::1 - - [04/Apr/2024:09:49:33 +0000] "GET /api/marketplace?page_size=100&page_number=1 HTTP/1.1" 401 92 "-" "PostmanRuntime/7.37.0"
+::1 - - [04/Apr/2024:09:51:11 +0000] "GET /api/typeslivraisons/list HTTP/1.1" 304 - "http://localhost:6020/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
