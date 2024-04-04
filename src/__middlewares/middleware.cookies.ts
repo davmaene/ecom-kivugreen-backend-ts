@@ -80,4 +80,4 @@ export const onVerify: Function = async ({ token, req, res, next }: { token: str
 export const Middleware = {
     onVerify,
     onSignin
-}
+};

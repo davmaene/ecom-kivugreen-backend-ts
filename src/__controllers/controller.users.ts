@@ -20,6 +20,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Services } from '../__services/serives.all';
 import { Extras } from '../__models/model.extras';
 import { Hasmembers } from '../__models/model.hasmembers';
+import { Cooperatives } from '../__models/model.cooperatives';
 
 dotenv.config()
 
@@ -319,8 +320,14 @@ export const __controllerUsers = {
                                                     roles
                                                 }
                                             },
-                                                (reject: string, token: string) => {
+                                                async (reject: string, token: string) => {
                                                     if (token) {
+                                                        const { id } = (user as any).toJSON() as any || {}
+                                                        const coopec = await Cooperatives.findOne({
+                                                            where: {
+                                                                id_responsable: id
+                                                            }
+                                                        })
                                                         // user = formatUserModel({ model: user })
                                                         if (user !== null) {
                                                             if (user.hasOwnProperty('isvalidated')) {
@@ -328,6 +335,13 @@ export const __controllerUsers = {
                                                             }
                                                             if (user.hasOwnProperty('password')) {
                                                                 delete user['password']
+                                                            }
+                                                        }
+                                                        if (coopec instanceof Cooperatives && user instanceof Users) {
+                                                            const { id } = coopec.toJSON()
+                                                            user = user.toJSON() as any
+                                                            if(user !== null){
+                                                                (user as any)['id_cooperative'] = id as number
                                                             }
                                                         }
                                                         transaction.commit()
