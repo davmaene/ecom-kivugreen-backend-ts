@@ -70,7 +70,7 @@ export interface IHasproducts extends globalInterface {
     currency: string,
     qte: number,
     TblEcomProduitId: number,
-    TblEcomCategorieId: number,
+    TblEcomCategoryId: number,
     TblEcomUnitesmesureId: number,
     // TblEcomUserId: number,
     TblEcomCooperativeId: number

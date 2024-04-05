@@ -45,7 +45,7 @@ export const Hasproducts = connect.define<Hasproduit>('__tbl_ecom_hasproducts', 
             key: 'id'
         }
     },
-    TblEcomCategorieId: {
+    TblEcomCategoryId: {
         type: DataTypes.INTEGER,
         references: {
             model: Categories,

@@ -14,6 +14,7 @@ import { Users } from '../__models/model.users';
 import { Services } from '../__services/serives.all';
 import { fillphone } from '../__helpers/helper.fillphone';
 import { connect } from '../__databases/connecte';
+import { Categories } from '../__models/model.categories';
 
 export const __controllerMarketplace = {
     placecommand: async (req: Request, res: Response, next: NextFunction) => {
@@ -152,6 +153,7 @@ export const __controllerMarketplace = {
             Hasproducts.belongsTo(Unites) // , { foreignKey: 'TblEcomUnitesmesureId' }
             Hasproducts.belongsTo(Stocks) // , { foreignKey: 'TblEcomStockId' }
             Hasproducts.belongsTo(Cooperatives) // , { foreignKey: 'TblEcomCooperativeId' }
+            Hasproducts.belongsTo(Categories)
 
             const offset = ((page_number) - 1) * (page_size);
 
@@ -164,6 +166,10 @@ export const __controllerMarketplace = {
                         model: Produits,
                         required: true,
                         attributes: ['id', 'produit', 'image', 'description']
+                    },
+                    {
+                        model: Categories,
+                        required: false,
                     },
                     {
                         model: Unites,

@@ -26,7 +26,8 @@ export const __controllerServices = {
         }
     },
     subscribetonewsletter: async (req: Request, res: Response, next: NextFunction) => {
-        const { email, description } = req.params;
+        const { email, description } = req.body;
+        if (!email) return Responder(res, HttpStatusCode.NotAcceptable, "this request must have at least email !")
         try {
             Newsletters.create({
                 email,
@@ -38,6 +39,9 @@ export const __controllerServices = {
                     } else {
                         return Responder(res, HttpStatusCode.InternalServerError, news)
                     }
+                })
+                .catch(err => {
+                    return Responder(res, HttpStatusCode.InternalServerError, err.toString())
                 })
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)

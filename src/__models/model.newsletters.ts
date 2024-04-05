@@ -11,7 +11,10 @@ export const Newsletters = connect.define<News>('__tbl_ecom_newsletters', {
         autoIncrement: true,
         allowNull: true,
     },
-    email: DataTypes.STRING,
+    email: {
+        type: DataTypes.STRING,
+        unique: true
+    },
     description: DataTypes.TEXT
 
 }, { paranoid: true, timestamps: false, freezeTableName: true });
