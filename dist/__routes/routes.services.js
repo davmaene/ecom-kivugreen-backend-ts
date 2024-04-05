@@ -8,3 +8,4 @@ const controller_services_1 = require("../__controllers/controller.services");
 const express_1 = __importDefault(require("express"));
 exports.__routesServices = express_1.default.Router();
 exports.__routesServices.post("/service/sendsms", controller_services_1.__controllerServices.onsendsms);
+exports.__routesServices.post("/service/newsletters", controller_services_1.__controllerServices.subscribetonewsletter);

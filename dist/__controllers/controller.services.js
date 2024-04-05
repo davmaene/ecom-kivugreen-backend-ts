@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.__controllerServices = void 0;
+const model_newsletters_1 = require("../__models/model.newsletters");
 const enum_httpsstatuscode_1 = require("../__enums/enum.httpsstatuscode");
 const helper_fillphone_1 = require("../__helpers/helper.fillphone");
 const helper_responseserver_1 = require("../__helpers/helper.responseserver");
@@ -29,6 +30,31 @@ exports.__controllerServices = {
             })
                 .catch(er => {
                 return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, er);
+            });
+        }
+        catch (error) {
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
+        }
+    }),
+    subscribetonewsletter: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+        const { email, description } = req.body;
+        if (!email)
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "this request must have at least email !");
+        try {
+            model_newsletters_1.Newsletters.create({
+                email,
+                description
+            })
+                .then(news => {
+                if (news instanceof model_newsletters_1.Newsletters) {
+                    return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, news);
+                }
+                else {
+                    return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, news);
+                }
+            })
+                .catch(err => {
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, err.toString());
             });
         }
         catch (error) {

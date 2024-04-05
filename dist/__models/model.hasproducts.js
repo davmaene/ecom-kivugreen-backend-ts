@@ -44,7 +44,7 @@ exports.Hasproducts = connecte_1.connect.define('__tbl_ecom_hasproducts', {
             key: 'id'
         }
     },
-    TblEcomCategorieId: {
+    TblEcomCategoryId: {
         type: sequelize_1.DataTypes.INTEGER,
         references: {
             model: model_categories_1.Categories,

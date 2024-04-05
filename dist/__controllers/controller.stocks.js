@@ -73,7 +73,7 @@ exports.__controllerStocks = {
                                                 prix_plus_commission: prix_unitaire + (prix_unitaire * parseFloat(commission_price)),
                                                 currency,
                                                 prix_unitaire,
-                                                TblEcomCategorieId: id_category,
+                                                TblEcomCategoryId: id_category,
                                                 TblEcomCooperativeId: id_ccoperative,
                                                 TblEcomProduitId: id_produit,
                                                 TblEcomStockId: asstockid || 0,
