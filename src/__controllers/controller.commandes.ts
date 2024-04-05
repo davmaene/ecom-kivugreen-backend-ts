@@ -4,8 +4,64 @@ import { Responder } from "../__helpers/helper.responseserver";
 import { NextFunction, Request, Response } from "express";
 import { Produits } from "../__models/model.produits";
 import { Typelivraisons } from "../__models/model.typelivraison";
+import { Sequelize } from "sequelize";
 
 export const __controllerCommandes = {
+    listcommandebytransaction: async (req: Request, res: Response) => {
+        const { currentuser } = req as any;
+        const { idtransaction } = req.params
+        const { __id, roles, uuid } = currentuser;
+        try {
+            Commandes.belongsTo(Produits, { foreignKey: "id_produit" })
+            Commandes.belongsTo(Typelivraisons, { foreignKey: "type_livraison" })
+            Commandes.findAll({
+                include: [
+                    {
+                        model: Produits,
+                        required: false,
+                    },
+                    {
+                        model: Typelivraisons,
+                        required: false,
+                    }
+                ],
+                where: {
+                    transaction: idtransaction
+                }
+            })
+                .then(commandes => {
+                    return Responder(res, HttpStatusCode.Ok, { count: commandes.length, rows: commandes })
+                })
+                .catch(err => {
+                    return Responder(res, HttpStatusCode.InternalServerError, err)
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    listtransaction: async (req: Request, res: Response) => {
+        const { currentuser } = req as any;
+        const { __id, roles, uuid } = currentuser;
+        try {
+            Commandes.findAll({
+                attributes: [
+                    [Sequelize.fn('LEFT', Sequelize.col('transaction'), 30), 'transaction'],
+                ],
+                group: ['transaction'],
+                where: {
+                    createdby: __id
+                }
+            })
+                .then(commandes => {
+                    return Responder(res, HttpStatusCode.Ok, { count: commandes.length, rows: commandes })
+                })
+                .catch(err => {
+                    return Responder(res, HttpStatusCode.InternalServerError, err)
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
     list: async (req: Request, res: Response) => {
         try {
             Commandes.belongsTo(Produits, { foreignKey: "id_produit" })

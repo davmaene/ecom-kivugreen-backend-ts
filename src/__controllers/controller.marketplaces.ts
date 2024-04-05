@@ -14,6 +14,7 @@ import { Users } from '../__models/model.users';
 import { Services } from '../__services/serives.all';
 import { fillphone } from '../__helpers/helper.fillphone';
 import { connect } from '../__databases/connecte';
+import { Categories } from '../__models/model.categories';
 
 export const __controllerMarketplace = {
     placecommand: async (req: Request, res: Response, next: NextFunction) => {
@@ -152,6 +153,7 @@ export const __controllerMarketplace = {
             Hasproducts.belongsTo(Unites) // , { foreignKey: 'TblEcomUnitesmesureId' }
             Hasproducts.belongsTo(Stocks) // , { foreignKey: 'TblEcomStockId' }
             Hasproducts.belongsTo(Cooperatives) // , { foreignKey: 'TblEcomCooperativeId' }
+            Hasproducts.belongsTo(Categories)
 
             const offset = ((page_number) - 1) * (page_size);
 
@@ -163,7 +165,11 @@ export const __controllerMarketplace = {
                     {
                         model: Produits,
                         required: true,
-                        attributes: ['id', 'produit', 'image', 'description']
+                        attributes: ['id', 'produit', 'image', 'description', 'id_category']
+                    },
+                    {
+                        model: Categories,
+                        required: false,
                     },
                     {
                         model: Unites,
@@ -185,8 +191,26 @@ export const __controllerMarketplace = {
                     qte: { [Op.gte]: 0 }
                 }
             })
-                .then((rows) => {
-                    return Responder(res, HttpStatusCode.Ok, { count: rows.length, list: rows })
+                .then(async (rows) => {
+                    const __ = []
+                    for (let index = 0; index < rows.length; index++) {
+                        const { __tbl_ecom_produit, __tbl_ecom_category } = rows[index] as any;
+                        if (__tbl_ecom_category !== null) __.push((rows[index]).toJSON())
+                        else {
+                            const { id_category } = __tbl_ecom_produit;
+                            const cat = await Categories.findOne({
+                                // raw: true,
+                                where: {
+                                    id: id_category
+                                }
+                            })
+                            __.push({
+                                ...(rows[index]).toJSON(),
+                                __tbl_ecom_category: cat?.toJSON()
+                            })
+                        }
+                    }
+                    return Responder(res, HttpStatusCode.Ok, { count: rows.length, rows: __ })
                 })
                 .catch(err => {
                     log(err)
@@ -270,7 +294,7 @@ export const __controllerMarketplace = {
                 }
             })
                 .then((rows) => {
-                    return Responder(res, HttpStatusCode.Ok, { count: rows.length, list: rows })
+                    return Responder(res, HttpStatusCode.Ok, { count: rows.length, rows })
                 })
                 .catch(err => {
                     log(err)
@@ -327,7 +351,7 @@ export const __controllerMarketplace = {
                 }
             })
                 .then((rows) => {
-                    return Responder(res, HttpStatusCode.Ok, { count: rows.length, list: rows })
+                    return Responder(res, HttpStatusCode.Ok, { count: rows.length, rows })
                 })
                 .catch(err => {
                     log(err)
@@ -384,7 +408,7 @@ export const __controllerMarketplace = {
                 }
             })
                 .then((rows) => {
-                    return Responder(res, HttpStatusCode.Ok, { count: rows.length, list: rows })
+                    return Responder(res, HttpStatusCode.Ok, { count: rows.length, rows })
                 })
                 .catch(err => {
                     log(err)
@@ -441,7 +465,7 @@ export const __controllerMarketplace = {
                 }
             })
                 .then((rows) => {
-                    return Responder(res, HttpStatusCode.Ok, { count: rows.length, list: rows })
+                    return Responder(res, HttpStatusCode.Ok, { count: rows.length, rows })
                 })
                 .catch(err => {
                     log(err)

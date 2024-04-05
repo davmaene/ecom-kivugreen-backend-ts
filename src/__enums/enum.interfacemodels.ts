@@ -70,7 +70,7 @@ export interface IHasproducts extends globalInterface {
     currency: string,
     qte: number,
     TblEcomProduitId: number,
-    TblEcomCategorieId: number,
+    TblEcomCategoryId: number,
     TblEcomUnitesmesureId: number,
     // TblEcomUserId: number,
     TblEcomCooperativeId: number
@@ -152,6 +152,11 @@ export interface ITypelivraison extends globalInterface {
     frais_livraison: number,
     quantite: number,
     lieux?: number[]
+}
+
+export interface INewsletter extends globalInterface {
+    email: string,
+    description?: string,
 }
 
 export interface ICommande extends globalInterface {
