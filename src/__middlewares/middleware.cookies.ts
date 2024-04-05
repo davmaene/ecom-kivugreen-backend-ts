@@ -79,19 +79,23 @@ export const onVerify: Function = async ({ token, req, res, next }: { token: str
     }
 };
 
-export const onDecodeJWT = ({ encoded }: { encoded: string }): Promise<{ decoded: string, token: string }> => {
-    return new Promise((resolve, rejected) => {
+export const onDecodeJWT = ({ encoded }: { encoded: string }) => {
+    try {
         let tr: string
         tr = encoded
         for (let index = 0; index < tries; index++) {
             tr = base64.decode(tr)
         }
-        if (tr) return resolve({
+        return ({
             token: tr,
             decoded: jwtDecode(tr)
         })
-        else return rejected({ token: null, decoded: null })
-    })
+    } catch (error) {
+        return ({
+            token: null,
+            decoded: null
+        })
+    }
 };
 
 export const Middleware = {

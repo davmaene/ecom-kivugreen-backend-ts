@@ -28,18 +28,9 @@ export const accessValidator = (req: Request, res: Response, next: NextFunction)
 
                 if (_isfrom_mob) {
                     const [_, token] = _isfrom_mob.split(" ")
-                    onDecodeJWT({ encoded: token })
-                        .then(({ decoded, token }) => {
-                            if (decoded) {
-                                (req as any).currentuser = { ...decoded as any };
-                                return next();
-                            } else {
-                                return Responder(res, HttpStatusCode.Unauthorized, "Your Token has expired !")
-                            }
-                        })
-                        .catch(Err => {
-                            return Responder(res, HttpStatusCode.Unauthorized, "Your Token has expired !")
-                        })
+                    const { decoded, token: astoken } = onDecodeJWT({ encoded: token });
+                    (req as any).currentuser = { ...decoded as any };
+                    return next();
                 }
                 if (authorization && authorization.includes("Bearer ")) {
 
