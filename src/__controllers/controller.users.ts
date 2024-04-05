@@ -156,8 +156,67 @@ export const __controllerUsers = {
                 }
             })
             if (user instanceof Users) {
+                const { id, email, phone: asphone, nom } = user.toJSON() as any
+                const code_ = randomLongNumber({ length: 6 })
+                const extras = await Extras.findOne({
+                    where: {
+                        id_user: id
+                    }
+                })
+                if (extras instanceof Extras) {
+                    extras.update({
+                        verification: code_
+                    })
+                        .then(V => {
+                            Services.onSendSMS({
+                                is_flash: false,
+                                to: fillphone({ phone }),
+                                content: `${code_} \nBonjour ${capitalizeWords({ text: nom })} Ceci est votre code de vérirification, pour votre démande de réinitialisation de mot de passe`,
+                            })
+                                .then(suc => {
+                                    return Responder(res, HttpStatusCode.Ok, `A verification code was sent to ${phone} use it to recover the password !`)
+                                })
+                                .catch(err => {
+                                    return Responder(res, HttpStatusCode.InternalServerError, extras)
+                                })
+                        })
+                        .catch(Err => {
+                            return Responder(res, HttpStatusCode.InternalServerError, Err)
+                        })
+                } else {
+                    log("Extras not found ===> ")
+                }
+            } else {
+                return Responder(res, HttpStatusCode.NotFound, `User not found on this server ${phone}:::Users`)
+            }
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    recoverypassword: async (req: Request, res: Response, next: NextFunction) => {
+        const { phone } = req.body
+        if (!phone) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least ! phone in body ")
+        try {
+            const user = await Users.findOne({
+                where: {
+                    [Op.or]: [
+                        { email: phone },
+                        { phone: fillphone({ phone }) }
+                    ]
+                }
+            })
+            if (user instanceof Users) {
                 const { id, email, phone: asphone } = user.toJSON()
-                
+                const extras = await Extras.findOne({
+                    where: {
+                        id_user: id
+                    }
+                })
+                if (extras instanceof Extras) {
+                    log(extras)
+                } else {
+                    log("Extras not found ===> ")
+                }
             } else {
                 return Responder(res, HttpStatusCode.NotFound, `User not found on this server ${phone}:::Users`)
             }
