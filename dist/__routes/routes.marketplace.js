@@ -14,3 +14,4 @@ exports.__routesMarketplace.post('/card/validate/:idpanier', controller_marketpl
 exports.__routesMarketplace.get('/by/keyword/:keyword', controller_marketplaces_1.__controllerMarketplace.searchbykeyword);
 exports.__routesMarketplace.get('/by/cooperative/:keyword', controller_marketplaces_1.__controllerMarketplace.searchbycooperative);
 exports.__routesMarketplace.get('/by/province/:keyword', controller_marketplaces_1.__controllerMarketplace.searchbyprovince);
+exports.__routesMarketplace.get('/by/category/:keyword', controller_marketplaces_1.__controllerMarketplace.searchbycategory);
