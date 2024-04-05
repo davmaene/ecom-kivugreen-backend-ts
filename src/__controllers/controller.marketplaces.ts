@@ -154,6 +154,7 @@ export const __controllerMarketplace = {
             Hasproducts.belongsTo(Stocks) // , { foreignKey: 'TblEcomStockId' }
             Hasproducts.belongsTo(Cooperatives) // , { foreignKey: 'TblEcomCooperativeId' }
             Hasproducts.belongsTo(Categories)
+            
 
             const offset = ((page_number) - 1) * (page_size);
 

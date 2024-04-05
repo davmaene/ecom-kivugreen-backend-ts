@@ -9,6 +9,7 @@ import { Cooperatives } from '../__models/model.cooperatives';
 import { Hasproducts } from '../__models/model.hasproducts';
 import { connect } from '../__databases/connecte';
 import { Configs } from '../__models/model.configs';
+import { Categories } from '../__models/model.categories';
 
 export const __controllerStocks = {
     in: async (req: Request, res: Response) => {
@@ -113,7 +114,8 @@ export const __controllerStocks = {
         try {
             Stocks.belongsTo(Cooperatives, { foreignKey: "id_cooperative" })
             Stocks.belongsToMany(Produits, { through: Hasproducts, })// as: 'produits'
-            Stocks.findAndCountAll({
+
+            Stocks.findAll({
                 where: {},
                 include: [
                     {
@@ -129,13 +131,37 @@ export const __controllerStocks = {
                     }
                 ]
             })
-                .then(({ count, rows }) => Responder(res, HttpStatusCode.Ok, { count, rows }))
+                .then(async (rows) => {
+                    const __: any[] = []
+                    for (let index = 0; index < rows.length; index++) {
+                        let items: any[] = []
+                        const { __tbl_ecom_produits } = rows[index].toJSON() as any;
+                        for (let index = 0; index < __tbl_ecom_produits.length; index++) {
+                            const { id, produit, __tbl_ecom_hasproducts } = __tbl_ecom_produits[index] as any;
+                            const { TblEcomProduitId, TblEcomCategoryId } = __tbl_ecom_hasproducts;
+
+                            const cat = await Categories.findOne({
+                                // raw: true,
+                                where: {
+                                    id: TblEcomCategoryId
+                                }
+                            })
+                            items.push({
+                                ...__tbl_ecom_produits[index],
+                                __tbl_ecom_categories: cat?.toJSON()
+                            })
+                        }
+                        __.push({
+                            ...rows[index].toJSON() as any,
+                            __tbl_ecom_produits: [...items]
+                        })
+                    }
+                    return Responder(res, HttpStatusCode.Ok, { count: rows.length, rows: __ })
+                })
                 .catch(error => {
-                    log(error)
                     return Responder(res, HttpStatusCode.Conflict, error)
                 })
         } catch (error) {
-            log(error)
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     },
@@ -145,7 +171,7 @@ export const __controllerStocks = {
         try {
             Stocks.belongsTo(Cooperatives, { foreignKey: "id_cooperative" })
             Stocks.belongsToMany(Produits, { through: Hasproducts, })// as: 'produits'
-            Stocks.findAndCountAll({
+            Stocks.findAll({
                 where: {},
                 include: [
                     {
@@ -164,7 +190,33 @@ export const __controllerStocks = {
                     }
                 ]
             })
-                .then(({ count, rows }) => Responder(res, HttpStatusCode.Ok, { count, rows }))
+                .then(async (rows) => {
+                    const __: any[] = []
+                    for (let index = 0; index < rows.length; index++) {
+                        let items: any[] = []
+                        const { __tbl_ecom_produits } = rows[index].toJSON() as any;
+                        for (let index = 0; index < __tbl_ecom_produits.length; index++) {
+                            const { id, produit, __tbl_ecom_hasproducts } = __tbl_ecom_produits[index] as any;
+                            const { TblEcomProduitId, TblEcomCategoryId } = __tbl_ecom_hasproducts;
+
+                            const cat = await Categories.findOne({
+                                // raw: true,
+                                where: {
+                                    id: TblEcomCategoryId
+                                }
+                            })
+                            items.push({
+                                ...__tbl_ecom_produits[index],
+                                __tbl_ecom_categories: cat?.toJSON()
+                            })
+                        }
+                        __.push({
+                            ...rows[index].toJSON() as any,
+                            __tbl_ecom_produits: [...items]
+                        })
+                    }
+                    return Responder(res, HttpStatusCode.Ok, { count: rows.length, rows: __ })
+                })
                 .catch(error => {
                     log(error)
                     return Responder(res, HttpStatusCode.Conflict, error)
@@ -179,7 +231,7 @@ export const __controllerStocks = {
         try {
             Stocks.belongsTo(Cooperatives, { foreignKey: "id_cooperative" })
             Stocks.belongsToMany(Produits, { through: Hasproducts, })// as: 'produits'
-            Stocks.findAndCountAll({
+            Stocks.findAll({
                 where: {
                     id: idstock
                 },
@@ -200,7 +252,33 @@ export const __controllerStocks = {
                     }
                 ]
             })
-                .then(({ count, rows }) => Responder(res, HttpStatusCode.Ok, { count, rows }))
+                .then(async (rows) => {
+                    const __: any[] = []
+                    for (let index = 0; index < rows.length; index++) {
+                        let items: any[] = []
+                        const { __tbl_ecom_produits } = rows[index].toJSON() as any;
+                        for (let index = 0; index < __tbl_ecom_produits.length; index++) {
+                            const { id, produit, __tbl_ecom_hasproducts } = __tbl_ecom_produits[index] as any;
+                            const { TblEcomProduitId, TblEcomCategoryId } = __tbl_ecom_hasproducts;
+
+                            const cat = await Categories.findOne({
+                                // raw: true,
+                                where: {
+                                    id: TblEcomCategoryId
+                                }
+                            })
+                            items.push({
+                                ...__tbl_ecom_produits[index],
+                                __tbl_ecom_categories: cat?.toJSON()
+                            })
+                        }
+                        __.push({
+                            ...rows[index].toJSON() as any,
+                            __tbl_ecom_produits: [...items]
+                        })
+                    }
+                    return Responder(res, HttpStatusCode.Ok, { count: rows.length, rows: __ })
+                })
                 .catch(error => {
                     log(error)
                     return Responder(res, HttpStatusCode.Conflict, error)

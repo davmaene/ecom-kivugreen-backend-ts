@@ -39,6 +39,37 @@ export const __controllerCooperatives = {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     },
+    getonebyid: async (req: Request, res: Response, next: NextFunction) => {
+        const { idcooperative } = req.params
+        try {
+            Users.belongsToMany(Cooperatives, { through: Hasmembers });
+            Cooperatives.belongsToMany(Users, { through: Hasmembers });
+            Cooperatives.findOne({
+                where: {
+                    id: idcooperative
+                },
+                include: [
+                    {
+                        model: Users,
+                        required: false,
+                        attributes: ['id', 'nom', 'postnom', 'prenom', 'phone', 'email']
+                    }
+                ]
+            })
+                .then((row) => {
+                    if (row instanceof Cooperatives) {
+                        return Responder(res, HttpStatusCode.Ok, row)
+                    } else {
+                        return Responder(res, HttpStatusCode.NotFound, row)
+                    }
+                })
+                .catch(err => {
+                    return Responder(res, HttpStatusCode.Conflict, err)
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
     add: async (req: Request, res: Response, next: NextFunction) => {
         const { isformel } = req.body
         let payload = { ...req.body }

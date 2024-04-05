@@ -10,3 +10,4 @@ __routesCooperatives.post("/cooperative/add", onValidate(coopecModelValidator), 
 __routesCooperatives.put("/cooperative/addmembers", __controllerCooperatives.addmemebers)
 __routesCooperatives.put("/cooperative/:idcooperative", __controllerCooperatives.update)
 __routesCooperatives.delete("/cooperative/:idcooperative", __controllerCooperatives.delete)
+__routesCooperatives.get("/cooperative/:idcooperative", __controllerCooperatives.getonebyid)
