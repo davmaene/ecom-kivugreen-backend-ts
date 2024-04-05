@@ -289,7 +289,7 @@ export const __controllerUsers = {
                                     })
                             })
                     } else {
-                        return Responder(res, HttpStatusCode.BadRequest, `Invalid code was used ${phone}:::Users`)
+                        return Responder(res, HttpStatusCode.BadRequest, `Invalid code was used ${verification_code}:::Code`)
                     }
                 } else {
                     return Responder(res, HttpStatusCode.BadRequest, `User not found on this server ${phone}:::Users`)
