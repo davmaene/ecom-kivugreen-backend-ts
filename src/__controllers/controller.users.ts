@@ -171,7 +171,7 @@ export const __controllerUsers = {
                             Services.onSendSMS({
                                 is_flash: false,
                                 to: fillphone({ phone }),
-                                content: `${code_} \nBonjour ${capitalizeWords({ text: nom })} Ceci est votre code de vérirification, pour votre démande de réinitialisation de mot de passe`,
+                                content: `${code_} \nBonjour ${capitalizeWords({ text: nom })} Ceci est votre code de vérification, pour votre démande de réinitialisation de mot de passe`,
                             })
                                 .then(suc => {
                                     return Responder(res, HttpStatusCode.Ok, `A verification code was sent to ${phone} use it to recover the password !`)
@@ -184,7 +184,26 @@ export const __controllerUsers = {
                             return Responder(res, HttpStatusCode.InternalServerError, Err)
                         })
                 } else {
-                    log("Extras not found ===> ")
+                    Extras.create({
+                        id_user: id,
+                        verification: code_
+                    })
+                        .then(extras => {
+                            Services.onSendSMS({
+                                is_flash: false,
+                                to: fillphone({ phone }),
+                                content: `${code_} \nBonjour ${capitalizeWords({ text: nom })} Ceci est votre code de vérification, pour votre démande de réinitialisation de mot de passe`,
+                            })
+                                .then(suc => {
+                                    return Responder(res, HttpStatusCode.Ok, `A verification code was sent to ${phone} use it to recover the password !`)
+                                })
+                                .catch(err => {
+                                    return Responder(res, HttpStatusCode.InternalServerError, extras)
+                                })
+                        })
+                        .catch(Errr => {
+                            return Responder(res, HttpStatusCode.InternalServerError, Errr)
+                        })
                 }
             } else {
                 return Responder(res, HttpStatusCode.NotFound, `User not found on this server ${phone}:::Users`)
