@@ -16,6 +16,7 @@ export const Hasproducts = connect.define<Hasproduit>('__tbl_ecom_hasproducts', 
         autoIncrement: true,
         allowNull: true,
     },
+    date_production: DataTypes.STRING,
     qte: DataTypes.INTEGER,
     prix_unitaire: DataTypes.FLOAT,
     prix_plus_commission: {
