@@ -143,6 +143,15 @@ export const __controllerUsers = {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     },
+    resetpassword: async (req: Request, res: Response, next: NextFunction) => {
+        const { phone } = req.body
+        if(!phone) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least ! phone in body ")
+        try {
+            
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
     signup: async (req: Request, res: Response, next: NextFunction) => {
         const { nom, postnom, prenom, email, phone, adresse, idprovince, idterritoire, idvillage, date_naiss, genre, password, avatar } = req.body;
         if (!nom || !postnom || !phone || !password)
@@ -340,7 +349,7 @@ export const __controllerUsers = {
                                                         if (coopec instanceof Cooperatives && user instanceof Users) {
                                                             const { id } = coopec.toJSON()
                                                             user = user.toJSON() as any
-                                                            if(user !== null){
+                                                            if (user !== null) {
                                                                 (user as any)['id_cooperative'] = id as number
                                                             }
                                                         }
