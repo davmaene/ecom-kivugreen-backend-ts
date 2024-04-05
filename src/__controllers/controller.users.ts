@@ -145,9 +145,22 @@ export const __controllerUsers = {
     },
     resetpassword: async (req: Request, res: Response, next: NextFunction) => {
         const { phone } = req.body
-        if(!phone) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least ! phone in body ")
+        if (!phone) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least ! phone in body ")
         try {
-            
+            const user = await Users.findOne({
+                where: {
+                    [Op.or]: [
+                        { email: phone },
+                        { phone: fillphone({ phone }) }
+                    ]
+                }
+            })
+            if (user instanceof Users) {
+                const { id, email, phone: asphone } = user.toJSON()
+                
+            } else {
+                return Responder(res, HttpStatusCode.NotFound, `User not found on this server ${phone}:::Users`)
+            }
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
