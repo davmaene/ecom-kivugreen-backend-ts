@@ -9,7 +9,7 @@
     "dev": "ts-node-dev --respawn --transpile-only ./src/__server/",
     "postinstall": "node-config-ts"
   },
-  "keywords": [],
+  "keywords": ["e-commerce","kivugreen"],
   "author": "github.davmaene.io",
   "license": "ISC",
   "devDependencies": {
