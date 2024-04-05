@@ -68,6 +68,7 @@ export interface IHasproducts extends globalInterface {
     prix_unitaire: number,
     prix_plus_commission: number,
     currency: string,
+    date_production: string,
     qte: number,
     TblEcomProduitId: number,
     TblEcomCategoryId: number,
