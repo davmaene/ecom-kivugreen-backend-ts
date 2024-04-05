@@ -213,10 +213,47 @@ export const __controllerUsers = {
         }
     },
     recoverypassword: async (req: Request, res: Response, next: NextFunction) => {
-        const { phone } = req.body
-        if (!phone) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least ! phone in body ")
+        const { phone, verification_code, password } = req.body
+        if (!phone || !verification_code || !password) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least ! phone in body ")
         try {
+            Users.belongsToMany(Roles, { through: Hasroles });
+            Roles.belongsToMany(Users, { through: Hasroles });
+
+            Provinces.hasOne(Users, { foreignKey: "id" });
+            Users.belongsTo(Provinces, { foreignKey: "idprovince" });
+
+            Territoires.hasOne(Users, { foreignKey: "id" });
+            Users.belongsTo(Territoires, { foreignKey: "idterritoire" });
+
+            Villages.hasOne(Users, { foreignKey: "id" });
+            Users.belongsTo(Villages, { foreignKey: "idvillage" });
+
             const user = await Users.findOne({
+                attributes: {
+                    exclude: ['password']
+                },
+                include: [
+                    {
+                        model: Roles,
+                        required: true,
+                        attributes: ['id', 'role']
+                    },
+                    {
+                        model: Provinces,
+                        required: false,
+                        attributes: ['id', 'province']
+                    },
+                    {
+                        model: Territoires,
+                        required: false,
+                        attributes: ['id', 'territoire']
+                    },
+                    {
+                        model: Villages,
+                        required: false,
+                        attributes: ['id', 'village']
+                    }
+                ],
                 where: {
                     [Op.or]: [
                         { email: phone },
@@ -224,17 +261,38 @@ export const __controllerUsers = {
                     ]
                 }
             })
+            const pwd = await hashPWD({ plaintext: password })
             if (user instanceof Users) {
-                const { id, email, phone: asphone } = user.toJSON()
+                const { id, email, phone: asphone, nom } = user.toJSON()
                 const extras = await Extras.findOne({
                     where: {
                         id_user: id
                     }
                 })
                 if (extras instanceof Extras) {
-                    log(extras)
+                    const { verification } = extras
+                    if (String(verification) === String(verification_code)) {
+                        user.update({
+                            password: pwd
+                        })
+                            .then(U => {
+                                Services.onSendSMS({
+                                    is_flash: false,
+                                    to: fillphone({ phone }),
+                                    content: `Bonjour ${nom}, votre mot de passe a été mise à jour avec succès !`,
+                                })
+                                    .then(suc => {
+                                        return Responder(res, HttpStatusCode.Ok, user.toJSON())
+                                    })
+                                    .catch(err => {
+                                        return Responder(res, HttpStatusCode.InternalServerError, extras)
+                                    })
+                            })
+                    } else {
+                        return Responder(res, HttpStatusCode.BadRequest, `Invalid code was used ${phone}:::Users`)
+                    }
                 } else {
-                    log("Extras not found ===> ")
+                    return Responder(res, HttpStatusCode.BadRequest, `User not found on this server ${phone}:::Users`)
                 }
             } else {
                 return Responder(res, HttpStatusCode.NotFound, `User not found on this server ${phone}:::Users`)
