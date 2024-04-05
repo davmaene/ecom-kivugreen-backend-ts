@@ -165,7 +165,7 @@ export const __controllerMarketplace = {
                     {
                         model: Produits,
                         required: true,
-                        attributes: ['id', 'produit', 'image', 'description']
+                        attributes: ['id', 'produit', 'image', 'description', 'id_category']
                     },
                     {
                         model: Categories,
@@ -191,8 +191,26 @@ export const __controllerMarketplace = {
                     qte: { [Op.gte]: 0 }
                 }
             })
-                .then((rows) => {
-                    return Responder(res, HttpStatusCode.Ok, { count: rows.length, list: rows })
+                .then(async (rows) => {
+                    const __ = []
+                    for (let index = 0; index < rows.length; index++) {
+                        const { __tbl_ecom_produit, __tbl_ecom_category } = rows[index] as any;
+                        if (__tbl_ecom_category !== null) __.push((rows[index]).toJSON())
+                        else {
+                            const { id_category } = __tbl_ecom_produit;
+                            const cat = await Categories.findOne({
+                                // raw: true,
+                                where: {
+                                    id: id_category
+                                }
+                            })
+                            __.push({
+                                ...(rows[index]).toJSON(),
+                                __tbl_ecom_category: cat?.toJSON()
+                            })
+                        }
+                    }
+                    return Responder(res, HttpStatusCode.Ok, { count: rows.length, rows: __ })
                 })
                 .catch(err => {
                     log(err)
