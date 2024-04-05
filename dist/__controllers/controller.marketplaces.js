@@ -263,6 +263,7 @@ exports.__controllerMarketplace = {
             model_hasproducts_1.Hasproducts.belongsTo(model_unitemesures_1.Unites); // , { foreignKey: 'TblEcomUnitesmesureId' }
             model_hasproducts_1.Hasproducts.belongsTo(model_stocks_1.Stocks); // , { foreignKey: 'TblEcomStockId' }
             model_hasproducts_1.Hasproducts.belongsTo(model_cooperatives_1.Cooperatives); // , { foreignKey: 'TblEcomCooperativeId' }
+            model_hasproducts_1.Hasproducts.belongsTo(model_categories_1.Categories);
             const offset = ((page_number) - 1) * (page_size);
             model_hasproducts_1.Hasproducts.findAll({
                 // attributes: ['id', 'qte', 'currency'],
@@ -272,12 +273,16 @@ exports.__controllerMarketplace = {
                     {
                         model: model_produits_1.Produits,
                         required: true,
-                        attributes: ['id', 'produit', 'image', 'description'],
+                        attributes: ['id', 'produit', 'image', 'description', 'id_category'],
                         where: {
                             produit: {
                                 [sequelize_1.Op.like]: `%${keyword}%`
                             }
                         }
+                    },
+                    {
+                        model: model_categories_1.Categories,
+                        required: false,
                     },
                     {
                         model: model_unitemesures_1.Unites,
@@ -299,9 +304,25 @@ exports.__controllerMarketplace = {
                     qte: { [sequelize_1.Op.gte]: 0 }
                 }
             })
-                .then((rows) => {
-                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: rows.length, rows });
-            })
+                .then((rows) => __awaiter(void 0, void 0, void 0, function* () {
+                const __ = [];
+                for (let index = 0; index < rows.length; index++) {
+                    const { __tbl_ecom_produit, __tbl_ecom_category } = rows[index];
+                    if (__tbl_ecom_category !== null)
+                        __.push((rows[index]).toJSON());
+                    else {
+                        const { id_category } = __tbl_ecom_produit;
+                        const cat = yield model_categories_1.Categories.findOne({
+                            // raw: true,
+                            where: {
+                                id: id_category
+                            }
+                        });
+                        __.push(Object.assign(Object.assign({}, (rows[index]).toJSON()), { __tbl_ecom_category: cat === null || cat === void 0 ? void 0 : cat.toJSON() }));
+                    }
+                }
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: rows.length, rows: __ });
+            }))
                 .catch(err => {
                 (0, console_1.log)(err);
                 return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Conflict, err);
@@ -320,6 +341,7 @@ exports.__controllerMarketplace = {
             model_hasproducts_1.Hasproducts.belongsTo(model_unitemesures_1.Unites); // , { foreignKey: 'TblEcomUnitesmesureId' }
             model_hasproducts_1.Hasproducts.belongsTo(model_stocks_1.Stocks); // , { foreignKey: 'TblEcomStockId' }
             model_hasproducts_1.Hasproducts.belongsTo(model_cooperatives_1.Cooperatives); // , { foreignKey: 'TblEcomCooperativeId' }
+            model_hasproducts_1.Hasproducts.belongsTo(model_categories_1.Categories);
             const offset = ((page_number) - 1) * (page_size);
             model_hasproducts_1.Hasproducts.findAll({
                 // attributes: ['id', 'qte', 'currency'],
@@ -329,7 +351,11 @@ exports.__controllerMarketplace = {
                     {
                         model: model_produits_1.Produits,
                         required: true,
-                        attributes: ['id', 'produit', 'image', 'description']
+                        attributes: ['id', 'produit', 'image', 'description', 'id_category']
+                    },
+                    {
+                        model: model_categories_1.Categories,
+                        required: false,
                     },
                     {
                         model: model_unitemesures_1.Unites,
@@ -354,9 +380,25 @@ exports.__controllerMarketplace = {
                     qte: { [sequelize_1.Op.gte]: 0 }
                 }
             })
-                .then((rows) => {
-                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: rows.length, rows });
-            })
+                .then((rows) => __awaiter(void 0, void 0, void 0, function* () {
+                const __ = [];
+                for (let index = 0; index < rows.length; index++) {
+                    const { __tbl_ecom_produit, __tbl_ecom_category } = rows[index];
+                    if (__tbl_ecom_category !== null)
+                        __.push((rows[index]).toJSON());
+                    else {
+                        const { id_category } = __tbl_ecom_produit;
+                        const cat = yield model_categories_1.Categories.findOne({
+                            // raw: true,
+                            where: {
+                                id: id_category
+                            }
+                        });
+                        __.push(Object.assign(Object.assign({}, (rows[index]).toJSON()), { __tbl_ecom_category: cat === null || cat === void 0 ? void 0 : cat.toJSON() }));
+                    }
+                }
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: rows.length, rows: __ });
+            }))
                 .catch(err => {
                 (0, console_1.log)(err);
                 return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Conflict, err);
@@ -375,6 +417,7 @@ exports.__controllerMarketplace = {
             model_hasproducts_1.Hasproducts.belongsTo(model_unitemesures_1.Unites); // , { foreignKey: 'TblEcomUnitesmesureId' }
             model_hasproducts_1.Hasproducts.belongsTo(model_stocks_1.Stocks); // , { foreignKey: 'TblEcomStockId' }
             model_hasproducts_1.Hasproducts.belongsTo(model_cooperatives_1.Cooperatives); // , { foreignKey: 'TblEcomCooperativeId' }
+            model_hasproducts_1.Hasproducts.belongsTo(model_categories_1.Categories);
             const offset = ((page_number) - 1) * (page_size);
             model_hasproducts_1.Hasproducts.findAll({
                 // attributes: ['id', 'qte', 'currency'],
@@ -385,6 +428,10 @@ exports.__controllerMarketplace = {
                         model: model_produits_1.Produits,
                         required: true,
                         attributes: ['id', 'produit', 'image', 'description', 'id_category'],
+                    },
+                    {
+                        model: model_categories_1.Categories,
+                        required: false,
                     },
                     {
                         model: model_unitemesures_1.Unites,
@@ -409,9 +456,25 @@ exports.__controllerMarketplace = {
                     qte: { [sequelize_1.Op.gte]: 0 }
                 }
             })
-                .then((rows) => {
-                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: rows.length, rows });
-            })
+                .then((rows) => __awaiter(void 0, void 0, void 0, function* () {
+                const __ = [];
+                for (let index = 0; index < rows.length; index++) {
+                    const { __tbl_ecom_produit, __tbl_ecom_category } = rows[index];
+                    if (__tbl_ecom_category !== null)
+                        __.push((rows[index]).toJSON());
+                    else {
+                        const { id_category } = __tbl_ecom_produit;
+                        const cat = yield model_categories_1.Categories.findOne({
+                            // raw: true,
+                            where: {
+                                id: id_category
+                            }
+                        });
+                        __.push(Object.assign(Object.assign({}, (rows[index]).toJSON()), { __tbl_ecom_category: cat === null || cat === void 0 ? void 0 : cat.toJSON() }));
+                    }
+                }
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: rows.length, rows: __ });
+            }))
                 .catch(err => {
                 (0, console_1.log)(err);
                 return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Conflict, err);
@@ -430,6 +493,7 @@ exports.__controllerMarketplace = {
             model_hasproducts_1.Hasproducts.belongsTo(model_unitemesures_1.Unites); // , { foreignKey: 'TblEcomUnitesmesureId' }
             model_hasproducts_1.Hasproducts.belongsTo(model_stocks_1.Stocks); // , { foreignKey: 'TblEcomStockId' }
             model_hasproducts_1.Hasproducts.belongsTo(model_cooperatives_1.Cooperatives); // , { foreignKey: 'TblEcomCooperativeId' }
+            model_hasproducts_1.Hasproducts.belongsTo(model_categories_1.Categories);
             const offset = ((page_number) - 1) * (page_size);
             model_hasproducts_1.Hasproducts.findAll({
                 // attributes: ['id', 'qte', 'currency'],
@@ -443,6 +507,10 @@ exports.__controllerMarketplace = {
                         where: {
                             id_category: parseInt(keyword)
                         }
+                    },
+                    {
+                        model: model_categories_1.Categories,
+                        required: false,
                     },
                     {
                         model: model_unitemesures_1.Unites,
@@ -464,9 +532,25 @@ exports.__controllerMarketplace = {
                     qte: { [sequelize_1.Op.gte]: 0 }
                 }
             })
-                .then((rows) => {
-                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: rows.length, rows });
-            })
+                .then((rows) => __awaiter(void 0, void 0, void 0, function* () {
+                const __ = [];
+                for (let index = 0; index < rows.length; index++) {
+                    const { __tbl_ecom_produit, __tbl_ecom_category } = rows[index];
+                    if (__tbl_ecom_category !== null)
+                        __.push((rows[index]).toJSON());
+                    else {
+                        const { id_category } = __tbl_ecom_produit;
+                        const cat = yield model_categories_1.Categories.findOne({
+                            // raw: true,
+                            where: {
+                                id: id_category
+                            }
+                        });
+                        __.push(Object.assign(Object.assign({}, (rows[index]).toJSON()), { __tbl_ecom_category: cat === null || cat === void 0 ? void 0 : cat.toJSON() }));
+                    }
+                }
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: rows.length, rows: __ });
+            }))
                 .catch(err => {
                 (0, console_1.log)(err);
                 return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Conflict, err);
