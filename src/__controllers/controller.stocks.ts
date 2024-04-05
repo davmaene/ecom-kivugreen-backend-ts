@@ -13,7 +13,7 @@ import { Categories } from '../__models/model.categories';
 
 export const __controllerStocks = {
     in: async (req: Request, res: Response) => {
-        const { id_ccoperative, items, description } = req.body;
+        const { id_ccoperative, items, description, date_production, date_expiration } = req.body;
         const { currentuser } = req as any;
         if (!id_ccoperative || !items) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !id_ccoperative || !items")
         if (!Array.isArray(items) || Array.from(items).length === 0) return Responder(res, HttpStatusCode.NotAcceptable, "Items must be a type of Array")
@@ -28,8 +28,8 @@ export const __controllerStocks = {
         try {
             const transaction = await connect.transaction()
             Stocks.create({
-                date_expiration: '',
-                date_production: '',
+                date_expiration,
+                date_production,
                 createdby: __id,
                 id_cooperative: id_ccoperative,
                 transaction: randomLongNumber({ length: 15 }),
@@ -42,7 +42,7 @@ export const __controllerStocks = {
                         if (configs instanceof Configs) {
                             const { taux_change, commission_price } = configs.toJSON() as any;
                             for (let index = 0; index < array.length; index++) {
-                                const { id_produit, qte, prix_unitaire, currency }: any = array[index];
+                                const { id_produit, qte, prix_unitaire, currency, date_production: asdate_production }: any = array[index];
                                 try {
                                     const prd = await Produits.findOne({
                                         attributes: ['id', 'produit', 'id_unity', 'id_category', 'id_souscategory', 'image'],
@@ -63,6 +63,7 @@ export const __controllerStocks = {
                                                     prix_plus_commission: prix_unitaire + (prix_unitaire * parseFloat(commission_price)),
                                                     currency,
                                                     prix_unitaire,
+                                                    date_production: asdate_production,
                                                     TblEcomCategoryId: id_category,
                                                     TblEcomCooperativeId: id_ccoperative,
                                                     TblEcomProduitId: id_produit,
