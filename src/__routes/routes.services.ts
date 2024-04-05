@@ -4,4 +4,4 @@ import express from 'express'
 export const __routesServices = express.Router()
 
 __routesServices.post("/service/sendsms", __controllerServices.onsendsms)
-__routesServices.post("/service/newsletter", __controllerServices.onsendsms)
+__routesServices.post("/service/newsletter", __controllerServices.subscribetonewsletter)

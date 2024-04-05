@@ -270,7 +270,7 @@ export const __controllerMarketplace = {
                 }
             })
                 .then((rows) => {
-                    return Responder(res, HttpStatusCode.Ok, { count: rows.length, list: rows })
+                    return Responder(res, HttpStatusCode.Ok, { count: rows.length, rows })
                 })
                 .catch(err => {
                     log(err)
@@ -327,7 +327,7 @@ export const __controllerMarketplace = {
                 }
             })
                 .then((rows) => {
-                    return Responder(res, HttpStatusCode.Ok, { count: rows.length, list: rows })
+                    return Responder(res, HttpStatusCode.Ok, { count: rows.length, rows })
                 })
                 .catch(err => {
                     log(err)
@@ -384,7 +384,7 @@ export const __controllerMarketplace = {
                 }
             })
                 .then((rows) => {
-                    return Responder(res, HttpStatusCode.Ok, { count: rows.length, list: rows })
+                    return Responder(res, HttpStatusCode.Ok, { count: rows.length, rows })
                 })
                 .catch(err => {
                     log(err)
@@ -441,7 +441,7 @@ export const __controllerMarketplace = {
                 }
             })
                 .then((rows) => {
-                    return Responder(res, HttpStatusCode.Ok, { count: rows.length, list: rows })
+                    return Responder(res, HttpStatusCode.Ok, { count: rows.length, rows })
                 })
                 .catch(err => {
                     log(err)
