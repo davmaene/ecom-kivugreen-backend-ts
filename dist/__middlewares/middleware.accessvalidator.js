@@ -20,12 +20,16 @@ const accessValidator = (req, res, next) => {
         return next();
     if (headers && url) {
         if (middleware_cookies_1.exludedRoutes.indexOf(url) === -1) {
-            if (headers && headers.hasOwnProperty(APP_CONNEXIONTOAPPWEB)) {
+            if ((headers && headers.hasOwnProperty(APP_CONNEXIONTOAPPWEB)) || (headers && headers.hasOwnProperty(APP_CONNEXIONTOAPPMOB))) {
                 const authorization = String(headers[APP_CONNEXIONTOAPPWEB]);
                 const _isfrom_mob = String(headers[APP_CONNEXIONTOAPPMOB]);
+                if (_isfrom_mob) {
+                    const [_, token] = _isfrom_mob.split(" ");
+                    const { decoded, token: astoken } = (0, middleware_cookies_1.onDecodeJWT)({ encoded: token });
+                    req.currentuser = Object.assign({}, decoded);
+                    return next();
+                }
                 if (authorization && authorization.includes("Bearer ")) {
-                    if (_isfrom_mob === 'true')
-                        return next();
                     (0, middleware_cookies_1.onVerify)({
                         token: authorization.split(" ")[1].trim(),
                         next,

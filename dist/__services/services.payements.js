@@ -13,12 +13,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Payements = void 0;
-const helper_fillphone_1 = require("__helpers/helper.fillphone");
+const helper_fillphone_1 = require("../__helpers/helper.fillphone");
 const serives_all_1 = require("./serives.all");
 const axios_1 = __importDefault(require("axios"));
 const dotenv_1 = __importDefault(require("dotenv"));
-const helper_random_1 = require("__helpers/helper.random");
-const model_payements_1 = require("__models/model.payements");
+const helper_random_1 = require("../__helpers/helper.random");
+const model_payements_1 = require("../__models/model.payements");
 dotenv_1.default.config();
 const { APP_FLEXPAYMERCHANTID, APP_FLEXPAYURL, APP_CALLBACKURL, APP_FLEXPAYTOKEN, APP_FLEXPAYURLCHECK } = process.env;
 axios_1.default.interceptors.request.use(config => {
@@ -41,7 +41,7 @@ exports.Payements = {
         return new Promise((resolve, reject) => __awaiter(void 0, void 0, void 0, function* () {
             try {
                 // const { APP_FLEXPAYMERCHANTID, APP_FLEXPAYURL, APP_CALLBACKURL, APP_FLEXPAYTOKEN } = process.env;
-                const _opphone = (0, helper_fillphone_1.completeCodeCountryToPhoneNumber)({ phone: (0, helper_fillphone_1.fillphone)({ phone }) });
+                const _opphone = (0, helper_fillphone_1.completeCodeCountryToPhoneNumber)({ phone: (0, helper_fillphone_1.fillphone)({ phone }), withoutplus: true });
                 const _operationref = (0, helper_random_1.randomLongNumber)({ length: 13 });
                 const data = {
                     "merchant": APP_FLEXPAYMERCHANTID,
@@ -111,13 +111,18 @@ exports.Payements = {
                     }
                 })
                     .catch((error) => {
+                    serives_all_1.Services.loggerSystem({
+                        message: JSON.stringify(Object.assign(Object.assign({}, data), { phone: _opphone, amount, currency })),
+                        title: "PAIEMENT AVEC FLEXPAY CRASHED"
+                    });
                     console.log("Error on paiement ===> ", error);
-                    return reject({ code: 400, message: "An error occured when trying to resolve payement !", data: error });
+                    return reject({ code: 500, message: "An error occured when trying to resolve payement !", data: error.toString() });
                 });
             }
             catch (error) {
                 serives_all_1.Services.loggerSystem({ title: "Error on paiement ", message: JSON.stringify({ phone, amount, currency }) });
                 console.log(" Une erreur vient de se produire on making paiement => ", error);
+                return reject({ code: 500, message: "An error occured when trying to resolve payement !", data: error.toString() });
             }
         }));
     }),

@@ -21,6 +21,8 @@ const helper_random_1 = require("../__helpers/helper.random");
 const model_extras_1 = require("../__models/model.extras");
 const helper_fillphone_1 = require("../__helpers/helper.fillphone");
 const helper_moment_1 = require("../__helpers/helper.moment");
+const model_provinces_1 = require("../__models/model.provinces");
+const model_territoires_1 = require("../__models/model.territoires");
 exports.__controllerCooperatives = {
     list: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
@@ -54,11 +56,23 @@ exports.__controllerCooperatives = {
         try {
             model_users_1.Users.belongsToMany(model_cooperatives_1.Cooperatives, { through: model_hasmembers_1.Hasmembers });
             model_cooperatives_1.Cooperatives.belongsToMany(model_users_1.Users, { through: model_hasmembers_1.Hasmembers });
+            model_cooperatives_1.Cooperatives.belongsTo(model_provinces_1.Provinces, { foreignKey: "id_province" });
+            model_cooperatives_1.Cooperatives.belongsTo(model_territoires_1.Territoires, { foreignKey: "id_territoire" });
             model_cooperatives_1.Cooperatives.findOne({
                 where: {
                     id: idcooperative
                 },
                 include: [
+                    {
+                        model: model_provinces_1.Provinces,
+                        required: false,
+                        // attributes: ['id', 'nom', 'postnom', 'prenom', 'phone', 'email']
+                    },
+                    {
+                        model: model_territoires_1.Territoires,
+                        required: false,
+                        // attributes: ['id', 'nom', 'postnom', 'prenom', 'phone', 'email']
+                    },
                     {
                         model: model_users_1.Users,
                         required: false,

@@ -12,10 +12,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Middleware = exports.onVerify = exports.onSignin = exports.optionsSignin = exports.tries = exports.exludedRoutes = void 0;
+exports.Middleware = exports.onDecodeJWT = exports.onVerify = exports.onSignin = exports.optionsSignin = exports.tries = exports.exludedRoutes = void 0;
 const dotenv_1 = __importDefault(require("dotenv"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const base_64_1 = __importDefault(require("base-64"));
+const jwt_decode_1 = require("jwt-decode");
 dotenv_1.default.config();
 const { APP_APAPPACCESKEY: APPAPIKEY, APP_COOKIESNAME: APPCOOKIESNAME } = process.env;
 if (!APPAPIKEY || !APPCOOKIESNAME)
@@ -82,6 +83,26 @@ const onVerify = ({ token, req, res, next }, cb) => __awaiter(void 0, void 0, vo
     }
 });
 exports.onVerify = onVerify;
+const onDecodeJWT = ({ encoded }) => {
+    try {
+        let tr;
+        tr = encoded;
+        for (let index = 0; index < exports.tries; index++) {
+            tr = base_64_1.default.decode(tr);
+        }
+        return ({
+            token: tr,
+            decoded: (0, jwt_decode_1.jwtDecode)(tr)
+        });
+    }
+    catch (error) {
+        return ({
+            token: null,
+            decoded: null
+        });
+    }
+};
+exports.onDecodeJWT = onDecodeJWT;
 exports.Middleware = {
     onVerify: exports.onVerify,
     onSignin: exports.onSignin

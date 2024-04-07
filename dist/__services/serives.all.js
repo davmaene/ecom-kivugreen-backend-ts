@@ -83,7 +83,7 @@ exports.Services = {
         }
     }),
     loggerSystem: ({ message, title }) => {
-        const fl = fs_1.default.createWriteStream('__assets/as_log/log.system.infos.ini', {
+        const fl = fs_1.default.createWriteStream('src/__assets/as_log/log.system.infos.ini', {
             flags: 'a' // 'a' means appending (old data will be preserved)
         });
         fl.write(`\n Title => ${title}\n Info => ${message}\n Temps => ${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`);
@@ -95,7 +95,7 @@ exports.Services = {
             try {
                 // || API_SMS_IS_FLASH,
                 const payload = {
-                    'phone': (0, helper_fillphone_1.completeCodeCountryToPhoneNumber)({ phone: to }),
+                    'phone': (0, helper_fillphone_1.completeCodeCountryToPhoneNumber)({ phone: to, withoutplus: false }),
                     'message': content,
                     'is_flash': (is_flash ? 1 : 0),
                     'app': APP_NAME

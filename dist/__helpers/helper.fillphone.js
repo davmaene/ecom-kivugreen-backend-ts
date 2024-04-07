@@ -10,7 +10,7 @@ const fillphone = ({ phone }) => {
     }
 };
 exports.fillphone = fillphone;
-const completeCodeCountryToPhoneNumber = ({ phone }) => {
+const completeCodeCountryToPhoneNumber = ({ phone, withoutplus }) => {
     phone = phone ? phone.toString() : '0';
     const cdcode = '243';
     switch (phone.charAt(0)) {
@@ -27,6 +27,6 @@ const completeCodeCountryToPhoneNumber = ({ phone }) => {
             phone = String(`${cdcode}${phone.substring(1)}`);
             break;
     }
-    return '+'.concat(phone);
+    return withoutplus === true ? phone : '+'.concat(phone);
 };
 exports.completeCodeCountryToPhoneNumber = completeCodeCountryToPhoneNumber;
