@@ -1,9 +1,10 @@
-import { completeCodeCountryToPhoneNumber, fillphone } from '__helpers/helper.fillphone';
+import { completeCodeCountryToPhoneNumber, fillphone } from '../__helpers/helper.fillphone';
 import { Services } from './serives.all';
 import axios from "axios";
 import dotenv from 'dotenv';
-import { randomLongNumber } from '__helpers/helper.random';
-import { Paiements } from '__models/model.payements';
+import { randomLongNumber } from '../__helpers/helper.random';
+import { Paiements } from '../__models/model.payements';
+import { log } from 'console';
 
 dotenv.config();
 
@@ -38,7 +39,7 @@ export const Payements = {
         return new Promise(async (resolve, reject) => {
             try {
                 // const { APP_FLEXPAYMERCHANTID, APP_FLEXPAYURL, APP_CALLBACKURL, APP_FLEXPAYTOKEN } = process.env;
-                const _opphone = completeCodeCountryToPhoneNumber({ phone: fillphone({ phone }) });
+                const _opphone = completeCodeCountryToPhoneNumber({ phone: fillphone({ phone }), withoutplus: true });
                 const _operationref = randomLongNumber({ length: 13 })
 
                 const data = {
@@ -111,19 +112,23 @@ export const Payements = {
                         }
                     })
                     .catch((error) => {
+                        Services.loggerSystem({
+                            message: JSON.stringify({ ...data, phone: _opphone, amount, currency }),
+                            title: "PAIEMENT AVEC FLEXPAY CRASHED"
+                        });
                         console.log("Error on paiement ===> ", error);
-                        return reject({ code: 400, message: "An error occured when trying to resolve payement !", data: error })
+                        return reject({ code: 500, message: "An error occured when trying to resolve payement !", data: error.toString() })
                     });
-            } catch (error) {
+            } catch (error: any) {
                 Services.loggerSystem({ title: "Error on paiement ", message: JSON.stringify({ phone, amount, currency }) })
                 console.log(" Une erreur vient de se produire on making paiement => ", error);
-
+                return reject({ code: 500, message: "An error occured when trying to resolve payement !", data: error.toString() })
             }
         })
     },
     check: async ({ phone, amount, currency }: { phone: string, amount: number, currency: string }): Promise<{ code: number, message: string, data: any }> => {
         return new Promise((resolve, reject) => {
-            
+
         })
     }
 }

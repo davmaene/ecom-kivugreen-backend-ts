@@ -2,6 +2,8 @@ import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 import base64 from 'base-64';
+import { jwtDecode } from "jwt-decode";
+import { log } from 'console';
 
 dotenv.config();
 
@@ -64,7 +66,7 @@ export const onVerify: Function = async ({ token, req, res, next }: { token: str
         tr = token
         for (let index = 0; index < tries; index++) {
             tr = base64.decode(tr)
-        } 
+        }
         jwt.verify(tr, APPAPIKEY, {}, (err, done) => {
             if (done) {
                 return cb(undefined, done)
@@ -74,6 +76,25 @@ export const onVerify: Function = async ({ token, req, res, next }: { token: str
         })
     } catch (error) {
         return cb(error, undefined)
+    }
+};
+
+export const onDecodeJWT = ({ encoded }: { encoded: string }) => {
+    try {
+        let tr: string
+        tr = encoded
+        for (let index = 0; index < tries; index++) {
+            tr = base64.decode(tr)
+        }
+        return ({
+            token: tr,
+            decoded: jwtDecode(tr)
+        })
+    } catch (error) {
+        return ({
+            token: null,
+            decoded: null
+        })
     }
 };
 
