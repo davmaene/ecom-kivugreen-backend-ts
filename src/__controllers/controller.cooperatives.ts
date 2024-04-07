@@ -10,6 +10,8 @@ import { randomLongNumber } from "../__helpers/helper.random"
 import { Extras } from "../__models/model.extras"
 import { fillphone } from "../__helpers/helper.fillphone"
 import { now } from "../__helpers/helper.moment"
+import { Provinces } from "../__models/model.provinces"
+import { Territoires } from "../__models/model.territoires"
 
 export const __controllerCooperatives = {
 
@@ -42,13 +44,27 @@ export const __controllerCooperatives = {
     getonebyid: async (req: Request, res: Response, next: NextFunction) => {
         const { idcooperative } = req.params
         try {
+
             Users.belongsToMany(Cooperatives, { through: Hasmembers });
             Cooperatives.belongsToMany(Users, { through: Hasmembers });
+            Cooperatives.belongsTo(Provinces, { foreignKey: "id_province" });
+            Cooperatives.belongsTo(Territoires, { foreignKey: "id_territoire" });
+
             Cooperatives.findOne({
                 where: {
                     id: idcooperative
                 },
                 include: [
+                    {
+                        model: Provinces,
+                        required: false,
+                        // attributes: ['id', 'nom', 'postnom', 'prenom', 'phone', 'email']
+                    },
+                    {
+                        model: Territoires,
+                        required: false,
+                        // attributes: ['id', 'nom', 'postnom', 'prenom', 'phone', 'email']
+                    },
                     {
                         model: Users,
                         required: false,
