@@ -85,7 +85,7 @@ export const Services = {
             try {
                 // || API_SMS_IS_FLASH,
                 const payload = {
-                    'phone': completeCodeCountryToPhoneNumber({ phone: to }),
+                    'phone': completeCodeCountryToPhoneNumber({ phone: to, withoutplus: false }),
                     'message': content,
                     'is_flash': (is_flash ? 1 : 0),
                     'app': APP_NAME

@@ -4,6 +4,7 @@ import axios from "axios";
 import dotenv from 'dotenv';
 import { randomLongNumber } from '../__helpers/helper.random';
 import { Paiements } from '../__models/model.payements';
+import { log } from 'console';
 
 dotenv.config();
 
@@ -38,7 +39,7 @@ export const Payements = {
         return new Promise(async (resolve, reject) => {
             try {
                 // const { APP_FLEXPAYMERCHANTID, APP_FLEXPAYURL, APP_CALLBACKURL, APP_FLEXPAYTOKEN } = process.env;
-                const _opphone = completeCodeCountryToPhoneNumber({ phone: fillphone({ phone }) });
+                const _opphone = completeCodeCountryToPhoneNumber({ phone: fillphone({ phone }), withoutplus: true });
                 const _operationref = randomLongNumber({ length: 13 })
 
                 const data = {

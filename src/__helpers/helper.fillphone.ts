@@ -7,7 +7,7 @@ export const fillphone = ({ phone }: { phone: string }) => {
     }
 }
 
-export const completeCodeCountryToPhoneNumber = ({ phone }: { phone: string }) => {
+export const completeCodeCountryToPhoneNumber = ({ phone, withoutplus }: { phone: string, withoutplus: boolean }) => {
     phone = phone ? phone.toString() : '0';
     const cdcode = '243';
     switch (phone.charAt(0)) {
@@ -24,5 +24,5 @@ export const completeCodeCountryToPhoneNumber = ({ phone }: { phone: string }) =
             phone = String(`${cdcode}${phone.substring(1)}`);
             break;
     }
-    return '+'.concat(phone)
+    return withoutplus === true ? phone : '+'.concat(phone)
 }
