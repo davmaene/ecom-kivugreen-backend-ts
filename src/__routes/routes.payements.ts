@@ -1,4 +1,4 @@
-import { __controllerPayements } from '__controllers/controller.payements'
+import { __controllerPayements } from '../__controllers/controller.payements'
 import express from 'express'
 
 export const __routesPayements = express.Router()

@@ -1,6 +1,6 @@
-import { HttpStatusCode } from "__enums/enum.httpsstatuscode";
-import { Responder } from "__helpers/helper.responseserver";
-import { Payements } from "__services/services.payements";
+import { HttpStatusCode } from "../__enums/enum.httpsstatuscode";
+import { Responder } from "../__helpers/helper.responseserver";
+import { Payements } from "../__services/services.payements";
 import { log } from "console";
 import { NextFunction, Request, Response } from "express";
 
@@ -22,10 +22,13 @@ export const __controllerPayements = {
                 phone
             })
                 .then(pay => {
-
+                    const { code, data, message } = pay
+                    log("Reesponse from payement ===> ", data)
+                    return Responder(res, HttpStatusCode.Ok, data)
                 })
                 .catch((err: any) => {
-                    log("Error on payement ==> ", err)
+                    log("Error on payement ==> ", err.toString())
+                    return Responder(res, HttpStatusCode.InternalServerError, err)
                 })
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)

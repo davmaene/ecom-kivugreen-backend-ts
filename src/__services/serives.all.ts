@@ -73,7 +73,7 @@ export const Services = {
         }
     },
     loggerSystem: ({ message, title }: { message: any, title: string }) => {
-        const fl = fs.createWriteStream('__assets/as_log/log.system.infos.ini', {
+        const fl = fs.createWriteStream('src/__assets/as_log/log.system.infos.ini', {
             flags: 'a' // 'a' means appending (old data will be preserved)
         })
         fl.write(`\n Title => ${title}\n Info => ${message}\n Temps => ${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`);

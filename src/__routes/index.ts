@@ -20,6 +20,7 @@ import { __routesBanks } from "./routes.banks";
 import { __routesCredits } from "./routes.credits";
 import { __routesCategcoope } from "./routes.categcooperatives";
 import { __routesMembers } from "./routes.memebers";
+import { __routesPayements } from "./routes.payements";
 
 export const routes = express.Router();
 
@@ -43,6 +44,7 @@ routes.use('/banks', __routesBanks)
 routes.use('/credits', __routesCredits)
 routes.use('/coopeccategs', __routesCategcoope)
 routes.use('/members', __routesMembers)
+routes.use('/payements', __routesPayements)
 
 routes.use("/", __routesAssets)
 
