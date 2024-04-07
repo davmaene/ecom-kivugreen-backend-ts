@@ -152,6 +152,169 @@ exports.__controllerUsers = {
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
         }
     }),
+    resetpassword: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+        const { phone } = req.body;
+        if (!phone)
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "This request must have at least ! phone in body ");
+        try {
+            const user = yield model_users_1.Users.findOne({
+                where: {
+                    [sequelize_1.Op.or]: [
+                        { email: phone },
+                        { phone: (0, helper_fillphone_1.fillphone)({ phone }) }
+                    ]
+                }
+            });
+            if (user instanceof model_users_1.Users) {
+                const { id, email, phone: asphone, nom } = user.toJSON();
+                const code_ = (0, helper_random_1.randomLongNumber)({ length: 6 });
+                const extras = yield model_extras_1.Extras.findOne({
+                    where: {
+                        id_user: id
+                    }
+                });
+                if (extras instanceof model_extras_1.Extras) {
+                    extras.update({
+                        verification: code_
+                    })
+                        .then(V => {
+                        serives_all_1.Services.onSendSMS({
+                            is_flash: false,
+                            to: (0, helper_fillphone_1.fillphone)({ phone }),
+                            content: `${code_} \nBonjour ${(0, helper_all_1.capitalizeWords)({ text: nom })} Ceci est votre code de vérification, pour votre démande de réinitialisation de mot de passe`,
+                        })
+                            .then(suc => {
+                            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, `A verification code was sent to ${phone} use it to recover the password !`);
+                        })
+                            .catch(err => {
+                            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, extras);
+                        });
+                    })
+                        .catch(Err => {
+                        return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, Err);
+                    });
+                }
+                else {
+                    model_extras_1.Extras.create({
+                        id_user: id,
+                        verification: code_
+                    })
+                        .then(extras => {
+                        serives_all_1.Services.onSendSMS({
+                            is_flash: false,
+                            to: (0, helper_fillphone_1.fillphone)({ phone }),
+                            content: `${code_} \nBonjour ${(0, helper_all_1.capitalizeWords)({ text: nom })} Ceci est votre code de vérification, pour votre démande de réinitialisation de mot de passe`,
+                        })
+                            .then(suc => {
+                            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, `A verification code was sent to ${phone} use it to recover the password !`);
+                        })
+                            .catch(err => {
+                            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, extras);
+                        });
+                    })
+                        .catch(Errr => {
+                        return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, Errr);
+                    });
+                }
+            }
+            else {
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotFound, `User not found on this server ${phone}:::Users`);
+            }
+        }
+        catch (error) {
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
+        }
+    }),
+    recoverypassword: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+        const { phone, verification_code, password } = req.body;
+        if (!phone || !verification_code || !password)
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "This request must have at least ! phone in body ");
+        try {
+            model_users_1.Users.belongsToMany(model_roles_1.Roles, { through: model_hasroles_1.Hasroles });
+            model_roles_1.Roles.belongsToMany(model_users_1.Users, { through: model_hasroles_1.Hasroles });
+            model_provinces_1.Provinces.hasOne(model_users_1.Users, { foreignKey: "id" });
+            model_users_1.Users.belongsTo(model_provinces_1.Provinces, { foreignKey: "idprovince" });
+            model_territoires_1.Territoires.hasOne(model_users_1.Users, { foreignKey: "id" });
+            model_users_1.Users.belongsTo(model_territoires_1.Territoires, { foreignKey: "idterritoire" });
+            model_villages_1.Villages.hasOne(model_users_1.Users, { foreignKey: "id" });
+            model_users_1.Users.belongsTo(model_villages_1.Villages, { foreignKey: "idvillage" });
+            const user = yield model_users_1.Users.findOne({
+                attributes: {
+                    exclude: ['password']
+                },
+                include: [
+                    {
+                        model: model_roles_1.Roles,
+                        required: true,
+                        attributes: ['id', 'role']
+                    },
+                    {
+                        model: model_provinces_1.Provinces,
+                        required: false,
+                        attributes: ['id', 'province']
+                    },
+                    {
+                        model: model_territoires_1.Territoires,
+                        required: false,
+                        attributes: ['id', 'territoire']
+                    },
+                    {
+                        model: model_villages_1.Villages,
+                        required: false,
+                        attributes: ['id', 'village']
+                    }
+                ],
+                where: {
+                    [sequelize_1.Op.or]: [
+                        { email: phone },
+                        { phone: (0, helper_fillphone_1.fillphone)({ phone }) }
+                    ]
+                }
+            });
+            const pwd = yield (0, helper_passwords_1.hashPWD)({ plaintext: password });
+            if (user instanceof model_users_1.Users) {
+                const { id, email, phone: asphone, nom } = user.toJSON();
+                const extras = yield model_extras_1.Extras.findOne({
+                    where: {
+                        id_user: id
+                    }
+                });
+                if (extras instanceof model_extras_1.Extras) {
+                    const { verification } = extras;
+                    if (String(verification) === String(verification_code)) {
+                        user.update({
+                            password: pwd
+                        })
+                            .then(U => {
+                            serives_all_1.Services.onSendSMS({
+                                is_flash: false,
+                                to: (0, helper_fillphone_1.fillphone)({ phone }),
+                                content: `Bonjour ${nom}, votre mot de passe a été mise à jour avec succès !`,
+                            })
+                                .then(suc => {
+                                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, user.toJSON());
+                            })
+                                .catch(err => {
+                                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, extras);
+                            });
+                        });
+                    }
+                    else {
+                        return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.BadRequest, `Invalid code was used ${verification_code}:::Code`);
+                    }
+                }
+                else {
+                    return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.BadRequest, `User not found on this server ${phone}:::Users`);
+                }
+            }
+            else {
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotFound, `User not found on this server ${phone}:::Users`);
+            }
+        }
+        catch (error) {
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
+        }
+    }),
     signup: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         const { nom, postnom, prenom, email, phone, adresse, idprovince, idterritoire, idvillage, date_naiss, genre, password, avatar } = req.body;
         if (!nom || !postnom || !phone || !password)

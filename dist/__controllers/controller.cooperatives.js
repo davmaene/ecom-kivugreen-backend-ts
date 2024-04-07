@@ -49,6 +49,39 @@ exports.__controllerCooperatives = {
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
         }
     }),
+    getonebyid: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+        const { idcooperative } = req.params;
+        try {
+            model_users_1.Users.belongsToMany(model_cooperatives_1.Cooperatives, { through: model_hasmembers_1.Hasmembers });
+            model_cooperatives_1.Cooperatives.belongsToMany(model_users_1.Users, { through: model_hasmembers_1.Hasmembers });
+            model_cooperatives_1.Cooperatives.findOne({
+                where: {
+                    id: idcooperative
+                },
+                include: [
+                    {
+                        model: model_users_1.Users,
+                        required: false,
+                        attributes: ['id', 'nom', 'postnom', 'prenom', 'phone', 'email']
+                    }
+                ]
+            })
+                .then((row) => {
+                if (row instanceof model_cooperatives_1.Cooperatives) {
+                    return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, row);
+                }
+                else {
+                    return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotFound, row);
+                }
+            })
+                .catch(err => {
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Conflict, err);
+            });
+        }
+        catch (error) {
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
+        }
+    }),
     add: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         const { isformel } = req.body;
         let payload = Object.assign({}, req.body);

@@ -13,3 +13,4 @@ exports.__routesCooperatives.post("/cooperative/add", (0, middleware_datavalidat
 exports.__routesCooperatives.put("/cooperative/addmembers", controller_cooperatives_1.__controllerCooperatives.addmemebers);
 exports.__routesCooperatives.put("/cooperative/:idcooperative", controller_cooperatives_1.__controllerCooperatives.update);
 exports.__routesCooperatives.delete("/cooperative/:idcooperative", controller_cooperatives_1.__controllerCooperatives.delete);
+exports.__routesCooperatives.get("/cooperative/:idcooperative", controller_cooperatives_1.__controllerCooperatives.getonebyid);

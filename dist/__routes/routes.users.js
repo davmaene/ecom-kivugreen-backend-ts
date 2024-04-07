@@ -8,6 +8,8 @@ const middleware_datavalidator_1 = require("../__middlewares/middleware.datavali
 const controller_users_1 = require("../__controllers/controller.users");
 const express_1 = __importDefault(require("express"));
 exports.__routesUsers = express_1.default.Router();
+exports.__routesUsers.put("/user/resetpassword", controller_users_1.__controllerUsers.resetpassword);
+exports.__routesUsers.put("/user/recoverypassword", controller_users_1.__controllerUsers.recoverypassword);
 exports.__routesUsers.post("/user/auth", (0, middleware_datavalidator_1.onValidate)(middleware_datavalidator_1.userModelOnSignin), controller_users_1.__controllerUsers.auth);
 exports.__routesUsers.post("/user/signin", (0, middleware_datavalidator_1.onValidate)(middleware_datavalidator_1.userModelOnSignin), controller_users_1.__controllerUsers.signin);
 exports.__routesUsers.post("/user/signup", controller_users_1.__controllerUsers.signup);

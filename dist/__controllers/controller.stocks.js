@@ -20,9 +20,10 @@ const model_cooperatives_1 = require("../__models/model.cooperatives");
 const model_hasproducts_1 = require("../__models/model.hasproducts");
 const connecte_1 = require("../__databases/connecte");
 const model_configs_1 = require("../__models/model.configs");
+const model_categories_1 = require("../__models/model.categories");
 exports.__controllerStocks = {
     in: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        const { id_ccoperative, items, description } = req.body;
+        const { id_ccoperative, items, description, date_production, date_expiration } = req.body;
         const { currentuser } = req;
         if (!id_ccoperative || !items)
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "This request must have at least !id_ccoperative || !items");
@@ -38,8 +39,8 @@ exports.__controllerStocks = {
         try {
             const transaction = yield connecte_1.connect.transaction();
             model_stocks_1.Stocks.create({
-                date_expiration: '',
-                date_production: '',
+                date_expiration,
+                date_production,
                 createdby: __id,
                 id_cooperative: id_ccoperative,
                 transaction: (0, helper_random_1.randomLongNumber)({ length: 15 }),
@@ -52,7 +53,7 @@ exports.__controllerStocks = {
                     if (configs instanceof model_configs_1.Configs) {
                         const { taux_change, commission_price } = configs.toJSON();
                         for (let index = 0; index < array.length; index++) {
-                            const { id_produit, qte, prix_unitaire, currency } = array[index];
+                            const { id_produit, qte, prix_unitaire, currency, date_production: asdate_production } = array[index];
                             try {
                                 const prd = yield model_produits_1.Produits.findOne({
                                     attributes: ['id', 'produit', 'id_unity', 'id_category', 'id_souscategory', 'image'],
@@ -73,6 +74,7 @@ exports.__controllerStocks = {
                                                 prix_plus_commission: prix_unitaire + (prix_unitaire * parseFloat(commission_price)),
                                                 currency,
                                                 prix_unitaire,
+                                                date_production: asdate_production,
                                                 TblEcomCategoryId: id_category,
                                                 TblEcomCooperativeId: id_ccoperative,
                                                 TblEcomProduitId: id_produit,
@@ -128,7 +130,7 @@ exports.__controllerStocks = {
         try {
             model_stocks_1.Stocks.belongsTo(model_cooperatives_1.Cooperatives, { foreignKey: "id_cooperative" });
             model_stocks_1.Stocks.belongsToMany(model_produits_1.Produits, { through: model_hasproducts_1.Hasproducts, }); // as: 'produits'
-            model_stocks_1.Stocks.findAndCountAll({
+            model_stocks_1.Stocks.findAll({
                 where: {},
                 include: [
                     {
@@ -144,14 +146,31 @@ exports.__controllerStocks = {
                     }
                 ]
             })
-                .then(({ count, rows }) => (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count, rows }))
+                .then((rows) => __awaiter(void 0, void 0, void 0, function* () {
+                const __ = [];
+                for (let index = 0; index < rows.length; index++) {
+                    let items = [];
+                    const { __tbl_ecom_produits } = rows[index].toJSON();
+                    for (let index = 0; index < __tbl_ecom_produits.length; index++) {
+                        const { id, produit, __tbl_ecom_hasproducts } = __tbl_ecom_produits[index];
+                        const { TblEcomProduitId, TblEcomCategoryId } = __tbl_ecom_hasproducts;
+                        const cat = yield model_categories_1.Categories.findOne({
+                            // raw: true,
+                            where: {
+                                id: TblEcomCategoryId
+                            }
+                        });
+                        items.push(Object.assign(Object.assign({}, __tbl_ecom_produits[index]), { __tbl_ecom_categories: cat === null || cat === void 0 ? void 0 : cat.toJSON() }));
+                    }
+                    __.push(Object.assign(Object.assign({}, rows[index].toJSON()), { __tbl_ecom_produits: [...items] }));
+                }
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: rows.length, rows: __ });
+            }))
                 .catch(error => {
-                (0, console_1.log)(error);
                 return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Conflict, error);
             });
         }
         catch (error) {
-            (0, console_1.log)(error);
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
         }
     }),
@@ -162,7 +181,7 @@ exports.__controllerStocks = {
         try {
             model_stocks_1.Stocks.belongsTo(model_cooperatives_1.Cooperatives, { foreignKey: "id_cooperative" });
             model_stocks_1.Stocks.belongsToMany(model_produits_1.Produits, { through: model_hasproducts_1.Hasproducts, }); // as: 'produits'
-            model_stocks_1.Stocks.findAndCountAll({
+            model_stocks_1.Stocks.findAll({
                 where: {},
                 include: [
                     {
@@ -181,7 +200,26 @@ exports.__controllerStocks = {
                     }
                 ]
             })
-                .then(({ count, rows }) => (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count, rows }))
+                .then((rows) => __awaiter(void 0, void 0, void 0, function* () {
+                const __ = [];
+                for (let index = 0; index < rows.length; index++) {
+                    let items = [];
+                    const { __tbl_ecom_produits } = rows[index].toJSON();
+                    for (let index = 0; index < __tbl_ecom_produits.length; index++) {
+                        const { id, produit, __tbl_ecom_hasproducts } = __tbl_ecom_produits[index];
+                        const { TblEcomProduitId, TblEcomCategoryId } = __tbl_ecom_hasproducts;
+                        const cat = yield model_categories_1.Categories.findOne({
+                            // raw: true,
+                            where: {
+                                id: TblEcomCategoryId
+                            }
+                        });
+                        items.push(Object.assign(Object.assign({}, __tbl_ecom_produits[index]), { __tbl_ecom_categories: cat === null || cat === void 0 ? void 0 : cat.toJSON() }));
+                    }
+                    __.push(Object.assign(Object.assign({}, rows[index].toJSON()), { __tbl_ecom_produits: [...items] }));
+                }
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: rows.length, rows: __ });
+            }))
                 .catch(error => {
                 (0, console_1.log)(error);
                 return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Conflict, error);
@@ -198,7 +236,7 @@ exports.__controllerStocks = {
         try {
             model_stocks_1.Stocks.belongsTo(model_cooperatives_1.Cooperatives, { foreignKey: "id_cooperative" });
             model_stocks_1.Stocks.belongsToMany(model_produits_1.Produits, { through: model_hasproducts_1.Hasproducts, }); // as: 'produits'
-            model_stocks_1.Stocks.findAndCountAll({
+            model_stocks_1.Stocks.findAll({
                 where: {
                     id: idstock
                 },
@@ -219,7 +257,26 @@ exports.__controllerStocks = {
                     }
                 ]
             })
-                .then(({ count, rows }) => (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count, rows }))
+                .then((rows) => __awaiter(void 0, void 0, void 0, function* () {
+                const __ = [];
+                for (let index = 0; index < rows.length; index++) {
+                    let items = [];
+                    const { __tbl_ecom_produits } = rows[index].toJSON();
+                    for (let index = 0; index < __tbl_ecom_produits.length; index++) {
+                        const { id, produit, __tbl_ecom_hasproducts } = __tbl_ecom_produits[index];
+                        const { TblEcomProduitId, TblEcomCategoryId } = __tbl_ecom_hasproducts;
+                        const cat = yield model_categories_1.Categories.findOne({
+                            // raw: true,
+                            where: {
+                                id: TblEcomCategoryId
+                            }
+                        });
+                        items.push(Object.assign(Object.assign({}, __tbl_ecom_produits[index]), { __tbl_ecom_categories: cat === null || cat === void 0 ? void 0 : cat.toJSON() }));
+                    }
+                    __.push(Object.assign(Object.assign({}, rows[index].toJSON()), { __tbl_ecom_produits: [...items] }));
+                }
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: rows.length, rows: __ });
+            }))
                 .catch(error => {
                 (0, console_1.log)(error);
                 return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Conflict, error);
