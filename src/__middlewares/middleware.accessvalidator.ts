@@ -26,11 +26,15 @@ export const accessValidator = (req: Request, res: Response, next: NextFunction)
                 const authorization = String(headers[APP_CONNEXIONTOAPPWEB]);
                 const _isfrom_mob = String(headers[APP_CONNEXIONTOAPPMOB]);
 
-                if (_isfrom_mob) {
+                if (_isfrom_mob && _isfrom_mob !== undefined && _isfrom_mob !== null && _isfrom_mob !== "undefined") {
                     const [_, token] = _isfrom_mob.split(" ")
                     const { decoded, token: astoken } = onDecodeJWT({ encoded: token });
-                    (req as any).currentuser = { ...decoded as any };
-                    return next();
+                    if (astoken !== null && decoded !== null) {
+                        (req as any).currentuser = { ...decoded as any };
+                        return next();
+                    }else{
+                        return Responder(res, HttpStatusCode.Unauthorized, "Your Token has expired !")
+                    }
                 }
                 if (authorization && authorization.includes("Bearer ")) {
 
