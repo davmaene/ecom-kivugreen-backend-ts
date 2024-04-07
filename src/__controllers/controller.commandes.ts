@@ -5,6 +5,7 @@ import { NextFunction, Request, Response } from "express";
 import { Produits } from "../__models/model.produits";
 import { Typelivraisons } from "../__models/model.typelivraison";
 import { Sequelize } from "sequelize";
+import { log } from "console";
 
 export const __controllerCommandes = {
     listcommandebytransaction: async (req: Request, res: Response) => {
@@ -110,6 +111,7 @@ export const __controllerCommandes = {
                     return Responder(res, HttpStatusCode.Ok, { count: commandes.length, rows: commandes })
                 })
                 .catch(err => {
+                    log(err)
                     return Responder(res, HttpStatusCode.InternalServerError, err)
                 })
         } catch (error) {
