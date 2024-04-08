@@ -93,7 +93,7 @@ export const __controllerStocks = {
                             }
 
                             transaction.commit()
-                            return Responder(res, HttpStatusCode.Ok, stock)
+                            return Responder(res, HttpStatusCode.Ok, { ...stock.toJSON(), produits: treated })
                         } else {
                             return Responder(res, HttpStatusCode.Conflict, "this request must hava at least Configurations params for the price !")
                         }
