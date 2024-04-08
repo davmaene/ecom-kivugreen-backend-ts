@@ -80,7 +80,7 @@ export const __controllerStocks = {
                                                 item.update({
                                                     qte: qte + asqte
                                                 })
-                                                treated.push(array[index])
+                                                treated.push({ ...array[index], produit })
                                             }
                                         }
                                     } else {
