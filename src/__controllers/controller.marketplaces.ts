@@ -139,10 +139,10 @@ export const __controllerMarketplace = {
                         .then(({ code, data, message }) => {
                             if (code === 200) {
                                 tr_.commit()
-                                return Responder(res, HttpStatusCode.Ok, { prix_totale: somme.reduce((p, c) => p + c), somme, c_treated, c_nottreated })
+                                return Responder(res, HttpStatusCode.Ok, { prix_totale: somme.reduce((p, c) => p + c), currency: "CDF", c_treated, c_nottreated })
                             } else {
                                 tr_.rollback()
-                                return Responder(res, HttpStatusCode.InternalServerError, { prix_totale: somme.reduce((p, c) => p + c), somme, c_treated, c_nottreated })
+                                return Responder(res, HttpStatusCode.InternalServerError, { prix_totale: somme.reduce((p, c) => p + c), currency: "CDF", c_treated, c_nottreated })
                             }
                         })
                         .catch(err => {
