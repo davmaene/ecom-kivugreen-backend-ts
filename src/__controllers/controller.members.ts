@@ -8,6 +8,7 @@ import { Cooperatives } from "../__models/model.cooperatives";
 import { Extras } from "../__models/model.extras";
 
 export const __controllerMembers = {
+    
     list: async (req: Request, res: Response, next: NextFunction) => {
         try {
             Hasmembers.belongsTo(Users, { foreignKey: "TblEcomUserId" })
