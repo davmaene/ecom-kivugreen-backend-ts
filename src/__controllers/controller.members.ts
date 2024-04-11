@@ -27,22 +27,22 @@ export const __controllerMembers = {
                 ]
             })
                 .then(async list => {
-                    const treated: any[] = []
-
-                    for (let index = 0; index < (list as any).length; index++) {
-                        const { TblEcomUserId } = list[index] as any;
-                        const item = (list[index]).toJSON()
-                        const extras = await Extras.findOne({
+                    const __: any[] = []
+                    for (let index = 0; index < list.length; index++) {
+                        const { TblEcomUserId } = list[index].toJSON() as any;
+                        const element = list[index].toJSON() as any;
+                        const extra = await Extras.findOne({
+                            attributes: ['id','carte', 'date_expiration', 'date_expiration_unix', 'createdAt'],
                             where: {
                                 id_user: TblEcomUserId
                             }
                         })
-                        treated.push({
-                            __tbl_ecom_extra: extras ? extras.toJSON() : null,
-                            ...item,
+                        __.push({
+                            ...extra?.toJSON(),
+                            ...element,
                         })
                     }
-                    return Responder(res, HttpStatusCode.Ok, { count: treated.length, rows: treated })
+                    return Responder(res, HttpStatusCode.Ok, { count: __.length, rows: __ })
                 })
                 .catch(err => {
                     log(err)
@@ -62,7 +62,6 @@ export const __controllerMembers = {
                 where: {
                     TblEcomCooperativeId: parseInt(idcooperative)
                 },
-                logging: true,
                 include: [
                     {
                         model: Users,
@@ -75,8 +74,23 @@ export const __controllerMembers = {
                     }
                 ]
             })
-                .then(list => {
-                    return Responder(res, HttpStatusCode.Ok, { count: list.length, rows: list })
+                .then(async list => {
+                    const __: any[] = []
+                    for (let index = 0; index < list.length; index++) {
+                        const { TblEcomUserId } = list[index].toJSON() as any;
+                        const element = list[index].toJSON() as any;
+                        const extra = await Extras.findOne({
+                            attributes: ['id','carte', 'date_expiration', 'date_expiration_unix', 'createdAt'],
+                            where: {
+                                id_user: TblEcomUserId
+                            }
+                        })
+                        __.push({
+                            ...extra?.toJSON(),
+                            ...element,
+                        })
+                    }
+                    return Responder(res, HttpStatusCode.Ok, { count: __.length, rows: __ })
                 })
                 .catch(err => {
                     log(err)
@@ -85,5 +99,8 @@ export const __controllerMembers = {
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
+    },
+    deletememberfromcooperative: async (req: Request, res: Response) => {
+        
     }
 }

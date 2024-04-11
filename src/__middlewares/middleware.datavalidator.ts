@@ -56,7 +56,7 @@ export const villageValidator = async (v: string) => {
 };
 
 export const coopecModelValidator = [
-    body('sigle').notEmpty().isAscii().withMessage("`sigle` is required and it can not be empty ! must be string"),
+    body('sigle').notEmpty().isString().withMessage("`sigle` is required and it can not be empty ! must be string"),
     body('cooperative').notEmpty().isString().withMessage("name of `cooperative` is required and it can not be empty ! must be string"),
     body('id_province').isNumeric().custom(async (v, { req }) => {
         const validator = await provinceValidator(v);
@@ -87,9 +87,9 @@ export const coopecModelValidator = [
             else reject(false);
         });
     }).withMessage("`id_adjoint` the value for id_adjoint is not invalid ! this must be integer !"),
-    body('description').notEmpty().isAscii().withMessage("`description` is required and it can not be empty ! must be string"),
-    body('coordonnees_gps').optional().isAscii().withMessage("`coordonnees_gps` is required and it can not be empty ! must be string"),
-    body('adresse').optional().isAscii().withMessage("`adresse` is required and it can not be empty ! must be string"),
+    body('description').notEmpty().isString().withMessage("`description` is required and it can not be empty ! must be string"),
+    body('coordonnees_gps').optional().isString().withMessage("`coordonnees_gps` is required and it can not be empty ! must be string"),
+    body('adresse').optional().isString().withMessage("`adresse` is required and it can not be empty ! must be string"),
     body('phone').notEmpty().isMobilePhone('fr-CD').trim().withMessage("`phone` the value entered for the phone it seems to be not a valide phone number !"),
     body('email').optional().isEmail().trim().withMessage("`email` the value entered for email it seems to be not a valide email adresse !"),
     body('isformel').notEmpty().isNumeric().isLength({ max: 1, min: 1 }).custom(validateIsformel).withMessage("`isformel` the value for isformel is not invalid ! this can only be 1 or 0"),
@@ -97,7 +97,7 @@ export const coopecModelValidator = [
 ];
 
 export const bankModelValidator = [
-    body('bank').notEmpty().isAscii().withMessage("`bank` is required and it can not be empty ! must be string"),
+    body('bank').notEmpty().isString().withMessage("`bank` is required and it can not be empty ! must be string"),
     body('id_responsable').isNumeric().custom(async (v, { req }) => {
         const validator = await userValidator(v);
         return new Promise((resolve, reject) => {
@@ -105,8 +105,8 @@ export const bankModelValidator = [
             else reject(false);
         });
     }).withMessage("`id_responsable` the value for id_responsable is not invalid ! this must be integer !"),
-    body('description').notEmpty().isAscii().withMessage("`description` is required and it can not be empty ! must be string"),
-    body('adresse').optional().isAscii().withMessage("`adresse` is required and it can not be empty ! must be string"),
+    body('description').notEmpty().isString().withMessage("`description` is required and it can not be empty ! must be string"),
+    body('adresse').optional().isString().withMessage("`adresse` is required and it can not be empty ! must be string"),
     body('phone').notEmpty().isMobilePhone('fr-CD').trim().withMessage("`phone` the value entered for the phone it seems to be not a valide phone number !"),
     body('email').optional().isEmail().trim().withMessage("`email` the value entered for email it seems to be not a valide email adresse !"),
 ]
@@ -120,22 +120,22 @@ export const creditModelValidator = [
         });
     }).withMessage("`id_user` the value for id_user is not invalid ! this must be integer ! and must have corres => in users table"),
     body('montant').notEmpty().isNumeric().withMessage("`montant` is required and it can not be empty ! must be numeric"),
-    body('currency').notEmpty().isString().isLength({ max: 3, min: 3 }).custom(validateCurrency).isAscii().withMessage("`currency` is required and it can not be empty ! must be string USD || CDF"),
-    body('motif').notEmpty().isAscii().trim().withMessage("`motif` the value entered for the motif it seems to be not a valide string !"),
+    body('currency').notEmpty().isString().isLength({ max: 3, min: 3 }).custom(validateCurrency).isString().withMessage("`currency` is required and it can not be empty ! must be string USD || CDF"),
+    body('motif').notEmpty().isString().trim().withMessage("`motif` the value entered for the motif it seems to be not a valide string !"),
     body('periode_remboursement').notEmpty().isNumeric().withMessage("`periode_remboursement` the value entered for periode_remboursement it seems to be not a valide number !"),
 ]
 
 export const produitValidator = [
-    body('produit').notEmpty().isAscii().withMessage("the name of the `produit` is required and it can not be empty !"),
-    body('description').notEmpty().isAscii().withMessage("`description` is required and it can not be empty !"),
-    body('id_unity').notEmpty().isAscii().withMessage("`id_unity` is required and it can not be empty !"),
-    body('id_category').notEmpty().isAscii().withMessage("`id_category` is required and it can not be empty !"),
-    body('id_souscategory').notEmpty().isAscii().withMessage("`id_souscategory` is required and it can not be empty !"),
+    body('produit').notEmpty().isString().withMessage("the name of the `produit` is required and it can not be empty !"),
+    body('description').notEmpty().isString().withMessage("`description` is required and it can not be empty !"),
+    body('id_unity').notEmpty().isNumeric().withMessage("`id_unity` is required and it can not be empty !"),
+    body('id_category').notEmpty().isNumeric().withMessage("`id_category` is required and it can not be empty !"),
+    body('id_souscategory').optional().isNumeric().withMessage("`id_souscategory` is required and it can not be empty !"),
 ];
 
 export const userModelValidator = [
-    body('nom').notEmpty().isAscii().withMessage("`nom` is required and it can not be empty !"),
-    body('postnom').notEmpty().isAscii().withMessage("`postnom` is required and it can not be empty !"),
+    body('nom').notEmpty().isString().withMessage("`nom` is required and it can not be empty !"),
+    body('postnom').notEmpty().isString().withMessage("`postnom` is required and it can not be empty !"),
     body('email').optional().isEmail().trim().withMessage("`email` the value entered for email it seems to be not a valide email adresse !"),
     body('phone').notEmpty().isMobilePhone('fr-CD').trim().withMessage("`phone` the value entered for the phone it seems to be not a valide phone number !"),
     body('hectare_cultive').optional().isNumeric().withMessage("`hectare_cultive` the value for hectare_cultive is not invalid ! this must be a type of number !"),
