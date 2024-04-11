@@ -114,10 +114,29 @@ export const __controllerProduits = {
                     id: idproduit
                 }
             })
-            .then(prd => {
-                return Responder(res, HttpStatusCode.Ok, "Item updated successfuly !")
+                .then(prd => {
+                    return Responder(res, HttpStatusCode.Ok, "Item updated successfuly !")
+                })
+                .catch(err => Responder(res, HttpStatusCode.InternalServerError, err))
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    delete: async (req: Request, res: Response, next: NextFunction) => {
+        const { idproduit } = req.params;
+        if (!idproduit) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least idproduit in params !")
+        try {
+            Produits.destroy({
+                where: {
+                    id: idproduit
+                }
             })
-            .catch(err => Responder(res, HttpStatusCode.InternalServerError, err))
+                .then(prd => {
+                    if (prd !== 0)
+                        return Responder(res, HttpStatusCode.Ok, "Item updated successfuly !")
+                    else return Responder(res, HttpStatusCode.NotFound, `Item with ${idproduit} was not found `)
+                })
+                .catch(err => Responder(res, HttpStatusCode.InternalServerError, err))
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
