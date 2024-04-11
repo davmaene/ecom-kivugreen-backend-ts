@@ -13,3 +13,8 @@
 ::ffff:127.0.0.1 - - [08/Apr/2024:22:06:53 +0000] "GET /api/members/list HTTP/1.1" 200 909 "-" "PostmanRuntime/7.37.0"
 ::ffff:127.0.0.1 - - [08/Apr/2024:22:07:32 +0000] "GET /api/members/list HTTP/1.1" 200 909 "-" "PostmanRuntime/7.37.0"
 ::ffff:127.0.0.1 - - [08/Apr/2024:22:07:37 +0000] "GET /api/members/list/bycooperative/2 HTTP/1.1" 200 909 "-" "PostmanRuntime/7.37.0"
+::ffff:127.0.0.1 - - [11/Apr/2024:11:00:21 +0000] "GET /api/roles/list HTTP/1.1" 401 74 "-" "PostmanRuntime/7.37.0"
+::ffff:127.0.0.1 - - [11/Apr/2024:11:00:34 +0000] "POST /api/users/user/auth HTTP/1.1" 200 2266 "-" "PostmanRuntime/7.37.0"
+::ffff:127.0.0.1 - - [11/Apr/2024:11:01:02 +0000] "GET /api/roles/list HTTP/1.1" 200 826 "-" "PostmanRuntime/7.37.0"
+::ffff:127.0.0.1 - - [11/Apr/2024:11:01:23 +0000] "POST /api/roles/role/add HTTP/1.1" 200 201 "-" "PostmanRuntime/7.37.0"
+::ffff:127.0.0.1 - - [11/Apr/2024:11:02:38 +0000] "POST /api/users/user/auth/bank HTTP/1.1" 200 2266 "-" "PostmanRuntime/7.37.0"

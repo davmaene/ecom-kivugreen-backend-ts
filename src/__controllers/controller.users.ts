@@ -536,6 +536,135 @@ export const __controllerUsers = {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     },
+    authbank: async (req: Request, res: Response, next: NextFunction) => {
+        const { phone, password } = req.body;
+        const role = [6]// allowed roles to connect 
+
+        try {
+
+            const transaction = await connect.transaction();
+
+            Users.belongsToMany(Roles, { through: Hasroles });
+            Roles.belongsToMany(Users, { through: Hasroles });
+
+            Provinces.hasOne(Users, { foreignKey: "id" });
+            Users.belongsTo(Provinces, { foreignKey: "idprovince" });
+
+            Territoires.hasOne(Users, { foreignKey: "id" });
+            Users.belongsTo(Territoires, { foreignKey: "idterritoire" });
+
+            Villages.hasOne(Users, { foreignKey: "id" });
+            Users.belongsTo(Villages, { foreignKey: "idvillage" });
+
+            Users.findOne({
+                where: {
+                    [Op.or]: [
+                        { email: phone },
+                        { phone: fillphone({ phone }) }
+                    ]
+                },
+                include: [
+                    {
+                        model: Roles,
+                        required: true,
+                        attributes: ['id', 'role']
+                    },
+                    {
+                        model: Provinces,
+                        required: false,
+                        attributes: ['id', 'province']
+                    },
+                    {
+                        model: Territoires,
+                        required: false,
+                        attributes: ['id', 'territoire']
+                    },
+                    {
+                        model: Villages,
+                        required: false,
+                        attributes: ['id', 'village']
+                    }
+                ]
+            })
+                .then(user => {
+                    if (user instanceof Users) {
+                        const { password: aspassword, isvalidated, __tbl_ecom_roles } = user.toJSON() as any;
+                        const roles = Array.from(__tbl_ecom_roles).map((role: any) => role['id']);
+                        comparePWD({
+                            hashedtext: aspassword || '',
+                            plaintext: password
+                        })
+                            .then(verified => {
+                                if (verified) {
+                                    if (isvalidated === 1) {
+                                        if (Array.from(roles).some(r => role.includes(r))) {
+                                            Middleware.onSignin({
+                                                expiresIn: APP_EXIPRES_IN_ADMIN || '45m',
+                                                data: {
+                                                    phone: user && user['phone'],
+                                                    uuid: user && user['uuid'],
+                                                    __id: user && user['id'],
+                                                    roles
+                                                }
+                                            },
+                                                async (reject: string, token: string) => {
+                                                    if (token) {
+                                                        const { id } = (user as any).toJSON() as any || {}
+                                                        const coopec = await Cooperatives.findOne({
+                                                            where: {
+                                                                id_responsable: id
+                                                            }
+                                                        })
+                                                        // user = formatUserModel({ model: user })
+                                                        if (user !== null) {
+                                                            if (user.hasOwnProperty('isvalidated')) {
+                                                                delete user['isvalidated']
+                                                            }
+                                                            if (user.hasOwnProperty('password')) {
+                                                                delete user['password']
+                                                            }
+                                                        }
+                                                        if (coopec instanceof Cooperatives && user instanceof Users) {
+                                                            const { id } = coopec.toJSON()
+                                                            user = user.toJSON() as any
+                                                            if (user !== null) {
+                                                                (user as any)['id_cooperative'] = id as number
+                                                            }
+                                                        }
+                                                        transaction.commit()
+                                                        return Responder(res, HttpStatusCode.Ok, { token, user })
+                                                    } else {
+                                                        transaction.rollback()
+                                                        return Responder(res, HttpStatusCode.Forbidden, "Your refresh token already expired ! you must login to get a new one !")
+                                                    }
+                                                })
+                                        } else {
+                                            transaction.rollback()
+                                            return Responder(res, HttpStatusCode.Unauthorized, "You dont have right access please contact admin system !")
+                                        }
+                                    } else {
+                                        transaction.rollback()
+                                        return Responder(res, HttpStatusCode.NotAcceptable, "Account not validated !")
+                                    }
+                                } else {
+                                    transaction.rollback()
+                                    return Responder(res, HttpStatusCode.Forbidden, "Phone | Email or Password incorrect !")
+                                }
+                            })
+                            .catch(err => {
+                                transaction.rollback()
+                                return Responder(res, HttpStatusCode.Forbidden, "Phone | Email or Password incorrect !")
+                            })
+                    } else {
+                        transaction.rollback()
+                        return Responder(res, HttpStatusCode.Forbidden, "Phone | Email or Password incorrect !")
+                    }
+                })
+                .catch(err => Responder(res, HttpStatusCode.Conflict, err))
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
     register: async (req: Request, res: Response, next: NextFunction) => {
         const { nom, postnom, prenom, email, phone, adresse, idprovince, idterritoire, idvillage, date_naiss, genre, password, avatar, idroles } = req.body;
 
