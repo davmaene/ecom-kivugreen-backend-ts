@@ -145,7 +145,9 @@ export interface IPayement extends globalInterface {
     amount: number,
     currency: string,
     category: number,
-    description: string
+    description: string,
+    createdby: number,
+    status?: number
 }
 
 export interface ITypelivraison extends globalInterface {
