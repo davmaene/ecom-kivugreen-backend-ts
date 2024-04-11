@@ -23,11 +23,16 @@ const accessValidator = (req, res, next) => {
             if ((headers && headers.hasOwnProperty(APP_CONNEXIONTOAPPWEB)) || (headers && headers.hasOwnProperty(APP_CONNEXIONTOAPPMOB))) {
                 const authorization = String(headers[APP_CONNEXIONTOAPPWEB]);
                 const _isfrom_mob = String(headers[APP_CONNEXIONTOAPPMOB]);
-                if (_isfrom_mob) {
+                if (_isfrom_mob && _isfrom_mob !== undefined && _isfrom_mob !== null && _isfrom_mob !== "undefined") {
                     const [_, token] = _isfrom_mob.split(" ");
                     const { decoded, token: astoken } = (0, middleware_cookies_1.onDecodeJWT)({ encoded: token });
-                    req.currentuser = Object.assign({}, decoded);
-                    return next();
+                    if (astoken !== null && decoded !== null) {
+                        req.currentuser = Object.assign({}, decoded);
+                        return next();
+                    }
+                    else {
+                        return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Unauthorized, "Your Token has expired !");
+                    }
                 }
                 if (authorization && authorization.includes("Bearer ")) {
                     (0, middleware_cookies_1.onVerify)({

@@ -16,6 +16,7 @@ const helper_responseserver_1 = require("../__helpers/helper.responseserver");
 const model_produits_1 = require("../__models/model.produits");
 const model_typelivraison_1 = require("../__models/model.typelivraison");
 const sequelize_1 = require("sequelize");
+const console_1 = require("console");
 exports.__controllerCommandes = {
     listcommandebytransaction: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { currentuser } = req;
@@ -122,6 +123,7 @@ exports.__controllerCommandes = {
                 return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: commandes.length, rows: commandes });
             })
                 .catch(err => {
+                (0, console_1.log)(err);
                 return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, err);
             });
         }
