@@ -10,6 +10,7 @@ import { Hasproducts } from '../__models/model.hasproducts';
 import { connect } from '../__databases/connecte';
 import { Configs } from '../__models/model.configs';
 import { Categories } from '../__models/model.categories';
+import { Unites } from '../__models/model.unitemesures';
 
 export const __controllerStocks = {
     in: async (req: Request, res: Response) => {
@@ -152,7 +153,7 @@ export const __controllerStocks = {
                         const { __tbl_ecom_produits } = rows[index].toJSON() as any;
                         for (let index = 0; index < __tbl_ecom_produits.length; index++) {
                             const { id, produit, __tbl_ecom_hasproducts } = __tbl_ecom_produits[index] as any;
-                            const { TblEcomProduitId, TblEcomCategoryId } = __tbl_ecom_hasproducts;
+                            const { TblEcomProduitId, TblEcomCategoryId, TblEcomUnitesmesureId } = __tbl_ecom_hasproducts;
 
                             const cat = await Categories.findOne({
                                 // raw: true,
@@ -160,9 +161,16 @@ export const __controllerStocks = {
                                     id: TblEcomCategoryId
                                 }
                             })
+                            const uni = await Unites.findOne({
+                                // raw: true,
+                                where: {
+                                    id: TblEcomUnitesmesureId
+                                }
+                            })
                             items.push({
                                 ...__tbl_ecom_produits[index],
-                                __tbl_ecom_categories: cat?.toJSON()
+                                __tbl_ecom_categories: cat?.toJSON(),
+                                __tbl_ecom_unitesmesures: uni?.toJSON()
                             })
                         }
                         __.push({
@@ -186,14 +194,18 @@ export const __controllerStocks = {
             Stocks.belongsTo(Cooperatives, { foreignKey: "id_cooperative" })
             Stocks.belongsToMany(Produits, { through: Hasproducts })// as: 'produits'
             Stocks.findAll({
+                order: [
+                    ['id', 'DESC'],
+                ],
+                // limit: 1,
                 where: {},
                 include: [
-                    // {
-                    //     model: Produits,
-                    //     // as: 'produits',
-                    //     required: true,
-                    //     attributes: ['id', 'produit']
-                    // },
+                    {
+                        model: Produits,
+                        // as: 'produits',
+                        required: true,
+                        attributes: ['id', 'produit']
+                    },
                     {
                         model: Cooperatives,
                         required: true,
@@ -205,31 +217,37 @@ export const __controllerStocks = {
                 ]
             })
                 .then(async (rows) => {
-                    log(rows)
                     const __: any[] = []
-                    // for (let index = 0; index < rows.length; index++) {
-                    //     let items: any[] = []
-                    //     const { __tbl_ecom_produits } = rows[index].toJSON() as any;
-                    //     for (let index = 0; index < __tbl_ecom_produits.length; index++) {
-                    //         const { id, produit, __tbl_ecom_hasproducts } = __tbl_ecom_produits[index] as any;
-                    //         const { TblEcomProduitId, TblEcomCategoryId } = __tbl_ecom_hasproducts;
+                    for (let index = 0; index < rows.length; index++) {
+                        let items: any[] = []
+                        const { __tbl_ecom_produits } = rows[index].toJSON() as any;
+                        for (let index = 0; index < __tbl_ecom_produits.length; index++) {
+                            const { id, produit, __tbl_ecom_hasproducts } = __tbl_ecom_produits[index] as any;
+                            const { TblEcomProduitId, TblEcomCategoryId, TblEcomUnitesmesureId } = __tbl_ecom_hasproducts;
 
-                    //         const cat = await Categories.findOne({
-                    //             // raw: true,
-                    //             where: {
-                    //                 id: TblEcomCategoryId
-                    //             }
-                    //         })
-                    //         items.push({
-                    //             ...__tbl_ecom_produits[index],
-                    //             __tbl_ecom_categories: cat?.toJSON()
-                    //         })
-                    //     }
-                    //     __.push({
-                    //         ...rows[index].toJSON() as any,
-                    //         __tbl_ecom_produits: [...items]
-                    //     })
-                    // }
+                            const cat = await Categories.findOne({
+                                // raw: true,
+                                where: {
+                                    id: TblEcomCategoryId
+                                }
+                            })
+                            const uni = await Unites.findOne({
+                                // raw: true,
+                                where: {
+                                    id: TblEcomUnitesmesureId
+                                }
+                            })
+                            items.push({
+                                ...__tbl_ecom_produits[index],
+                                __tbl_ecom_categories: cat?.toJSON(),
+                                __tbl_ecom_unitesmesures: uni?.toJSON()
+                            })
+                        }
+                        __.push({
+                            ...rows[index].toJSON() as any,
+                            __tbl_ecom_produits: [...items]
+                        })
+                    }
                     return Responder(res, HttpStatusCode.Ok, { count: rows.length, rows: __ })
                 })
                 .catch(error => {
@@ -275,7 +293,7 @@ export const __controllerStocks = {
                         const { __tbl_ecom_produits } = rows[index].toJSON() as any;
                         for (let index = 0; index < __tbl_ecom_produits.length; index++) {
                             const { id, produit, __tbl_ecom_hasproducts } = __tbl_ecom_produits[index] as any;
-                            const { TblEcomProduitId, TblEcomCategoryId } = __tbl_ecom_hasproducts;
+                            const { TblEcomProduitId, TblEcomCategoryId, TblEcomUnitesmesureId } = __tbl_ecom_hasproducts;
 
                             const cat = await Categories.findOne({
                                 // raw: true,
@@ -283,9 +301,16 @@ export const __controllerStocks = {
                                     id: TblEcomCategoryId
                                 }
                             })
+                            const uni = await Unites.findOne({
+                                // raw: true,
+                                where: {
+                                    id: TblEcomUnitesmesureId
+                                }
+                            })
                             items.push({
                                 ...__tbl_ecom_produits[index],
-                                __tbl_ecom_categories: cat?.toJSON()
+                                __tbl_ecom_categories: cat?.toJSON(),
+                                __tbl_ecom_unitesmesures: uni?.toJSON()
                             })
                         }
                         __.push({
