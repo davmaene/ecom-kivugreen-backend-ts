@@ -26,6 +26,7 @@ const serives_all_1 = require("../__services/serives.all");
 const helper_fillphone_1 = require("../__helpers/helper.fillphone");
 const connecte_1 = require("../__databases/connecte");
 const model_categories_1 = require("../__models/model.categories");
+const services_payements_1 = require("../__services/services.payements");
 exports.__controllerMarketplace = {
     placecommand: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         const { currentuser } = req;
@@ -137,8 +138,26 @@ exports.__controllerMarketplace = {
                             // tr_.rollback()
                         }
                     }
-                    tr_.commit();
-                    return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { c_treated, c_nottreated });
+                    services_payements_1.Payements.pay({
+                        amount: somme.reduce((p, c) => p + c),
+                        currency: "CDF",
+                        phone: payament_phone || phone,
+                        createdby: __id,
+                        reference: transaction
+                    })
+                        .then(({ code, data, message }) => {
+                        if (code === 200) {
+                            tr_.commit();
+                            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { prix_totale: somme.reduce((p, c) => p + c), currency: "CDF", c_treated, c_nottreated });
+                        }
+                        else {
+                            tr_.rollback();
+                            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, { prix_totale: somme.reduce((p, c) => p + c), currency: "CDF", c_treated, c_nottreated });
+                        }
+                    })
+                        .catch(err => {
+                        return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { prix_totale: somme.reduce((p, c) => p + c), somme, c_treated, c_nottreated });
+                    });
                 }
                 else {
                     tr_.rollback();

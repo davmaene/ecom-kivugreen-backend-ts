@@ -25,12 +25,25 @@ exports.Cooperatives = connecte_1.connect.define('__tbl_ecom_cooperatives', {
     file: sequelize_1.DataTypes.STRING,
     isformel: sequelize_1.DataTypes.INTEGER,
     sigle: sequelize_1.DataTypes.STRING,
-    cooperative: sequelize_1.DataTypes.STRING,
+    cooperative: {
+        type: sequelize_1.DataTypes.STRING,
+        // unique: true
+    },
     id_adjoint: sequelize_1.DataTypes.INTEGER,
     id_responsable: sequelize_1.DataTypes.INTEGER,
     description: sequelize_1.DataTypes.STRING,
     id_category: sequelize_1.DataTypes.INTEGER
-}, { paranoid: true, timestamps: false, freezeTableName: true });
+}, {
+    paranoid: true,
+    timestamps: false,
+    freezeTableName: true,
+    indexes: [
+        {
+            unique: true,
+            fields: ['sigle', 'cooperative']
+        }
+    ]
+});
 exports.Cooperatives.sync({ alter: true })
     .then(() => {
     console.log('=======> Cerated done `table Cooperatives` ');

@@ -65,6 +65,7 @@ export interface IHasmember extends globalInterface {
 }
 
 export interface IHasproducts extends globalInterface {
+    id_membre: number,
     prix_unitaire: number,
     prix_plus_commission: number,
     currency: string,
@@ -144,7 +145,9 @@ export interface IPayement extends globalInterface {
     amount: number,
     currency: string,
     category: number,
-    description: string
+    description: string,
+    createdby: number,
+    status?: number
 }
 
 export interface ITypelivraison extends globalInterface {

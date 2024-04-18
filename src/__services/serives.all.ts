@@ -1675,7 +1675,10 @@ export const Services = {
 
                 __file.mv(uploadPath, function (err: any) {
                     if (err) return reject({ code: 500, message: "An error was occured when trying to upload file", data: err })
-                    else return resolve({ code: 200, message: "File uploaded done", data: { filename, fullpath: uploadPath } })
+                    else {
+                        const slink: string = String(uploadPath).substring(String(uploadPath).indexOf("/") + 1)
+                        return resolve({ code: 200, message: "File uploaded done", data: { filename, fullpath: slink } })
+                    }
                 });
 
             } catch (error) {

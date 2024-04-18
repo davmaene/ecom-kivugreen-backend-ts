@@ -53,60 +53,66 @@ exports.__controllerStocks = {
                     if (configs instanceof model_configs_1.Configs) {
                         const { taux_change, commission_price } = configs.toJSON();
                         for (let index = 0; index < array.length; index++) {
-                            const { id_produit, qte, prix_unitaire, currency, date_production: asdate_production } = array[index];
-                            try {
-                                const prd = yield model_produits_1.Produits.findOne({
-                                    attributes: ['id', 'produit', 'id_unity', 'id_category', 'id_souscategory', 'image'],
-                                    where: {
-                                        id: id_produit
-                                    }
-                                });
-                                if (prd instanceof model_produits_1.Produits) {
-                                    const { id, produit, id_unity, id_category, id_souscategory, image } = prd.toJSON();
-                                    const { id: asstockid } = stock.toJSON();
-                                    if (produit && id_category && id_souscategory && id_unity) {
-                                        const [item, created] = yield model_hasproducts_1.Hasproducts.findOrCreate({
-                                            where: {
-                                                TblEcomProduitId: id_produit,
-                                                TblEcomCooperativeId: id_ccoperative
-                                            },
-                                            defaults: {
-                                                prix_plus_commission: prix_unitaire + (prix_unitaire * parseFloat(commission_price)),
-                                                currency,
-                                                prix_unitaire,
-                                                date_production: asdate_production,
-                                                TblEcomCategoryId: id_category,
-                                                TblEcomCooperativeId: id_ccoperative,
-                                                TblEcomProduitId: id_produit,
-                                                TblEcomStockId: asstockid || 0,
-                                                TblEcomUnitesmesureId: id_unity,
-                                                qte
-                                            },
-                                            transaction
-                                        });
-                                        if (created) {
-                                            nottreated.push(array[index]);
-                                        }
-                                        else {
-                                            const { qte: asqte } = item.toJSON();
-                                            item.update({
-                                                qte: qte + asqte
-                                            });
-                                            treated.push(array[index]);
-                                        }
-                                    }
-                                }
-                                else {
-                                    nottreated.push(array[index]);
-                                }
-                            }
-                            catch (error) {
+                            const { id_produit, qte, prix_unitaire, currency, date_production: asdate_production, id_membre } = array[index];
+                            if (!id_produit || !qte || !prix_unitaire || !currency || !asdate_production || !id_membre) {
                                 nottreated.push(array[index]);
-                                (0, console_1.log)("Error on treatement on object => ", id_produit);
+                            }
+                            else {
+                                try {
+                                    const prd = yield model_produits_1.Produits.findOne({
+                                        attributes: ['id', 'produit', 'id_unity', 'id_category', 'id_souscategory', 'image'],
+                                        where: {
+                                            id: id_produit
+                                        }
+                                    });
+                                    if (prd instanceof model_produits_1.Produits) {
+                                        const { id, produit, id_unity, id_category, id_souscategory, image } = prd.toJSON();
+                                        const { id: asstockid } = stock.toJSON();
+                                        if (produit && id_category && id_souscategory && id_unity) {
+                                            const [item, created] = yield model_hasproducts_1.Hasproducts.findOrCreate({
+                                                where: {
+                                                    TblEcomProduitId: id_produit,
+                                                    TblEcomCooperativeId: id_ccoperative
+                                                },
+                                                defaults: {
+                                                    prix_plus_commission: prix_unitaire + (prix_unitaire * parseFloat(commission_price)),
+                                                    currency,
+                                                    prix_unitaire,
+                                                    date_production: asdate_production,
+                                                    TblEcomCategoryId: id_category,
+                                                    TblEcomCooperativeId: id_ccoperative,
+                                                    TblEcomProduitId: id_produit,
+                                                    TblEcomStockId: asstockid || 0,
+                                                    TblEcomUnitesmesureId: id_unity,
+                                                    qte,
+                                                    id_membre
+                                                },
+                                                transaction
+                                            });
+                                            if (created) {
+                                                nottreated.push(array[index]);
+                                            }
+                                            else {
+                                                const { qte: asqte } = item.toJSON();
+                                                item.update({
+                                                    qte: qte + asqte
+                                                });
+                                                treated.push(Object.assign(Object.assign({}, array[index]), { produit }));
+                                            }
+                                        }
+                                    }
+                                    else {
+                                        nottreated.push(array[index]);
+                                    }
+                                }
+                                catch (error) {
+                                    nottreated.push(array[index]);
+                                    (0, console_1.log)("Error on treatement on object => ", id_produit);
+                                }
                             }
                         }
                         transaction.commit();
-                        return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, stock);
+                        return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, Object.assign(Object.assign({}, stock.toJSON()), { produits: treated }));
                     }
                     else {
                         return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Conflict, "this request must hava at least Configurations params for the price !");

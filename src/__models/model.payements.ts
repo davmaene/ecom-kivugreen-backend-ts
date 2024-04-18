@@ -11,13 +11,19 @@ export const Paiements = connect.define<Payement>('__tbl_ecom_payements', {
         autoIncrement: true,
         allowNull: true,
     },
+    status: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+        allowNull: true
+    },
     realref: DataTypes.STRING,
     reference: DataTypes.STRING,
     phone: DataTypes.STRING,
     amount: DataTypes.FLOAT,
     currency: DataTypes.STRING,
     category: DataTypes.INTEGER,
-    description: DataTypes.STRING
+    description: DataTypes.STRING,
+    createdby: DataTypes.INTEGER
 
 }, { paranoid: true, timestamps: false, freezeTableName: true });
 

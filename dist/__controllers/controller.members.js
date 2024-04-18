@@ -37,18 +37,19 @@ exports.__controllerMembers = {
                 ]
             })
                 .then((list) => __awaiter(void 0, void 0, void 0, function* () {
-                const treated = [];
+                const __ = [];
                 for (let index = 0; index < list.length; index++) {
-                    const { TblEcomUserId } = list[index];
-                    const item = (list[index]).toJSON();
-                    const extras = yield model_extras_1.Extras.findOne({
+                    const { TblEcomUserId } = list[index].toJSON();
+                    const element = list[index].toJSON();
+                    const extra = yield model_extras_1.Extras.findOne({
+                        attributes: ['id', 'carte', 'date_expiration', 'date_expiration_unix', 'createdAt'],
                         where: {
                             id_user: TblEcomUserId
                         }
                     });
-                    treated.push(Object.assign({ __tbl_ecom_extra: extras ? extras.toJSON() : null }, item));
+                    __.push(Object.assign(Object.assign({}, extra === null || extra === void 0 ? void 0 : extra.toJSON()), element));
                 }
-                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: treated.length, rows: treated });
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: __.length, rows: __ });
             }))
                 .catch(err => {
                 (0, console_1.log)(err);
@@ -70,7 +71,6 @@ exports.__controllerMembers = {
                 where: {
                     TblEcomCooperativeId: parseInt(idcooperative)
                 },
-                logging: true,
                 include: [
                     {
                         model: model_users_1.Users,
@@ -83,9 +83,21 @@ exports.__controllerMembers = {
                     }
                 ]
             })
-                .then(list => {
-                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: list.length, rows: list });
-            })
+                .then((list) => __awaiter(void 0, void 0, void 0, function* () {
+                const __ = [];
+                for (let index = 0; index < list.length; index++) {
+                    const { TblEcomUserId } = list[index].toJSON();
+                    const element = list[index].toJSON();
+                    const extra = yield model_extras_1.Extras.findOne({
+                        attributes: ['id', 'carte', 'date_expiration', 'date_expiration_unix', 'createdAt'],
+                        where: {
+                            id_user: TblEcomUserId
+                        }
+                    });
+                    __.push(Object.assign(Object.assign({}, extra === null || extra === void 0 ? void 0 : extra.toJSON()), element));
+                }
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: __.length, rows: __ });
+            }))
                 .catch(err => {
                 (0, console_1.log)(err);
                 return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, err);
@@ -94,5 +106,7 @@ exports.__controllerMembers = {
         catch (error) {
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
         }
+    }),
+    deletememberfromcooperative: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     })
 };

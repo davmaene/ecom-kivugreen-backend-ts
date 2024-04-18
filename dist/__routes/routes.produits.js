@@ -10,3 +10,5 @@ const express_1 = __importDefault(require("express"));
 exports.__routesProduits = express_1.default.Router();
 exports.__routesProduits.post('/produit/add', (0, middleware_datavalidator_1.onValidate)(middleware_datavalidator_1.produitValidator), controller_produits_1.__controllerProduits.add);
 exports.__routesProduits.get('/list', controller_produits_1.__controllerProduits.list);
+exports.__routesProduits.put('/produit/:idproduit', controller_produits_1.__controllerProduits.update);
+exports.__routesProduits.delete('/produit/:idproduit', controller_produits_1.__controllerProduits.delete);

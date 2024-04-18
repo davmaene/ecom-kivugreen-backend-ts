@@ -6,7 +6,7 @@ exports.HttpStatusMessages = {
     101: "Changement de protocoles",
     102: "Traitement en cours",
     103: "Indications précoces",
-    200: "OK",
+    200: "OK, Opération effectuée avec succès !",
     201: "Créé",
     202: "Accepté",
     203: "Information non autorisée",

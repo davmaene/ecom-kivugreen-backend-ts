@@ -35,12 +35,12 @@ axios.interceptors.response.use(
 const timeout = 120000;
 
 export const Payements = {
-    pay: async ({ phone, amount, currency }: { phone: string, amount: number, currency: string }): Promise<{ code: number, message: string, data: any }> => {
+    pay: async ({ phone, amount, currency, createdby, reference }: { phone: string, amount: number, currency: string, createdby: number, reference: string }): Promise<{ code: number, message: string, data: any }> => {
         return new Promise(async (resolve, reject) => {
             try {
                 // const { APP_FLEXPAYMERCHANTID, APP_FLEXPAYURL, APP_CALLBACKURL, APP_FLEXPAYTOKEN } = process.env;
                 const _opphone = completeCodeCountryToPhoneNumber({ phone: fillphone({ phone }), withoutplus: true });
-                const _operationref = randomLongNumber({ length: 13 })
+                const _operationref = reference || randomLongNumber({ length: 13 })
 
                 const data = {
                     "merchant": APP_FLEXPAYMERCHANTID,
@@ -81,7 +81,8 @@ export const Payements = {
                                     amount,
                                     currency,
                                     category: 1,
-                                    description: `${status}`
+                                    description: message,
+                                    createdby
                                 })
                                     .then(resp => {
                                         if (resp instanceof Paiements) {

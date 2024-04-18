@@ -11,6 +11,7 @@ exports.__routesUsers = express_1.default.Router();
 exports.__routesUsers.put("/user/resetpassword", controller_users_1.__controllerUsers.resetpassword);
 exports.__routesUsers.put("/user/recoverypassword", controller_users_1.__controllerUsers.recoverypassword);
 exports.__routesUsers.post("/user/auth", (0, middleware_datavalidator_1.onValidate)(middleware_datavalidator_1.userModelOnSignin), controller_users_1.__controllerUsers.auth);
+exports.__routesUsers.post("/user/auth/bank", (0, middleware_datavalidator_1.onValidate)(middleware_datavalidator_1.userModelOnSignin), controller_users_1.__controllerUsers.authbank);
 exports.__routesUsers.post("/user/signin", (0, middleware_datavalidator_1.onValidate)(middleware_datavalidator_1.userModelOnSignin), controller_users_1.__controllerUsers.signin);
 exports.__routesUsers.post("/user/signup", controller_users_1.__controllerUsers.signup);
 exports.__routesUsers.post("/user/register", (0, middleware_datavalidator_1.onValidate)(middleware_datavalidator_1.userModelValidator), controller_users_1.__controllerUsers.register);

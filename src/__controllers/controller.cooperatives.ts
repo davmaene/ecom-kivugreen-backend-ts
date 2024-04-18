@@ -12,6 +12,7 @@ import { fillphone } from "../__helpers/helper.fillphone"
 import { now } from "../__helpers/helper.moment"
 import { Provinces } from "../__models/model.provinces"
 import { Territoires } from "../__models/model.territoires"
+import { ServiceImage } from "../__services/services.images"
 
 export const __controllerCooperatives = {
 
@@ -87,7 +88,10 @@ export const __controllerCooperatives = {
         }
     },
     add: async (req: Request, res: Response, next: NextFunction) => {
-        const { isformel } = req.body
+        const { isformel } = req.body;
+        if (!req.files) return Responder(res, HttpStatusCode.NotAcceptable, `This request must have at least req.files !`);
+        const { logo, file } = req.files;
+
         let payload = { ...req.body }
         try {
             if (parseInt(isformel) === 1) {
@@ -113,17 +117,39 @@ export const __controllerCooperatives = {
             payload['id_adjoint'] = parseInt(payload['id_adjoint'])
             payload['id_territoire'] = parseInt(payload['id_territoire'])
 
-            Cooperatives.create({
-                ...payload,
-                num_enregistrement: randomLongNumber({ length: 12 })
+            if (!logo) return Responder(res, HttpStatusCode.NotAcceptable, "Please provide the cooperative's logo as image file")
+
+            ServiceImage.onUploadImage({
+                inputs: {
+                    file: req,
+                    saveas: 'as_image',
+                    type: 'logo'
+                },
+                callBack: (err: any, done: any) => {
+                    if (done) {
+                        const { code, message, data } = done;
+                        if (code === 200) {
+                            const { fullpath, filename } = data
+                            Cooperatives.create({
+                                ...payload,
+                                num_enregistrement: randomLongNumber({ length: 12 }),
+                                logo: fullpath
+                            })
+                                .then(coopec => {
+                                    if (coopec instanceof Cooperatives) return Responder(res, HttpStatusCode.Ok, coopec)
+                                    else return Responder(res, HttpStatusCode.Conflict, coopec)
+                                })
+                                .catch(err => {
+                                    return Responder(res, HttpStatusCode.Conflict, err)
+                                })
+                        } else {
+                            return Responder(res, HttpStatusCode.Conflict, err)
+                        }
+                    } else {
+                        return Responder(res, HttpStatusCode.InternalServerError, err)
+                    }
+                }
             })
-                .then(coopec => {
-                    if (coopec instanceof Cooperatives) return Responder(res, HttpStatusCode.Ok, coopec)
-                    else return Responder(res, HttpStatusCode.Conflict, coopec)
-                })
-                .catch(err => {
-                    return Responder(res, HttpStatusCode.Conflict, err)
-                })
 
         } catch (error) {
             log(error)

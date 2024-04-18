@@ -548,6 +548,133 @@ exports.__controllerUsers = {
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
         }
     }),
+    authbank: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+        const { phone, password } = req.body;
+        const role = [6]; // allowed roles to connect 
+        try {
+            const transaction = yield connecte_1.connect.transaction();
+            model_users_1.Users.belongsToMany(model_roles_1.Roles, { through: model_hasroles_1.Hasroles });
+            model_roles_1.Roles.belongsToMany(model_users_1.Users, { through: model_hasroles_1.Hasroles });
+            model_provinces_1.Provinces.hasOne(model_users_1.Users, { foreignKey: "id" });
+            model_users_1.Users.belongsTo(model_provinces_1.Provinces, { foreignKey: "idprovince" });
+            model_territoires_1.Territoires.hasOne(model_users_1.Users, { foreignKey: "id" });
+            model_users_1.Users.belongsTo(model_territoires_1.Territoires, { foreignKey: "idterritoire" });
+            model_villages_1.Villages.hasOne(model_users_1.Users, { foreignKey: "id" });
+            model_users_1.Users.belongsTo(model_villages_1.Villages, { foreignKey: "idvillage" });
+            model_users_1.Users.findOne({
+                where: {
+                    [sequelize_1.Op.or]: [
+                        { email: phone },
+                        { phone: (0, helper_fillphone_1.fillphone)({ phone }) }
+                    ]
+                },
+                include: [
+                    {
+                        model: model_roles_1.Roles,
+                        required: true,
+                        attributes: ['id', 'role']
+                    },
+                    {
+                        model: model_provinces_1.Provinces,
+                        required: false,
+                        attributes: ['id', 'province']
+                    },
+                    {
+                        model: model_territoires_1.Territoires,
+                        required: false,
+                        attributes: ['id', 'territoire']
+                    },
+                    {
+                        model: model_villages_1.Villages,
+                        required: false,
+                        attributes: ['id', 'village']
+                    }
+                ]
+            })
+                .then(user => {
+                if (user instanceof model_users_1.Users) {
+                    const { password: aspassword, isvalidated, __tbl_ecom_roles } = user.toJSON();
+                    const roles = Array.from(__tbl_ecom_roles).map((role) => role['id']);
+                    (0, helper_passwords_1.comparePWD)({
+                        hashedtext: aspassword || '',
+                        plaintext: password
+                    })
+                        .then(verified => {
+                        if (verified) {
+                            if (isvalidated === 1) {
+                                if (Array.from(roles).some(r => role.includes(r))) {
+                                    middleware_cookies_1.Middleware.onSignin({
+                                        expiresIn: APP_EXIPRES_IN_ADMIN || '45m',
+                                        data: {
+                                            phone: user && user['phone'],
+                                            uuid: user && user['uuid'],
+                                            __id: user && user['id'],
+                                            roles
+                                        }
+                                    }, (reject, token) => __awaiter(void 0, void 0, void 0, function* () {
+                                        if (token) {
+                                            const { id } = user.toJSON() || {};
+                                            const coopec = yield model_cooperatives_1.Cooperatives.findOne({
+                                                where: {
+                                                    id_responsable: id
+                                                }
+                                            });
+                                            // user = formatUserModel({ model: user })
+                                            if (user !== null) {
+                                                if (user.hasOwnProperty('isvalidated')) {
+                                                    delete user['isvalidated'];
+                                                }
+                                                if (user.hasOwnProperty('password')) {
+                                                    delete user['password'];
+                                                }
+                                            }
+                                            if (coopec instanceof model_cooperatives_1.Cooperatives && user instanceof model_users_1.Users) {
+                                                const { id } = coopec.toJSON();
+                                                user = user.toJSON();
+                                                if (user !== null) {
+                                                    user['id_cooperative'] = id;
+                                                }
+                                            }
+                                            transaction.commit();
+                                            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { token, user });
+                                        }
+                                        else {
+                                            transaction.rollback();
+                                            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Forbidden, "Your refresh token already expired ! you must login to get a new one !");
+                                        }
+                                    }));
+                                }
+                                else {
+                                    transaction.rollback();
+                                    return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Unauthorized, "You dont have right access please contact admin system !");
+                                }
+                            }
+                            else {
+                                transaction.rollback();
+                                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "Account not validated !");
+                            }
+                        }
+                        else {
+                            transaction.rollback();
+                            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Forbidden, "Phone | Email or Password incorrect !");
+                        }
+                    })
+                        .catch(err => {
+                        transaction.rollback();
+                        return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Forbidden, "Phone | Email or Password incorrect !");
+                    });
+                }
+                else {
+                    transaction.rollback();
+                    return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Forbidden, "Phone | Email or Password incorrect !");
+                }
+            })
+                .catch(err => (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Conflict, err));
+        }
+        catch (error) {
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
+        }
+    }),
     register: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         const { nom, postnom, prenom, email, phone, adresse, idprovince, idterritoire, idvillage, date_naiss, genre, password, avatar, idroles } = req.body;
         try {

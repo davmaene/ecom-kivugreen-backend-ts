@@ -107,7 +107,7 @@ exports.__controllerProduits = {
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
         }
     }),
-    list: (req, res, next) => {
+    list: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             model_produits_1.Produits.findAndCountAll({
                 where: {}
@@ -118,5 +118,48 @@ exports.__controllerProduits = {
         catch (error) {
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
         }
-    }
+    }),
+    update: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+        const { idproduit } = req.params;
+        if (!idproduit)
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "This request must have at least idproduit in params !");
+        if (Object.keys(req.body).length <= 0)
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "The request of the body should not be empty !");
+        try {
+            model_produits_1.Produits.update(Object.assign({}, req.body), {
+                where: {
+                    id: idproduit
+                }
+            })
+                .then(prd => {
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, "Item updated successfuly !");
+            })
+                .catch(err => (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, err));
+        }
+        catch (error) {
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
+        }
+    }),
+    delete: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+        const { idproduit } = req.params;
+        if (!idproduit)
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "This request must have at least idproduit in params !");
+        try {
+            model_produits_1.Produits.destroy({
+                where: {
+                    id: idproduit
+                }
+            })
+                .then(prd => {
+                if (prd !== 0)
+                    return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, "Item updated successfuly !");
+                else
+                    return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotFound, `Item with ${idproduit} was not found `);
+            })
+                .catch(err => (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, err));
+        }
+        catch (error) {
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
+        }
+    })
 };

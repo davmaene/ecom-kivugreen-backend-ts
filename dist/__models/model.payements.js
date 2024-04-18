@@ -10,13 +10,19 @@ exports.Paiements = connecte_1.connect.define('__tbl_ecom_payements', {
         autoIncrement: true,
         allowNull: true,
     },
+    status: {
+        type: sequelize_1.DataTypes.INTEGER,
+        defaultValue: 0,
+        allowNull: true
+    },
     realref: sequelize_1.DataTypes.STRING,
     reference: sequelize_1.DataTypes.STRING,
     phone: sequelize_1.DataTypes.STRING,
     amount: sequelize_1.DataTypes.FLOAT,
     currency: sequelize_1.DataTypes.STRING,
     category: sequelize_1.DataTypes.INTEGER,
-    description: sequelize_1.DataTypes.STRING
+    description: sequelize_1.DataTypes.STRING,
+    createdby: sequelize_1.DataTypes.INTEGER
 }, { paranoid: true, timestamps: false, freezeTableName: true });
 exports.Paiements.sync({ alter: true })
     .then(() => {

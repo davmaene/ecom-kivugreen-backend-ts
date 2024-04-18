@@ -34,7 +34,9 @@ exports.exludedRoutes = [
     "/cooperatives/list",
     "/stocks/list",
     "/stocks/stock",
-    "/typeslivraisons/list"
+    "/typeslivraisons/list",
+    "/services/service/newsletters",
+    "/payements/payement/makepayement"
 ];
 exports.tries = 3;
 exports.optionsSignin = {

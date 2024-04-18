@@ -15,6 +15,7 @@ import { Services } from '../__services/serives.all';
 import { fillphone } from '../__helpers/helper.fillphone';
 import { connect } from '../__databases/connecte';
 import { Categories } from '../__models/model.categories';
+import { Payements } from '../__services/services.payements';
 
 export const __controllerMarketplace = {
     placecommand: async (req: Request, res: Response, next: NextFunction) => {
@@ -128,8 +129,25 @@ export const __controllerMarketplace = {
                             // tr_.rollback()
                         }
                     }
-                    tr_.commit()
-                    return Responder(res, HttpStatusCode.Ok, { c_treated, c_nottreated })
+                    Payements.pay({
+                        amount: somme.reduce((p, c) => p + c),
+                        currency: "CDF",
+                        phone: payament_phone || phone,
+                        createdby: __id,
+                        reference: transaction
+                    })
+                        .then(({ code, data, message }) => {
+                            if (code === 200) {
+                                tr_.commit()
+                                return Responder(res, HttpStatusCode.Ok, { prix_totale: somme.reduce((p, c) => p + c), currency: "CDF", c_treated, c_nottreated })
+                            } else {
+                                tr_.rollback()
+                                return Responder(res, HttpStatusCode.InternalServerError, { prix_totale: somme.reduce((p, c) => p + c), currency: "CDF", c_treated, c_nottreated })
+                            }
+                        })
+                        .catch(err => {
+                            return Responder(res, HttpStatusCode.Ok, { prix_totale: somme.reduce((p, c) => p + c), somme, c_treated, c_nottreated })
+                        })
                 } else {
                     tr_.rollback()
                     return Responder(res, HttpStatusCode.InternalServerError, "Commande can not be proceded cause the table of all commande is empty !")
@@ -154,7 +172,7 @@ export const __controllerMarketplace = {
             Hasproducts.belongsTo(Stocks) // , { foreignKey: 'TblEcomStockId' }
             Hasproducts.belongsTo(Cooperatives) // , { foreignKey: 'TblEcomCooperativeId' }
             Hasproducts.belongsTo(Categories)
-            
+
 
             const offset = ((page_number) - 1) * (page_size);
 

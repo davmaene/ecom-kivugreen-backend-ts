@@ -65,7 +65,7 @@ const villageValidator = (v) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.villageValidator = villageValidator;
 exports.coopecModelValidator = [
-    (0, express_validator_1.body)('sigle').notEmpty().isAscii().withMessage("`sigle` is required and it can not be empty ! must be string"),
+    (0, express_validator_1.body)('sigle').notEmpty().isString().withMessage("`sigle` is required and it can not be empty ! must be string"),
     (0, express_validator_1.body)('cooperative').notEmpty().isString().withMessage("name of `cooperative` is required and it can not be empty ! must be string"),
     (0, express_validator_1.body)('id_province').isNumeric().custom((v, { req }) => __awaiter(void 0, void 0, void 0, function* () {
         const validator = yield (0, exports.provinceValidator)(v);
@@ -104,16 +104,16 @@ exports.coopecModelValidator = [
                 reject(false);
         });
     })).withMessage("`id_adjoint` the value for id_adjoint is not invalid ! this must be integer !"),
-    (0, express_validator_1.body)('description').notEmpty().isAscii().withMessage("`description` is required and it can not be empty ! must be string"),
-    (0, express_validator_1.body)('coordonnees_gps').optional().isAscii().withMessage("`coordonnees_gps` is required and it can not be empty ! must be string"),
-    (0, express_validator_1.body)('adresse').optional().isAscii().withMessage("`adresse` is required and it can not be empty ! must be string"),
+    (0, express_validator_1.body)('description').notEmpty().isString().withMessage("`description` is required and it can not be empty ! must be string"),
+    (0, express_validator_1.body)('coordonnees_gps').optional().isString().withMessage("`coordonnees_gps` is required and it can not be empty ! must be string"),
+    (0, express_validator_1.body)('adresse').optional().isString().withMessage("`adresse` is required and it can not be empty ! must be string"),
     (0, express_validator_1.body)('phone').notEmpty().isMobilePhone('fr-CD').trim().withMessage("`phone` the value entered for the phone it seems to be not a valide phone number !"),
     (0, express_validator_1.body)('email').optional().isEmail().trim().withMessage("`email` the value entered for email it seems to be not a valide email adresse !"),
     (0, express_validator_1.body)('isformel').notEmpty().isNumeric().isLength({ max: 1, min: 1 }).custom(exports.validateIsformel).withMessage("`isformel` the value for isformel is not invalid ! this can only be 1 or 0"),
     (0, express_validator_1.body)('id_category').notEmpty().isNumeric().isLength({ max: 1, min: 1 }).custom(exports.validateCategoryCoopec).withMessage("`id_category` the value for id_category is not invalid ! this can only be 1 or 0"),
 ];
 exports.bankModelValidator = [
-    (0, express_validator_1.body)('bank').notEmpty().isAscii().withMessage("`bank` is required and it can not be empty ! must be string"),
+    (0, express_validator_1.body)('bank').notEmpty().isString().withMessage("`bank` is required and it can not be empty ! must be string"),
     (0, express_validator_1.body)('id_responsable').isNumeric().custom((v, { req }) => __awaiter(void 0, void 0, void 0, function* () {
         const validator = yield (0, exports.userValidator)(v);
         return new Promise((resolve, reject) => {
@@ -123,8 +123,8 @@ exports.bankModelValidator = [
                 reject(false);
         });
     })).withMessage("`id_responsable` the value for id_responsable is not invalid ! this must be integer !"),
-    (0, express_validator_1.body)('description').notEmpty().isAscii().withMessage("`description` is required and it can not be empty ! must be string"),
-    (0, express_validator_1.body)('adresse').optional().isAscii().withMessage("`adresse` is required and it can not be empty ! must be string"),
+    (0, express_validator_1.body)('description').notEmpty().isString().withMessage("`description` is required and it can not be empty ! must be string"),
+    (0, express_validator_1.body)('adresse').optional().isString().withMessage("`adresse` is required and it can not be empty ! must be string"),
     (0, express_validator_1.body)('phone').notEmpty().isMobilePhone('fr-CD').trim().withMessage("`phone` the value entered for the phone it seems to be not a valide phone number !"),
     (0, express_validator_1.body)('email').optional().isEmail().trim().withMessage("`email` the value entered for email it seems to be not a valide email adresse !"),
 ];
@@ -139,20 +139,20 @@ exports.creditModelValidator = [
         });
     })).withMessage("`id_user` the value for id_user is not invalid ! this must be integer ! and must have corres => in users table"),
     (0, express_validator_1.body)('montant').notEmpty().isNumeric().withMessage("`montant` is required and it can not be empty ! must be numeric"),
-    (0, express_validator_1.body)('currency').notEmpty().isString().isLength({ max: 3, min: 3 }).custom(exports.validateCurrency).isAscii().withMessage("`currency` is required and it can not be empty ! must be string USD || CDF"),
-    (0, express_validator_1.body)('motif').notEmpty().isAscii().trim().withMessage("`motif` the value entered for the motif it seems to be not a valide string !"),
+    (0, express_validator_1.body)('currency').notEmpty().isString().isLength({ max: 3, min: 3 }).custom(exports.validateCurrency).isString().withMessage("`currency` is required and it can not be empty ! must be string USD || CDF"),
+    (0, express_validator_1.body)('motif').notEmpty().isString().trim().withMessage("`motif` the value entered for the motif it seems to be not a valide string !"),
     (0, express_validator_1.body)('periode_remboursement').notEmpty().isNumeric().withMessage("`periode_remboursement` the value entered for periode_remboursement it seems to be not a valide number !"),
 ];
 exports.produitValidator = [
-    (0, express_validator_1.body)('produit').notEmpty().isAscii().withMessage("the name of the `produit` is required and it can not be empty !"),
-    (0, express_validator_1.body)('description').notEmpty().isAscii().withMessage("`description` is required and it can not be empty !"),
-    (0, express_validator_1.body)('id_unity').notEmpty().isAscii().withMessage("`id_unity` is required and it can not be empty !"),
-    (0, express_validator_1.body)('id_category').notEmpty().isAscii().withMessage("`id_category` is required and it can not be empty !"),
-    (0, express_validator_1.body)('id_souscategory').notEmpty().isAscii().withMessage("`id_souscategory` is required and it can not be empty !"),
+    (0, express_validator_1.body)('produit').notEmpty().isString().withMessage("the name of the `produit` is required and it can not be empty !"),
+    (0, express_validator_1.body)('description').notEmpty().isString().withMessage("`description` is required and it can not be empty !"),
+    (0, express_validator_1.body)('id_unity').notEmpty().isNumeric().withMessage("`id_unity` is required and it can not be empty !"),
+    (0, express_validator_1.body)('id_category').notEmpty().isNumeric().withMessage("`id_category` is required and it can not be empty !"),
+    (0, express_validator_1.body)('id_souscategory').optional().isNumeric().withMessage("`id_souscategory` is required and it can not be empty !"),
 ];
 exports.userModelValidator = [
-    (0, express_validator_1.body)('nom').notEmpty().isAscii().withMessage("`nom` is required and it can not be empty !"),
-    (0, express_validator_1.body)('postnom').notEmpty().isAscii().withMessage("`postnom` is required and it can not be empty !"),
+    (0, express_validator_1.body)('nom').notEmpty().isString().withMessage("`nom` is required and it can not be empty !"),
+    (0, express_validator_1.body)('postnom').notEmpty().isString().withMessage("`postnom` is required and it can not be empty !"),
     (0, express_validator_1.body)('email').optional().isEmail().trim().withMessage("`email` the value entered for email it seems to be not a valide email adresse !"),
     (0, express_validator_1.body)('phone').notEmpty().isMobilePhone('fr-CD').trim().withMessage("`phone` the value entered for the phone it seems to be not a valide phone number !"),
     (0, express_validator_1.body)('hectare_cultive').optional().isNumeric().withMessage("`hectare_cultive` the value for hectare_cultive is not invalid ! this must be a type of number !"),

@@ -23,6 +23,7 @@ const helper_fillphone_1 = require("../__helpers/helper.fillphone");
 const helper_moment_1 = require("../__helpers/helper.moment");
 const model_provinces_1 = require("../__models/model.provinces");
 const model_territoires_1 = require("../__models/model.territoires");
+const services_images_1 = require("../__services/services.images");
 exports.__controllerCooperatives = {
     list: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
@@ -98,6 +99,9 @@ exports.__controllerCooperatives = {
     }),
     add: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         const { isformel } = req.body;
+        if (!req.files)
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, `This request must have at least req.files !`);
+        const { logo, file } = req.files;
         let payload = Object.assign({}, req.body);
         try {
             if (parseInt(isformel) === 1) {
@@ -123,15 +127,38 @@ exports.__controllerCooperatives = {
             payload['id_responsable'] = parseInt(payload['id_responsable']);
             payload['id_adjoint'] = parseInt(payload['id_adjoint']);
             payload['id_territoire'] = parseInt(payload['id_territoire']);
-            model_cooperatives_1.Cooperatives.create(Object.assign(Object.assign({}, payload), { num_enregistrement: (0, helper_random_1.randomLongNumber)({ length: 12 }) }))
-                .then(coopec => {
-                if (coopec instanceof model_cooperatives_1.Cooperatives)
-                    return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, coopec);
-                else
-                    return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Conflict, coopec);
-            })
-                .catch(err => {
-                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Conflict, err);
+            if (!logo)
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "Please provide the cooperative's logo as image file");
+            services_images_1.ServiceImage.onUploadImage({
+                inputs: {
+                    file: req,
+                    saveas: 'as_image',
+                    type: 'logo'
+                },
+                callBack: (err, done) => {
+                    if (done) {
+                        const { code, message, data } = done;
+                        if (code === 200) {
+                            const { fullpath, filename } = data;
+                            model_cooperatives_1.Cooperatives.create(Object.assign(Object.assign({}, payload), { num_enregistrement: (0, helper_random_1.randomLongNumber)({ length: 12 }), logo: fullpath }))
+                                .then(coopec => {
+                                if (coopec instanceof model_cooperatives_1.Cooperatives)
+                                    return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, coopec);
+                                else
+                                    return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Conflict, coopec);
+                            })
+                                .catch(err => {
+                                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Conflict, err);
+                            });
+                        }
+                        else {
+                            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Conflict, err);
+                        }
+                    }
+                    else {
+                        return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, err);
+                    }
+                }
             });
         }
         catch (error) {

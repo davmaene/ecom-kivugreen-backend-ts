@@ -91,13 +91,52 @@ export const __controllerProduits = {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     },
-    list: (req: Request, res: Response, next: NextFunction) => {
+    list: async (req: Request, res: Response, next: NextFunction) => {
         try {
             Produits.findAndCountAll({
                 where: {}
             })
                 .then(({ count, rows }) => Responder(res, HttpStatusCode.Ok, { count, rows }))
                 .catch(err => Responder(res, HttpStatusCode.BadRequest, err))
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    update: async (req: Request, res: Response, next: NextFunction) => {
+        const { idproduit } = req.params;
+        if (!idproduit) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least idproduit in params !")
+        if (Object.keys(req.body).length <= 0) return Responder(res, HttpStatusCode.NotAcceptable, "The request of the body should not be empty !")
+        try {
+            Produits.update({
+                ...req.body
+            }, {
+                where: {
+                    id: idproduit
+                }
+            })
+                .then(prd => {
+                    return Responder(res, HttpStatusCode.Ok, "Item updated successfuly !")
+                })
+                .catch(err => Responder(res, HttpStatusCode.InternalServerError, err))
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    delete: async (req: Request, res: Response, next: NextFunction) => {
+        const { idproduit } = req.params;
+        if (!idproduit) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least idproduit in params !")
+        try {
+            Produits.destroy({
+                where: {
+                    id: idproduit
+                }
+            })
+                .then(prd => {
+                    if (prd !== 0)
+                        return Responder(res, HttpStatusCode.Ok, "Item updated successfuly !")
+                    else return Responder(res, HttpStatusCode.NotFound, `Item with ${idproduit} was not found `)
+                })
+                .catch(err => Responder(res, HttpStatusCode.InternalServerError, err))
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }

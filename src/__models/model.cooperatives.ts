@@ -26,13 +26,26 @@ export const Cooperatives = connect.define<Coopec>('__tbl_ecom_cooperatives', {
     file: DataTypes.STRING,
     isformel: DataTypes.INTEGER,
     sigle: DataTypes.STRING,
-    cooperative: DataTypes.STRING,
+    cooperative: {
+        type: DataTypes.STRING,
+        // unique: true
+    },
     id_adjoint: DataTypes.INTEGER,
     id_responsable: DataTypes.INTEGER,
     description: DataTypes.STRING,
     id_category: DataTypes.INTEGER
 
-}, { paranoid: true, timestamps: false, freezeTableName: true });
+}, {
+    paranoid: true,
+    timestamps: false,
+    freezeTableName: true,
+    indexes: [
+        {
+            unique: true,
+            fields: ['sigle', 'cooperative']
+        }
+    ]
+});
 
 Cooperatives.sync({ alter: true })
     .then(() => {

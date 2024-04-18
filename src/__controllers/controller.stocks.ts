@@ -42,58 +42,63 @@ export const __controllerStocks = {
                         if (configs instanceof Configs) {
                             const { taux_change, commission_price } = configs.toJSON() as any;
                             for (let index = 0; index < array.length; index++) {
-                                const { id_produit, qte, prix_unitaire, currency, date_production: asdate_production }: any = array[index];
-                                try {
-                                    const prd = await Produits.findOne({
-                                        attributes: ['id', 'produit', 'id_unity', 'id_category', 'id_souscategory', 'image'],
-                                        where: {
-                                            id: id_produit
-                                        }
-                                    })
-                                    if (prd instanceof Produits) {
-                                        const { id, produit, id_unity, id_category, id_souscategory, image } = prd.toJSON() as any
-                                        const { id: asstockid } = stock.toJSON()
-                                        if (produit && id_category && id_souscategory && id_unity) {
-                                            const [item, created] = await Hasproducts.findOrCreate({
-                                                where: {
-                                                    TblEcomProduitId: id_produit,
-                                                    TblEcomCooperativeId: id_ccoperative
-                                                },
-                                                defaults: {
-                                                    prix_plus_commission: prix_unitaire + (prix_unitaire * parseFloat(commission_price)),
-                                                    currency,
-                                                    prix_unitaire,
-                                                    date_production: asdate_production,
-                                                    TblEcomCategoryId: id_category,
-                                                    TblEcomCooperativeId: id_ccoperative,
-                                                    TblEcomProduitId: id_produit,
-                                                    TblEcomStockId: asstockid || 0,
-                                                    TblEcomUnitesmesureId: id_unity,
-                                                    qte
-                                                },
-                                                transaction
-                                            })
-                                            if (created) {
-                                                nottreated.push(array[index])
-                                            } else {
-                                                const { qte: asqte } = item.toJSON()
-                                                item.update({
-                                                    qte: qte + asqte
-                                                })
-                                                treated.push(array[index])
-                                            }
-                                        }
-                                    } else {
-                                        nottreated.push(array[index])
-                                    }
-                                } catch (error) {
+                                const { id_produit, qte, prix_unitaire, currency, date_production: asdate_production, id_membre }: any = array[index];
+                                if (!id_produit || !qte || !prix_unitaire || !currency || !asdate_production || !id_membre) {
                                     nottreated.push(array[index])
-                                    log("Error on treatement on object => ", id_produit)
+                                }else{
+                                    try {
+                                        const prd = await Produits.findOne({
+                                            attributes: ['id', 'produit', 'id_unity', 'id_category', 'id_souscategory', 'image'],
+                                            where: {
+                                                id: id_produit
+                                            }
+                                        })
+                                        if (prd instanceof Produits) {
+                                            const { id, produit, id_unity, id_category, id_souscategory, image } = prd.toJSON() as any
+                                            const { id: asstockid } = stock.toJSON()
+                                            if (produit && id_category && id_souscategory && id_unity) {
+                                                const [item, created] = await Hasproducts.findOrCreate({
+                                                    where: {
+                                                        TblEcomProduitId: id_produit,
+                                                        TblEcomCooperativeId: id_ccoperative
+                                                    },
+                                                    defaults: {
+                                                        prix_plus_commission: prix_unitaire + (prix_unitaire * parseFloat(commission_price)),
+                                                        currency,
+                                                        prix_unitaire,
+                                                        date_production: asdate_production,
+                                                        TblEcomCategoryId: id_category,
+                                                        TblEcomCooperativeId: id_ccoperative,
+                                                        TblEcomProduitId: id_produit,
+                                                        TblEcomStockId: asstockid || 0,
+                                                        TblEcomUnitesmesureId: id_unity,
+                                                        qte,
+                                                        id_membre
+                                                    },
+                                                    transaction
+                                                })
+                                                if (created) {
+                                                    nottreated.push(array[index])
+                                                } else {
+                                                    const { qte: asqte } = item.toJSON()
+                                                    item.update({
+                                                        qte: qte + asqte
+                                                    })
+                                                    treated.push({ ...array[index], produit })
+                                                }
+                                            }
+                                        } else {
+                                            nottreated.push(array[index])
+                                        }
+                                    } catch (error) {
+                                        nottreated.push(array[index])
+                                        log("Error on treatement on object => ", id_produit)
+                                    }
                                 }
                             }
 
                             transaction.commit()
-                            return Responder(res, HttpStatusCode.Ok, stock)
+                            return Responder(res, HttpStatusCode.Ok, { ...stock.toJSON(), produits: treated })
                         } else {
                             return Responder(res, HttpStatusCode.Conflict, "this request must hava at least Configurations params for the price !")
                         }
