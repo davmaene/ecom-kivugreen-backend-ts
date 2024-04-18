@@ -5,6 +5,9 @@ import { Produits } from "../__models/model.produits";
 import { ServiceImage } from "../__services/services.images";
 import { log } from "console";
 import { NextFunction, Request, Response } from "express";
+import { Categories } from "../__models/model.categories";
+import { Souscategories } from "../__models/model.souscategories";
+import { Unites } from "../__models/model.unitemesures";
 
 export const __controllerProduits = {
     add: async (req: Request, res: Response, next: NextFunction) => {
@@ -93,8 +96,25 @@ export const __controllerProduits = {
     },
     list: async (req: Request, res: Response, next: NextFunction) => {
         try {
+            Produits.belongsTo(Categories, { foreignKey: "id_category" })
+            Produits.belongsTo(Souscategories, { foreignKey: "id_souscategory" })
+            Produits.belongsTo(Unites, { foreignKey: "id_unity" })
             Produits.findAndCountAll({
-                where: {}
+                where: {},
+                include:[
+                    {
+                        model: Unites,
+                        required: true
+                    },
+                    {
+                        model: Categories,
+                        required: true
+                    },
+                    {
+                        model: Souscategories,
+                        required: false
+                    }
+                ]
             })
                 .then(({ count, rows }) => Responder(res, HttpStatusCode.Ok, { count, rows }))
                 .catch(err => Responder(res, HttpStatusCode.BadRequest, err))
