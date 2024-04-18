@@ -45,7 +45,7 @@ export const __controllerStocks = {
                                 const { id_produit, qte, prix_unitaire, currency, date_production: asdate_production, id_membre }: any = array[index];
                                 if (!id_produit || !qte || !prix_unitaire || !currency || !asdate_production || !id_membre) {
                                     nottreated.push(array[index])
-                                }else{
+                                } else {
                                     try {
                                         const prd = await Produits.findOne({
                                             attributes: ['id', 'produit', 'id_unity', 'id_category', 'id_souscategory', 'image'],
@@ -56,7 +56,7 @@ export const __controllerStocks = {
                                         if (prd instanceof Produits) {
                                             const { id, produit, id_unity, id_category, id_souscategory, image } = prd.toJSON() as any
                                             const { id: asstockid } = stock.toJSON()
-                                            if (produit && id_category && id_souscategory && id_unity) {
+                                            if (produit && id_category && id_unity) {
                                                 const [item, created] = await Hasproducts.findOrCreate({
                                                     where: {
                                                         TblEcomProduitId: id_produit,
@@ -86,6 +86,8 @@ export const __controllerStocks = {
                                                     })
                                                     treated.push({ ...array[index], produit })
                                                 }
+                                            } else {
+                                                log("We can not save this item cause it can not be proceced !", id_produit)
                                             }
                                         } else {
                                             nottreated.push(array[index])
@@ -97,8 +99,13 @@ export const __controllerStocks = {
                                 }
                             }
 
-                            transaction.commit()
-                            return Responder(res, HttpStatusCode.Ok, { ...stock.toJSON(), produits: treated })
+                            if (treated.length > 0) {
+                                transaction.commit()
+                                return Responder(res, HttpStatusCode.Ok, { ...stock.toJSON(), produits: treated })
+                            } else {
+                                transaction.rollback()
+                                return Responder(res, HttpStatusCode.Conflict, "this request must hava at least Configurations params for the price !")
+                            }
                         } else {
                             return Responder(res, HttpStatusCode.Conflict, "this request must hava at least Configurations params for the price !")
                         }
@@ -176,51 +183,52 @@ export const __controllerStocks = {
         if (!idcooperative) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least idcooperative")
         try {
             Stocks.belongsTo(Cooperatives, { foreignKey: "id_cooperative" })
-            Stocks.belongsToMany(Produits, { through: Hasproducts, })// as: 'produits'
+            Stocks.belongsToMany(Produits, { through: Hasproducts })// as: 'produits'
             Stocks.findAll({
                 where: {},
                 include: [
-                    {
-                        model: Produits,
-                        // as: 'produits',
-                        required: true,
-                        attributes: ['id', 'produit']
-                    },
+                    // {
+                    //     model: Produits,
+                    //     // as: 'produits',
+                    //     required: true,
+                    //     attributes: ['id', 'produit']
+                    // },
                     {
                         model: Cooperatives,
                         required: true,
                         where: {
-                            id: idcooperative
+                            id: parseInt(idcooperative)
                         },
                         attributes: ['id', 'coordonnees_gps', 'phone', 'num_enregistrement', 'email', 'sigle', 'cooperative', 'description']
                     }
                 ]
             })
                 .then(async (rows) => {
+                    log(rows)
                     const __: any[] = []
-                    for (let index = 0; index < rows.length; index++) {
-                        let items: any[] = []
-                        const { __tbl_ecom_produits } = rows[index].toJSON() as any;
-                        for (let index = 0; index < __tbl_ecom_produits.length; index++) {
-                            const { id, produit, __tbl_ecom_hasproducts } = __tbl_ecom_produits[index] as any;
-                            const { TblEcomProduitId, TblEcomCategoryId } = __tbl_ecom_hasproducts;
+                    // for (let index = 0; index < rows.length; index++) {
+                    //     let items: any[] = []
+                    //     const { __tbl_ecom_produits } = rows[index].toJSON() as any;
+                    //     for (let index = 0; index < __tbl_ecom_produits.length; index++) {
+                    //         const { id, produit, __tbl_ecom_hasproducts } = __tbl_ecom_produits[index] as any;
+                    //         const { TblEcomProduitId, TblEcomCategoryId } = __tbl_ecom_hasproducts;
 
-                            const cat = await Categories.findOne({
-                                // raw: true,
-                                where: {
-                                    id: TblEcomCategoryId
-                                }
-                            })
-                            items.push({
-                                ...__tbl_ecom_produits[index],
-                                __tbl_ecom_categories: cat?.toJSON()
-                            })
-                        }
-                        __.push({
-                            ...rows[index].toJSON() as any,
-                            __tbl_ecom_produits: [...items]
-                        })
-                    }
+                    //         const cat = await Categories.findOne({
+                    //             // raw: true,
+                    //             where: {
+                    //                 id: TblEcomCategoryId
+                    //             }
+                    //         })
+                    //         items.push({
+                    //             ...__tbl_ecom_produits[index],
+                    //             __tbl_ecom_categories: cat?.toJSON()
+                    //         })
+                    //     }
+                    //     __.push({
+                    //         ...rows[index].toJSON() as any,
+                    //         __tbl_ecom_produits: [...items]
+                    //     })
+                    // }
                     return Responder(res, HttpStatusCode.Ok, { count: rows.length, rows: __ })
                 })
                 .catch(error => {
@@ -228,6 +236,7 @@ export const __controllerStocks = {
                     return Responder(res, HttpStatusCode.Conflict, error)
                 })
         } catch (error) {
+            log(error)
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     },
