@@ -43,7 +43,7 @@ export const __controllerStocks = {
                             const { taux_change, commission_price } = configs.toJSON() as any;
                             for (let index = 0; index < array.length; index++) {
                                 const { id_produit, qte, prix_unitaire, currency, date_production: asdate_production, id_membre }: any = array[index];
-                                if (!id_produit || !qte || !prix_unitaire || !currency || !asdate_production || !id_membre) {
+                                if (!id_produit || !qte || !prix_unitaire || !currency || !asdate_production) { // || !id_membre
                                     nottreated.push(array[index])
                                 } else {
                                     try {
@@ -55,7 +55,7 @@ export const __controllerStocks = {
                                         })
                                         if (prd instanceof Produits) {
                                             const { id, produit, id_unity, id_category, id_souscategory, image } = prd.toJSON() as any
-                                            const { id: asstockid } = stock.toJSON()
+                                            const { id: asstockid } = stock.toJSON() as any;
                                             if (produit && id_category && id_unity) {
                                                 const [item, created] = await Hasproducts.findOrCreate({
                                                     where: {
@@ -73,12 +73,12 @@ export const __controllerStocks = {
                                                         TblEcomStockId: asstockid || 0,
                                                         TblEcomUnitesmesureId: id_unity,
                                                         qte,
-                                                        id_membre
+                                                        id_membre: 0
                                                     },
                                                     transaction
                                                 })
                                                 if (created) {
-                                                    nottreated.push(array[index])
+                                                    treated.push(array[index])
                                                 } else {
                                                     const { qte: asqte } = item.toJSON()
                                                     item.update({
@@ -104,6 +104,7 @@ export const __controllerStocks = {
                                 return Responder(res, HttpStatusCode.Ok, { ...stock.toJSON(), produits: treated })
                             } else {
                                 transaction.rollback()
+                                // log(nottreated, treated)
                                 return Responder(res, HttpStatusCode.Conflict, "this request must hava at least Configurations params for the price !")
                             }
                         } else {
