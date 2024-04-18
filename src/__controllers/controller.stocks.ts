@@ -10,6 +10,7 @@ import { Hasproducts } from '../__models/model.hasproducts';
 import { connect } from '../__databases/connecte';
 import { Configs } from '../__models/model.configs';
 import { Categories } from '../__models/model.categories';
+import { Unites } from '../__models/model.unitemesures';
 
 export const __controllerStocks = {
     in: async (req: Request, res: Response) => {
@@ -43,9 +44,9 @@ export const __controllerStocks = {
                             const { taux_change, commission_price } = configs.toJSON() as any;
                             for (let index = 0; index < array.length; index++) {
                                 const { id_produit, qte, prix_unitaire, currency, date_production: asdate_production, id_membre }: any = array[index];
-                                if (!id_produit || !qte || !prix_unitaire || !currency || !asdate_production || !id_membre) {
+                                if (!id_produit || !qte || !prix_unitaire || !currency || !asdate_production) { // || !id_membre
                                     nottreated.push(array[index])
-                                }else{
+                                } else {
                                     try {
                                         const prd = await Produits.findOne({
                                             attributes: ['id', 'produit', 'id_unity', 'id_category', 'id_souscategory', 'image'],
@@ -55,8 +56,8 @@ export const __controllerStocks = {
                                         })
                                         if (prd instanceof Produits) {
                                             const { id, produit, id_unity, id_category, id_souscategory, image } = prd.toJSON() as any
-                                            const { id: asstockid } = stock.toJSON()
-                                            if (produit && id_category && id_souscategory && id_unity) {
+                                            const { id: asstockid } = stock.toJSON() as any;
+                                            if (produit && id_category && id_unity) {
                                                 const [item, created] = await Hasproducts.findOrCreate({
                                                     where: {
                                                         TblEcomProduitId: id_produit,
@@ -73,12 +74,12 @@ export const __controllerStocks = {
                                                         TblEcomStockId: asstockid || 0,
                                                         TblEcomUnitesmesureId: id_unity,
                                                         qte,
-                                                        id_membre
+                                                        id_membre: 0
                                                     },
                                                     transaction
                                                 })
                                                 if (created) {
-                                                    nottreated.push(array[index])
+                                                    treated.push(array[index])
                                                 } else {
                                                     const { qte: asqte } = item.toJSON()
                                                     item.update({
@@ -86,6 +87,8 @@ export const __controllerStocks = {
                                                     })
                                                     treated.push({ ...array[index], produit })
                                                 }
+                                            } else {
+                                                log("We can not save this item cause it can not be proceced !", id_produit)
                                             }
                                         } else {
                                             nottreated.push(array[index])
@@ -97,8 +100,14 @@ export const __controllerStocks = {
                                 }
                             }
 
-                            transaction.commit()
-                            return Responder(res, HttpStatusCode.Ok, { ...stock.toJSON(), produits: treated })
+                            if (treated.length > 0) {
+                                transaction.commit()
+                                return Responder(res, HttpStatusCode.Ok, { ...stock.toJSON(), produits: treated })
+                            } else {
+                                transaction.rollback()
+                                // log(nottreated, treated)
+                                return Responder(res, HttpStatusCode.Conflict, "this request must hava at least Configurations params for the price !")
+                            }
                         } else {
                             return Responder(res, HttpStatusCode.Conflict, "this request must hava at least Configurations params for the price !")
                         }
@@ -144,7 +153,7 @@ export const __controllerStocks = {
                         const { __tbl_ecom_produits } = rows[index].toJSON() as any;
                         for (let index = 0; index < __tbl_ecom_produits.length; index++) {
                             const { id, produit, __tbl_ecom_hasproducts } = __tbl_ecom_produits[index] as any;
-                            const { TblEcomProduitId, TblEcomCategoryId } = __tbl_ecom_hasproducts;
+                            const { TblEcomProduitId, TblEcomCategoryId, TblEcomUnitesmesureId } = __tbl_ecom_hasproducts;
 
                             const cat = await Categories.findOne({
                                 // raw: true,
@@ -152,9 +161,16 @@ export const __controllerStocks = {
                                     id: TblEcomCategoryId
                                 }
                             })
+                            const uni = await Unites.findOne({
+                                // raw: true,
+                                where: {
+                                    id: TblEcomUnitesmesureId
+                                }
+                            })
                             items.push({
                                 ...__tbl_ecom_produits[index],
-                                __tbl_ecom_categories: cat?.toJSON()
+                                __tbl_ecom_categories: cat?.toJSON(),
+                                __tbl_ecom_unitesmesures: uni?.toJSON()
                             })
                         }
                         __.push({
@@ -176,8 +192,12 @@ export const __controllerStocks = {
         if (!idcooperative) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least idcooperative")
         try {
             Stocks.belongsTo(Cooperatives, { foreignKey: "id_cooperative" })
-            Stocks.belongsToMany(Produits, { through: Hasproducts, })// as: 'produits'
+            Stocks.belongsToMany(Produits, { through: Hasproducts })// as: 'produits'
             Stocks.findAll({
+                order: [
+                    ['id', 'DESC'],
+                ],
+                // limit: 1,
                 where: {},
                 include: [
                     {
@@ -190,7 +210,7 @@ export const __controllerStocks = {
                         model: Cooperatives,
                         required: true,
                         where: {
-                            id: idcooperative
+                            id: parseInt(idcooperative)
                         },
                         attributes: ['id', 'coordonnees_gps', 'phone', 'num_enregistrement', 'email', 'sigle', 'cooperative', 'description']
                     }
@@ -203,7 +223,7 @@ export const __controllerStocks = {
                         const { __tbl_ecom_produits } = rows[index].toJSON() as any;
                         for (let index = 0; index < __tbl_ecom_produits.length; index++) {
                             const { id, produit, __tbl_ecom_hasproducts } = __tbl_ecom_produits[index] as any;
-                            const { TblEcomProduitId, TblEcomCategoryId } = __tbl_ecom_hasproducts;
+                            const { TblEcomProduitId, TblEcomCategoryId, TblEcomUnitesmesureId } = __tbl_ecom_hasproducts;
 
                             const cat = await Categories.findOne({
                                 // raw: true,
@@ -211,9 +231,16 @@ export const __controllerStocks = {
                                     id: TblEcomCategoryId
                                 }
                             })
+                            const uni = await Unites.findOne({
+                                // raw: true,
+                                where: {
+                                    id: TblEcomUnitesmesureId
+                                }
+                            })
                             items.push({
                                 ...__tbl_ecom_produits[index],
-                                __tbl_ecom_categories: cat?.toJSON()
+                                __tbl_ecom_categories: cat?.toJSON(),
+                                __tbl_ecom_unitesmesures: uni?.toJSON()
                             })
                         }
                         __.push({
@@ -228,6 +255,7 @@ export const __controllerStocks = {
                     return Responder(res, HttpStatusCode.Conflict, error)
                 })
         } catch (error) {
+            log(error)
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     },
@@ -265,7 +293,7 @@ export const __controllerStocks = {
                         const { __tbl_ecom_produits } = rows[index].toJSON() as any;
                         for (let index = 0; index < __tbl_ecom_produits.length; index++) {
                             const { id, produit, __tbl_ecom_hasproducts } = __tbl_ecom_produits[index] as any;
-                            const { TblEcomProduitId, TblEcomCategoryId } = __tbl_ecom_hasproducts;
+                            const { TblEcomProduitId, TblEcomCategoryId, TblEcomUnitesmesureId } = __tbl_ecom_hasproducts;
 
                             const cat = await Categories.findOne({
                                 // raw: true,
@@ -273,9 +301,16 @@ export const __controllerStocks = {
                                     id: TblEcomCategoryId
                                 }
                             })
+                            const uni = await Unites.findOne({
+                                // raw: true,
+                                where: {
+                                    id: TblEcomUnitesmesureId
+                                }
+                            })
                             items.push({
                                 ...__tbl_ecom_produits[index],
-                                __tbl_ecom_categories: cat?.toJSON()
+                                __tbl_ecom_categories: cat?.toJSON(),
+                                __tbl_ecom_unitesmesures: uni?.toJSON()
                             })
                         }
                         __.push({
