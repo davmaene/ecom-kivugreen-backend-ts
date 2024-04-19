@@ -1121,7 +1121,7 @@ export const __controllerUsers = {
     update: async (req: Request, res: Response, next: NextFunction) => {
         const { iduser } = req.params
         if (!iduser) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least iduser as param !")
-        if (Object.keys(req.body).length > 0) return Responder(res, HttpStatusCode.NotAcceptable, "The should not be empty")
+        if (Object.keys(req.body).length <= 0) return Responder(res, HttpStatusCode.NotAcceptable, "The should not be empty")
         try {
             Users.update({
                 ...req.body
