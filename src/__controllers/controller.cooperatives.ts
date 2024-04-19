@@ -13,6 +13,7 @@ import { now } from "../__helpers/helper.moment"
 import { Provinces } from "../__models/model.provinces"
 import { Territoires } from "../__models/model.territoires"
 import { ServiceImage } from "../__services/services.images"
+import { checkFileType } from "../__helpers/helper.all"
 
 export const __controllerCooperatives = {
 
@@ -88,6 +89,7 @@ export const __controllerCooperatives = {
         }
     },
     add: async (req: Request, res: Response, next: NextFunction) => {
+
         const { isformel } = req.body;
         if (!req.files) return Responder(res, HttpStatusCode.NotAcceptable, `This request must have at least req.files !`);
         const { logo, file } = req.files;
@@ -117,8 +119,10 @@ export const __controllerCooperatives = {
             payload['id_adjoint'] = parseInt(payload['id_adjoint'])
             payload['id_territoire'] = parseInt(payload['id_territoire'])
 
-            if (!logo) return Responder(res, HttpStatusCode.NotAcceptable, "Please provide the cooperative's logo as image file")
-
+            if (!logo) return Responder(res, HttpStatusCode.NotAcceptable, "Please provide the cooperative's logo as image file");
+            const { mimetype } = req['files']['logo'] as any
+            const type: false | any = checkFileType({ as: 'img', mimetype })
+            if (!type) return Responder(res, HttpStatusCode.NotAcceptable, "Please provide the cooperative's logo as image file");
             ServiceImage.onUploadImage({
                 inputs: {
                     file: req,

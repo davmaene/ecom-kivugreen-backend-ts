@@ -16,6 +16,47 @@ export const groupArrayByPairs = ({ array }: { array: any[] }) => {
     return groupedArray;
 };
 
+export const imageTypes = [
+    { fileType: "JPEG", mimeType: "image/jpeg" },
+    { fileType: "PNG", mimeType: "image/png" },
+    { fileType: "GIF", mimeType: "image/gif" },
+    { fileType: "BMP", mimeType: "image/bmp" },
+    { fileType: "TIFF", mimeType: "image/tiff" },
+    { fileType: "SVG", mimeType: "image/svg+xml" },
+    { fileType: "WEBP", mimeType: "image/webp" },
+    // { fileType: "ICO", mimeType: "image/x-icon" },
+    // { fileType: "PSD", mimeType: "image/vnd.adobe.photoshop" },
+    // { fileType: "EPS", mimeType: "image/eps" }
+];
+
+const documentTypes = [
+    { fileType: "PDF", mimeType: "application/pdf" },
+    { fileType: "DOCX", mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" },
+    { fileType: "DOC", mimeType: "application/msword" },
+    { fileType: "ODT", mimeType: "application/vnd.oasis.opendocument.text" },
+    { fileType: "RTF", mimeType: "application/rtf" },
+    { fileType: "TXT", mimeType: "text/plain" },
+    { fileType: "CSV", mimeType: "text/csv" },
+    { fileType: "XLSX", mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" },
+    { fileType: "XLS", mimeType: "application/vnd.ms-excel" },
+    { fileType: "PPTX", mimeType: "application/vnd.openxmlformats-officedocument.presentationml.presentation" },
+    { fileType: "PPT", mimeType: "application/vnd.ms-powerpoint" },
+    { fileType: "ODP", mimeType: "application/vnd.oasis.opendocument.presentation" },
+    // { fileType: "HTML", mimeType: "text/html" },
+    // { fileType: "XML", mimeType: "application/xml" },
+    // { fileType: "JSON", mimeType: "application/json" }
+];
+
+export const checkFileType = ({ mimetype, as = "doc" || "img" }: { mimetype: string, as: string }): { mimetype: string, isKnownType: boolean } | false => {
+    if (imageTypes.map(type => type['mimeType']).includes(mimetype) && as === "img") {
+        return { isKnownType: true, mimetype };
+    } else if (documentTypes.map(type => type['mimeType']).includes(mimetype) && as === "doc") {
+        return { isKnownType: true, mimetype };
+    } else {
+        return false;
+    }
+};
+
 export const truncatestring = ({ string, separator }: { string: string, separator: string }) => {
     return string.substring(0, string.lastIndexOf(separator))
 };
