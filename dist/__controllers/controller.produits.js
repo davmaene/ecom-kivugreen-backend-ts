@@ -16,6 +16,9 @@ const helper_responseserver_1 = require("../__helpers/helper.responseserver");
 const model_produits_1 = require("../__models/model.produits");
 const services_images_1 = require("../__services/services.images");
 const console_1 = require("console");
+const model_categories_1 = require("../__models/model.categories");
+const model_souscategories_1 = require("../__models/model.souscategories");
+const model_unitemesures_1 = require("../__models/model.unitemesures");
 exports.__controllerProduits = {
     add: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         const { id_unity, id_category, id_souscategory, description, produit } = req.body;
@@ -109,8 +112,25 @@ exports.__controllerProduits = {
     }),
     list: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
+            model_produits_1.Produits.belongsTo(model_categories_1.Categories, { foreignKey: "id_category" });
+            model_produits_1.Produits.belongsTo(model_souscategories_1.Souscategories, { foreignKey: "id_souscategory" });
+            model_produits_1.Produits.belongsTo(model_unitemesures_1.Unites, { foreignKey: "id_unity" });
             model_produits_1.Produits.findAndCountAll({
-                where: {}
+                where: {},
+                include: [
+                    {
+                        model: model_unitemesures_1.Unites,
+                        required: true
+                    },
+                    {
+                        model: model_categories_1.Categories,
+                        required: true
+                    },
+                    {
+                        model: model_souscategories_1.Souscategories,
+                        required: false
+                    }
+                ]
             })
                 .then(({ count, rows }) => (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count, rows }))
                 .catch(err => (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.BadRequest, err));

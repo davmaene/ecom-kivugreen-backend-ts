@@ -21,6 +21,7 @@ const model_hasproducts_1 = require("../__models/model.hasproducts");
 const connecte_1 = require("../__databases/connecte");
 const model_configs_1 = require("../__models/model.configs");
 const model_categories_1 = require("../__models/model.categories");
+const model_unitemesures_1 = require("../__models/model.unitemesures");
 exports.__controllerStocks = {
     in: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { id_ccoperative, items, description, date_production, date_expiration } = req.body;
@@ -54,7 +55,7 @@ exports.__controllerStocks = {
                         const { taux_change, commission_price } = configs.toJSON();
                         for (let index = 0; index < array.length; index++) {
                             const { id_produit, qte, prix_unitaire, currency, date_production: asdate_production, id_membre } = array[index];
-                            if (!id_produit || !qte || !prix_unitaire || !currency || !asdate_production || !id_membre) {
+                            if (!id_produit || !qte || !prix_unitaire || !currency || !asdate_production) { // || !id_membre
                                 nottreated.push(array[index]);
                             }
                             else {
@@ -68,7 +69,7 @@ exports.__controllerStocks = {
                                     if (prd instanceof model_produits_1.Produits) {
                                         const { id, produit, id_unity, id_category, id_souscategory, image } = prd.toJSON();
                                         const { id: asstockid } = stock.toJSON();
-                                        if (produit && id_category && id_souscategory && id_unity) {
+                                        if (produit && id_category && id_unity) {
                                             const [item, created] = yield model_hasproducts_1.Hasproducts.findOrCreate({
                                                 where: {
                                                     TblEcomProduitId: id_produit,
@@ -85,12 +86,12 @@ exports.__controllerStocks = {
                                                     TblEcomStockId: asstockid || 0,
                                                     TblEcomUnitesmesureId: id_unity,
                                                     qte,
-                                                    id_membre
+                                                    id_membre: 0
                                                 },
                                                 transaction
                                             });
                                             if (created) {
-                                                nottreated.push(array[index]);
+                                                treated.push(array[index]);
                                             }
                                             else {
                                                 const { qte: asqte } = item.toJSON();
@@ -99,6 +100,9 @@ exports.__controllerStocks = {
                                                 });
                                                 treated.push(Object.assign(Object.assign({}, array[index]), { produit }));
                                             }
+                                        }
+                                        else {
+                                            (0, console_1.log)("We can not save this item cause it can not be proceced !", id_produit);
                                         }
                                     }
                                     else {
@@ -111,8 +115,15 @@ exports.__controllerStocks = {
                                 }
                             }
                         }
-                        transaction.commit();
-                        return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, Object.assign(Object.assign({}, stock.toJSON()), { produits: treated }));
+                        if (treated.length > 0) {
+                            transaction.commit();
+                            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, Object.assign(Object.assign({}, stock.toJSON()), { produits: treated }));
+                        }
+                        else {
+                            transaction.rollback();
+                            // log(nottreated, treated)
+                            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Conflict, "this request must hava at least Configurations params for the price !");
+                        }
                     }
                     else {
                         return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Conflict, "this request must hava at least Configurations params for the price !");
@@ -159,14 +170,20 @@ exports.__controllerStocks = {
                     const { __tbl_ecom_produits } = rows[index].toJSON();
                     for (let index = 0; index < __tbl_ecom_produits.length; index++) {
                         const { id, produit, __tbl_ecom_hasproducts } = __tbl_ecom_produits[index];
-                        const { TblEcomProduitId, TblEcomCategoryId } = __tbl_ecom_hasproducts;
+                        const { TblEcomProduitId, TblEcomCategoryId, TblEcomUnitesmesureId } = __tbl_ecom_hasproducts;
                         const cat = yield model_categories_1.Categories.findOne({
                             // raw: true,
                             where: {
                                 id: TblEcomCategoryId
                             }
                         });
-                        items.push(Object.assign(Object.assign({}, __tbl_ecom_produits[index]), { __tbl_ecom_categories: cat === null || cat === void 0 ? void 0 : cat.toJSON() }));
+                        const uni = yield model_unitemesures_1.Unites.findOne({
+                            // raw: true,
+                            where: {
+                                id: TblEcomUnitesmesureId
+                            }
+                        });
+                        items.push(Object.assign(Object.assign({}, __tbl_ecom_produits[index]), { __tbl_ecom_categories: cat === null || cat === void 0 ? void 0 : cat.toJSON(), __tbl_ecom_unitesmesures: uni === null || uni === void 0 ? void 0 : uni.toJSON() }));
                     }
                     __.push(Object.assign(Object.assign({}, rows[index].toJSON()), { __tbl_ecom_produits: [...items] }));
                 }
@@ -186,8 +203,12 @@ exports.__controllerStocks = {
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "This request must have at least idcooperative");
         try {
             model_stocks_1.Stocks.belongsTo(model_cooperatives_1.Cooperatives, { foreignKey: "id_cooperative" });
-            model_stocks_1.Stocks.belongsToMany(model_produits_1.Produits, { through: model_hasproducts_1.Hasproducts, }); // as: 'produits'
+            model_stocks_1.Stocks.belongsToMany(model_produits_1.Produits, { through: model_hasproducts_1.Hasproducts }); // as: 'produits'
             model_stocks_1.Stocks.findAll({
+                order: [
+                    ['id', 'DESC'],
+                ],
+                // limit: 1,
                 where: {},
                 include: [
                     {
@@ -200,7 +221,7 @@ exports.__controllerStocks = {
                         model: model_cooperatives_1.Cooperatives,
                         required: true,
                         where: {
-                            id: idcooperative
+                            id: parseInt(idcooperative)
                         },
                         attributes: ['id', 'coordonnees_gps', 'phone', 'num_enregistrement', 'email', 'sigle', 'cooperative', 'description']
                     }
@@ -213,14 +234,20 @@ exports.__controllerStocks = {
                     const { __tbl_ecom_produits } = rows[index].toJSON();
                     for (let index = 0; index < __tbl_ecom_produits.length; index++) {
                         const { id, produit, __tbl_ecom_hasproducts } = __tbl_ecom_produits[index];
-                        const { TblEcomProduitId, TblEcomCategoryId } = __tbl_ecom_hasproducts;
+                        const { TblEcomProduitId, TblEcomCategoryId, TblEcomUnitesmesureId } = __tbl_ecom_hasproducts;
                         const cat = yield model_categories_1.Categories.findOne({
                             // raw: true,
                             where: {
                                 id: TblEcomCategoryId
                             }
                         });
-                        items.push(Object.assign(Object.assign({}, __tbl_ecom_produits[index]), { __tbl_ecom_categories: cat === null || cat === void 0 ? void 0 : cat.toJSON() }));
+                        const uni = yield model_unitemesures_1.Unites.findOne({
+                            // raw: true,
+                            where: {
+                                id: TblEcomUnitesmesureId
+                            }
+                        });
+                        items.push(Object.assign(Object.assign({}, __tbl_ecom_produits[index]), { __tbl_ecom_categories: cat === null || cat === void 0 ? void 0 : cat.toJSON(), __tbl_ecom_unitesmesures: uni === null || uni === void 0 ? void 0 : uni.toJSON() }));
                     }
                     __.push(Object.assign(Object.assign({}, rows[index].toJSON()), { __tbl_ecom_produits: [...items] }));
                 }
@@ -232,6 +259,7 @@ exports.__controllerStocks = {
             });
         }
         catch (error) {
+            (0, console_1.log)(error);
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
         }
     }),
@@ -270,14 +298,20 @@ exports.__controllerStocks = {
                     const { __tbl_ecom_produits } = rows[index].toJSON();
                     for (let index = 0; index < __tbl_ecom_produits.length; index++) {
                         const { id, produit, __tbl_ecom_hasproducts } = __tbl_ecom_produits[index];
-                        const { TblEcomProduitId, TblEcomCategoryId } = __tbl_ecom_hasproducts;
+                        const { TblEcomProduitId, TblEcomCategoryId, TblEcomUnitesmesureId } = __tbl_ecom_hasproducts;
                         const cat = yield model_categories_1.Categories.findOne({
                             // raw: true,
                             where: {
                                 id: TblEcomCategoryId
                             }
                         });
-                        items.push(Object.assign(Object.assign({}, __tbl_ecom_produits[index]), { __tbl_ecom_categories: cat === null || cat === void 0 ? void 0 : cat.toJSON() }));
+                        const uni = yield model_unitemesures_1.Unites.findOne({
+                            // raw: true,
+                            where: {
+                                id: TblEcomUnitesmesureId
+                            }
+                        });
+                        items.push(Object.assign(Object.assign({}, __tbl_ecom_produits[index]), { __tbl_ecom_categories: cat === null || cat === void 0 ? void 0 : cat.toJSON(), __tbl_ecom_unitesmesures: uni === null || uni === void 0 ? void 0 : uni.toJSON() }));
                     }
                     __.push(Object.assign(Object.assign({}, rows[index].toJSON()), { __tbl_ecom_produits: [...items] }));
                 }
