@@ -179,7 +179,8 @@ export interface ICommande extends globalInterface {
     payament_phone: string,
     is_pending: number,
     state: number,
-    createdby: number
+    createdby: number,
+    shipped_to: string
 }
 
 export interface IExtras extends globalInterface {

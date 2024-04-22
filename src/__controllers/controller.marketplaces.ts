@@ -21,9 +21,11 @@ export const __controllerMarketplace = {
     placecommand: async (req: Request, res: Response, next: NextFunction) => {
         const { currentuser } = req as any;
         const { __id, roles, uuid } = currentuser;
-        const { items, type_livraison, payament_phone, currency_payement } = req.body;
+        const { items, type_livraison, payament_phone, currency_payement, shipped_to } = req.body;
         if (!items || !Array.isArray(items) || !type_livraison) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least items and can not be empty ! and type_livraison");
-
+        if (type_livraison === 4) {
+            if (!shipped_to) return Responder(res, HttpStatusCode.NotAcceptable, "please provide the shipped_to as addresse !")
+        }
         try {
             const treated: any[] = []
             const c_treated: any[] = []
@@ -102,6 +104,7 @@ export const __controllerMarketplace = {
                             const cmmd = await Commandes.create({
                                 id_produit: id,
                                 is_pending: 1,
+                                shipped_to: parseInt(type_livraison) === 4 ? shipped_to : "---",
                                 payament_phone: payament_phone || phone,
                                 currency: converted_currency,
                                 prix_total: converted_price,

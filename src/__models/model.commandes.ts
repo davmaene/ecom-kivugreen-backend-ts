@@ -1,6 +1,13 @@
 import { DataTypes, Model } from 'sequelize'
 import { connect } from '../__databases/connecte'
 import { ICommande } from '../__enums/enum.interfacemodels';
+import { now } from '../__helpers/helper.moment';
+
+import dotenv from 'dotenv';
+
+dotenv.config()
+
+const { APP_ESCAPESTRING } = process.env
 
 export interface Commande extends Model<ICommande>, ICommande { }
 
@@ -22,7 +29,17 @@ export const Commandes = connect.define<Commande>('__tbl_ecom_commandes', {
     description: DataTypes.STRING,
     is_pending: DataTypes.INTEGER,
     state: DataTypes.INTEGER,
-    createdby: DataTypes.INTEGER
+    createdby: DataTypes.INTEGER,
+    shipped_to: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: APP_ESCAPESTRING
+    },
+    createdAt: {
+        type: DataTypes.STRING,
+        defaultValue: now({ options: {} }),
+        allowNull: true
+    }
 
 }, { paranoid: true, timestamps: false, freezeTableName: true });
 
