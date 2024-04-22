@@ -80,19 +80,7 @@ export const __controllerUsers = {
             })
                 .then(async user => {
                     if (user instanceof Users) {
-                        const { password: aspassword, isvalidated, __tbl_ecom_roles, id } = user.toJSON() as any;
-                        const extras = await Extras.findOne({
-                            where: {
-                                id_user: id
-                            }
-                        })
-                        const roles = Array.from(__tbl_ecom_roles).map((role: any) => role['id']);
-                        if ((Array.from(roles).some(r => role.includes(r))) && (extras instanceof Extras)) {
-                            log(user)
-                        } else {
-                            transaction.rollback()
-                            return Responder(res, HttpStatusCode.Unauthorized, "You dont have right access please contact admin system !")
-                        }
+                        
                     } else {
                         transaction.rollback()
                         return Responder(res, HttpStatusCode.Forbidden, "Phone | Email or Password incorrect !")
