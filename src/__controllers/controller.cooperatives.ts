@@ -171,72 +171,85 @@ export const __controllerCooperatives = {
             })
 
             if (coopec instanceof Cooperatives) {
-                const { adresse, cooperative, num_enregistrement } = coopec.toJSON() as any
-                Services.addMembersToCoopec({
-                    inputs: {
-                        idcooperative: parseInt(id_cooperative),
-                        idmembers: [...ids_members],
-                    },
-                    transaction: null,
-                    cb: async (err: any, done: any) => {
-                        if (done) {
-                            const { code, message, data } = done;
+                const { adresse, cooperative, num_enregistrement } = coopec.toJSON() as any;
+                const treated: any[] = []
+                for (let index = 0; index < Array.from(ids_members).length; index++) {
+                    const id_membre: number = ids_members[index]
+                    Services.onGenerateCardMember({
+                        id_cooperative: id_cooperative,
+                        id_user: id_membre || index
+                    })
+                        .then(async ({ code, message, data }) => {
+                            log("Generated card is =======> ", data)
                             if (code === 200) {
-                                const treated: any[] = []
-                                for (let index = 0; index < Array.from(data).length; index++) {
-                                    const { TblEcomCooperativeId: ascoopec, TblEcomUserId: asuser } = Array.from(data)[index] as any;
-                                    const member = await Users.findOne({ where: { id: parseInt(asuser) } })
-                                    if (member instanceof Users) {
-                                        const { phone, email, id, nom } = member.toJSON() as any
-                                        Services.onGenerateCardMember({
-                                            id_cooperative: ascoopec,
-                                            id_user: asuser
-                                        })
-                                            .then(async ({ code, message, data }) => {
-                                                log("Generated card is =======> ", data)
-                                                if (code === 200) {
-                                                    const { card, expiresInString, expiresInUnix } = data
-                                                    const [ext, isnew] = await Extras.findOrCreate({
-                                                        where: {
-                                                            id_user: id,
-                                                        },
-                                                        defaults: {
-                                                            id_user: id,
-                                                            carte: String(card),
-                                                            date_expiration: expiresInString,
-                                                            date_expiration_unix: expiresInUnix.toString(),
-                                                        }
-                                                    })
-                                                    if (ext instanceof Extras) {
-                                                        Services.onSendSMS({
-                                                            to: fillphone({ phone }),
-                                                            is_flash: false,
-                                                            content: `Bonjour ${nom}, votre enregistrement dans la coopérative ${cooperative} en date du ${now({ options: {} })}, votre carte de membre sera expiré le ${expiresInString.toString()}`
+                                const { card, expiresInString, expiresInUnix } = data
+
+                                Services.addMemberToCoopec({
+                                    inputs: {
+                                        idcooperative: parseInt(id_cooperative),
+                                        idmember: id_membre || index,
+                                        card,
+                                        expiresIn: expiresInString,
+                                        expiresInUnix: expiresInUnix.toString()
+                                    },
+                                    transaction: null,
+                                    cb: async (err: any, done: any) => {
+                                        if (done) {
+                                            const { code, message, data } = done;
+                                            if (code === 200) {
+                                                const treated: any[] = []
+                                                for (let index = 0; index < Array.from(data).length; index++) {
+                                                    const { TblEcomCooperativeId: ascoopec, TblEcomUserId: asuser } = Array.from(data)[index] as any;
+                                                    const member = await Users.findOne({ where: { id: parseInt(asuser) } })
+                                                    if (member instanceof Users) {
+                                                        const { phone, email, id, nom } = member.toJSON() as any
+                                                        Services.onGenerateCardMember({
+                                                            id_cooperative: ascoopec,
+                                                            id_user: asuser
                                                         })
-                                                            .then(m => { })
-                                                            .catch(e => { })
-                                                        treated.push(ext.toJSON())
+                                                            .then(async ({ code, message, data }) => {
+                                                                log("Generated card is =======> ", data)
+                                                                if (code === 200) {
+                                                                    const { card, expiresInString, expiresInUnix } = data
+                                                                    if (1) {
+                                                                        Services.onSendSMS({
+                                                                            to: fillphone({ phone }),
+                                                                            is_flash: false,
+                                                                            content: `Bonjour ${nom}, votre enregistrement dans la coopérative ${cooperative} en date du ${now({ options: {} })} a réussi, votre carte de membre sera expiré le ${expiresInString.toString()}`
+                                                                        })
+                                                                            .then(m => { })
+                                                                            .catch(e => { })
+                                                                        // treated.push(ext.toJSON())
+                                                                    }
+                                                                } else { }
+                                                            })
+                                                            .catch((err) => {
+                                                                log("Error on generating card member of ==> ", ascoopec, asuser, err)
+                                                            })
+                                                    } else {
+                                                        log("Error on generating card member of ==> user not initialized ", ascoopec, asuser, err)
                                                     }
-                                                } else { }
-                                            })
-                                            .catch((err) => {
-                                                log("Error on generating card member of ==> ", ascoopec, asuser, err)
-                                            })
-                                    } else {
-                                        log("Error on generating card member of ==> user not initialized ", ascoopec, asuser, err)
+                                                }
+                                                return Responder(res, HttpStatusCode.Ok, treated)
+                                            } else {
+                                                log(data)
+                                                return Responder(res, HttpStatusCode.InternalServerError, "Error on initializing members table !")
+                                            }
+                                        } else {
+                                            log(done)
+                                            return Responder(res, HttpStatusCode.InternalServerError, "Error on initializing members table ! ===")
+                                        }
                                     }
-                                }
-                                return Responder(res, HttpStatusCode.Ok, treated)
+                                })
+
                             } else {
-                                log(data)
-                                return Responder(res, HttpStatusCode.InternalServerError, "Error on initializing members table !")
+                                return Responder(res, HttpStatusCode.BadRequest, `The request can not be proceded cause the card can not be initialized !`)
                             }
-                        } else {
-                            log(done)
-                            return Responder(res, HttpStatusCode.InternalServerError, "Error on initializing members table ! ===")
-                        }
-                    }
-                })
+                        })
+                        .catch(err => {
+                            return Responder(res, HttpStatusCode.InternalServerError, err.toString())
+                        })
+                }
             } else {
                 return Responder(res, HttpStatusCode.NotFound, `We can not process with this request cause ${id_cooperative}has not corres in Coopes table`)
             }

@@ -112,7 +112,7 @@ export const __controllerUsers = {
                         const idroles: number[] = [5]
                         Users.create({
                             phone: fillphone({ phone }),
-                            password: pwd
+                            password: pwd,
                         })
                             .then(async newuser => {
                                 if (newuser instanceof Users) {

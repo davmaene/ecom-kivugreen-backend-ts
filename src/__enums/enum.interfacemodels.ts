@@ -62,7 +62,10 @@ export interface IProduit extends globalInterface {
 
 export interface IHasmember extends globalInterface {
     TblEcomUserId: number,
-    TblEcomCooperativeId: number
+    TblEcomCooperativeId: number,
+    carte: string,
+    date_expiration: string,
+    date_expiration_unix: string,
 }
 
 export interface IHasproducts extends globalInterface {

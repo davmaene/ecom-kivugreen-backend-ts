@@ -3,6 +3,12 @@ import { connect } from '../__databases/connecte'
 import { IHasmember, IHasrole, IRoles, IUsers } from '__enums/enum.interfacemodels';
 import { Roles } from './model.roles';
 import { Users } from './model.users';
+import { randomLongNumber } from '../__helpers/helper.random';
+import dotenv from 'dotenv';
+
+dotenv.config()
+
+const { APP_ESCAPESTRING } = process.env
 
 export interface Hasmember extends Model<IHasmember>, IHasmember { }
 
@@ -12,6 +18,22 @@ export const Hasmembers = connect.define<Hasmember>('__tbl_ecom_hasmembers', {
         primaryKey: true,
         autoIncrement: true,
         allowNull: true,
+    },
+    carte: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        unique: true,
+        defaultValue: randomLongNumber({ length: 19 })
+    },
+    date_expiration: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: APP_ESCAPESTRING
+    },
+    date_expiration_unix: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: APP_ESCAPESTRING
     },
     TblEcomUserId: {
         type: DataTypes.INTEGER,
