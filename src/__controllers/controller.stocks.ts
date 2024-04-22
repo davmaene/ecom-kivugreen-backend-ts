@@ -55,7 +55,7 @@ export const __controllerStocks = {
                                             }
                                         })
                                         if (prd instanceof Produits) {
-                                            const { id, produit, id_unity, id_category, id_souscategory, image } = prd.toJSON() as any
+                                            const { id, produit, id_unity, id_category, id_souscategory, image, tva } = prd.toJSON() as any
                                             const { id: asstockid } = stock.toJSON() as any;
                                             if (produit && id_category && id_unity) {
                                                 const [item, created] = await Hasproducts.findOrCreate({
@@ -64,8 +64,9 @@ export const __controllerStocks = {
                                                         TblEcomCooperativeId: id_ccoperative
                                                     },
                                                     defaults: {
-                                                        prix_plus_commission: prix_unitaire + (prix_unitaire * parseFloat(commission_price)),
+                                                        prix_plus_commission: prix_unitaire + (prix_unitaire * parseFloat(commission_price)) + (prix_unitaire * parseFloat(tva)),
                                                         currency,
+                                                        tva,
                                                         prix_unitaire,
                                                         date_production: asdate_production,
                                                         TblEcomCategoryId: id_category,

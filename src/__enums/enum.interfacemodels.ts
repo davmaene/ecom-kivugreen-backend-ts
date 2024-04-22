@@ -75,6 +75,7 @@ export interface IHasproducts extends globalInterface {
     currency: string,
     date_production: string,
     qte: number,
+    tva: number,
     TblEcomProduitId: number,
     TblEcomCategoryId: number,
     TblEcomUnitesmesureId: number,

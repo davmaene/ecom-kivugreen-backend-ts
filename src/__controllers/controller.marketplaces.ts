@@ -93,10 +93,10 @@ export const __controllerMarketplace = {
                 if (treated.length > 0) {
                     const somme: number[] = []
                     for (let index = 0; index < treated.length; index++) {
-                        const { id, qte, prix_unitaire, currency, __tbl_ecom_cooperative, __tbl_ecom_stock, __tbl_ecom_unitesmesure, __tbl_ecom_produit }: any = treated[index] as any;
+                        const { id, qte, prix_unitaire, currency, __tbl_ecom_cooperative, __tbl_ecom_stock, prix_plus_commission, __tbl_ecom_unitesmesure, __tbl_ecom_produit, tva }: any = treated[index] as any;
                         const { produit } = __tbl_ecom_produit
                         const { unity } = __tbl_ecom_unitesmesure
-                        let price: number = parseFloat(prix_unitaire) * parseFloat(qte)
+                        let price: number = (parseFloat(prix_plus_commission) * parseFloat(qte))
                         let { code, data, message } = await Services.converterDevise({ amount: price, currency: currency_payement || currency });
                         if (code === 200) {
                             const { amount: converted_price, currency: converted_currency } = data

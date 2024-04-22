@@ -16,6 +16,10 @@ export const Hasproducts = connect.define<Hasproduit>('__tbl_ecom_hasproducts', 
         autoIncrement: true,
         allowNull: true,
     },
+    tva: {
+        type: DataTypes.FLOAT,
+        defaultValue: 0
+    },
     id_membre: DataTypes.INTEGER,
     date_production: DataTypes.STRING,
     qte: DataTypes.INTEGER,
