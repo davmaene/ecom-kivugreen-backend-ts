@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.groupArrayElementByColumn = exports.formatUserModel = exports.capitalizeWords = exports.truncatestring = exports.groupArrayByPairs = void 0;
+exports.groupArrayElementByColumn = exports.formatUserModel = exports.capitalizeWords = exports.truncatestring = exports.checkFileType = exports.imageTypes = exports.groupArrayByPairs = void 0;
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const { APP_ESCAPESTRING: ESCAPESTRING } = process.env;
@@ -20,6 +20,47 @@ const groupArrayByPairs = ({ array }) => {
     return groupedArray;
 };
 exports.groupArrayByPairs = groupArrayByPairs;
+exports.imageTypes = [
+    { fileType: "JPEG", mimeType: "image/jpeg" },
+    { fileType: "PNG", mimeType: "image/png" },
+    { fileType: "GIF", mimeType: "image/gif" },
+    { fileType: "BMP", mimeType: "image/bmp" },
+    { fileType: "TIFF", mimeType: "image/tiff" },
+    { fileType: "SVG", mimeType: "image/svg+xml" },
+    { fileType: "WEBP", mimeType: "image/webp" },
+    // { fileType: "ICO", mimeType: "image/x-icon" },
+    // { fileType: "PSD", mimeType: "image/vnd.adobe.photoshop" },
+    // { fileType: "EPS", mimeType: "image/eps" }
+];
+const documentTypes = [
+    { fileType: "PDF", mimeType: "application/pdf" },
+    { fileType: "DOCX", mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" },
+    { fileType: "DOC", mimeType: "application/msword" },
+    { fileType: "ODT", mimeType: "application/vnd.oasis.opendocument.text" },
+    { fileType: "RTF", mimeType: "application/rtf" },
+    { fileType: "TXT", mimeType: "text/plain" },
+    { fileType: "CSV", mimeType: "text/csv" },
+    { fileType: "XLSX", mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" },
+    { fileType: "XLS", mimeType: "application/vnd.ms-excel" },
+    { fileType: "PPTX", mimeType: "application/vnd.openxmlformats-officedocument.presentationml.presentation" },
+    { fileType: "PPT", mimeType: "application/vnd.ms-powerpoint" },
+    { fileType: "ODP", mimeType: "application/vnd.oasis.opendocument.presentation" },
+    // { fileType: "HTML", mimeType: "text/html" },
+    // { fileType: "XML", mimeType: "application/xml" },
+    // { fileType: "JSON", mimeType: "application/json" }
+];
+const checkFileType = ({ mimetype, as = "doc" || "img" }) => {
+    if (exports.imageTypes.map(type => type['mimeType']).includes(mimetype) && as === "img") {
+        return { isKnownType: true, mimetype };
+    }
+    else if (documentTypes.map(type => type['mimeType']).includes(mimetype) && as === "doc") {
+        return { isKnownType: true, mimetype };
+    }
+    else {
+        return false;
+    }
+};
+exports.checkFileType = checkFileType;
 const truncatestring = ({ string, separator }) => {
     return string.substring(0, string.lastIndexOf(separator));
 };

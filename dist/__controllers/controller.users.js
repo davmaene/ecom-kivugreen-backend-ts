@@ -1131,7 +1131,7 @@ exports.__controllerUsers = {
         const { iduser } = req.params;
         if (!iduser)
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "This request must have at least iduser as param !");
-        if (Object.keys(req.body).length > 0)
+        if (Object.keys(req.body).length <= 0)
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "The should not be empty");
         try {
             model_users_1.Users.update(Object.assign({}, req.body), {

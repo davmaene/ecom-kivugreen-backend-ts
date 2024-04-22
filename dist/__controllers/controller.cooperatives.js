@@ -24,6 +24,7 @@ const helper_moment_1 = require("../__helpers/helper.moment");
 const model_provinces_1 = require("../__models/model.provinces");
 const model_territoires_1 = require("../__models/model.territoires");
 const services_images_1 = require("../__services/services.images");
+const helper_all_1 = require("../__helpers/helper.all");
 exports.__controllerCooperatives = {
     list: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
@@ -128,6 +129,10 @@ exports.__controllerCooperatives = {
             payload['id_adjoint'] = parseInt(payload['id_adjoint']);
             payload['id_territoire'] = parseInt(payload['id_territoire']);
             if (!logo)
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "Please provide the cooperative's logo as image file");
+            const { mimetype } = req['files']['logo'];
+            const type = (0, helper_all_1.checkFileType)({ as: 'img', mimetype });
+            if (!type)
                 return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "Please provide the cooperative's logo as image file");
             services_images_1.ServiceImage.onUploadImage({
                 inputs: {
