@@ -1,1 +1,0 @@
-::ffff:127.0.0.1 - - [22/Apr/2024:09:38:12 +0000] "GET /api/members/list/bycooperative/2 HTTP/1.1" 500 1024 "-" "PostmanRuntime/7.37.3"
