@@ -126,6 +126,7 @@ export const creditModelValidator = [
 ]
 
 export const produitValidator = [
+    body('tva').optional().isNumeric().withMessage("Please provide the value of the tva as a number !"),
     body('produit').notEmpty().isString().withMessage("the name of the `produit` is required and it can not be empty !"),
     body('description').notEmpty().isString().withMessage("`description` is required and it can not be empty !"),
     body('id_unity').notEmpty().isNumeric().withMessage("`id_unity` is required and it can not be empty !"),

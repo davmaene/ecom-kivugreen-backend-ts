@@ -51,6 +51,7 @@ export interface IUnite extends globalInterface {
 
 export interface IProduit extends globalInterface {
     produit: string,
+    tva: number,
     description?: string,
     id_unity?: number,
     image: string,
