@@ -87,7 +87,7 @@ export const __controllerUsers = {
                         })
                         const roles = Array.from(__tbl_ecom_roles).map((role: any) => role['id']);
                         if ((Array.from(roles).some(r => role.includes(r))) && (extras instanceof Extras)) {
-                            
+                            log(user)
                         } else {
                             transaction.rollback()
                             return Responder(res, HttpStatusCode.Unauthorized, "You dont have right access please contact admin system !")
@@ -97,8 +97,12 @@ export const __controllerUsers = {
                         return Responder(res, HttpStatusCode.Forbidden, "Phone | Email or Password incorrect !")
                     }
                 })
-                .catch(err => Responder(res, HttpStatusCode.Conflict, err))
+                .catch(err => {
+                    log(err)
+                    return Responder(res, HttpStatusCode.Conflict, err)
+                })
         } catch (error) {
+            log(error)
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     },
