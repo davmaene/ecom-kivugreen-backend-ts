@@ -1,6 +1,7 @@
 import { DataTypes, Model } from 'sequelize'
 import { connect } from '../__databases/connecte'
 import { IUsers } from '__enums/enum.interfacemodels';
+import { v4 as uuidv4 } from 'uuid';
 
 export interface User extends Model<IUsers>, IUsers { }
 
@@ -32,14 +33,19 @@ export const Users = connect.define<User>('__tbl_ecom_users', {
     idprovince: DataTypes.STRING,
     idterritoire: DataTypes.STRING,
     idvillage: DataTypes.STRING,
-    hectare_cultive: DataTypes.STRING,
+    hectare_cultive: {
+        type: DataTypes.STRING,
+        defaultValue: 0
+    },
     isvalidated: {
         type: DataTypes.INTEGER,
         defaultValue: 0
     },
-    uuid: DataTypes.STRING,
+    uuid: {
+        type: DataTypes.STRING,
+        defaultValue: uuidv4()
+    },
     password: DataTypes.STRING
-
 }, {
     paranoid: false,
     timestamps: true,

@@ -1610,7 +1610,7 @@ export const Services = {
             else reject({ code: 500, message: " --- can not encode card ", data: {} })
         })
     },
-    addMembersToCoopec: async ({ inputs: { idmembers, idcooperative }, transaction, cb }: { inputs: { idmembers?: number[], idcooperative: number }, transaction: any, cb: Function }) => {
+    addMembersToCoopec: async ({ inputs: { idmembers, idcooperative, expiresIn, expiresInUnix, card }, transaction, cb }: { inputs: { idmembers?: number[], idcooperative: number, card: string, expiresIn: string, expiresInUnix: string }, transaction: any, cb: Function }) => {
         if (!idmembers || !idcooperative) return cb(undefined, { code: 401, message: "This request must have at least !", data: { idmembers, idcooperative } });
         try {
             if (Array.isArray(idmembers)) {
@@ -1619,11 +1619,32 @@ export const Services = {
                     const r = await Hasmembers.create({
                         id: parseInt(randomLongNumber({ length: 6 })),
                         TblEcomCooperativeId: idcooperative,
-                        TblEcomUserId: member
+                        TblEcomUserId: member,
+                        carte: card,
+                        date_expiration: expiresIn,
+                        date_expiration_unix: expiresInUnix
                     }, { transaction })
                     done.push(r)
                 }
                 return cb(undefined, { code: 200, message: "Done", data: done })
+            }
+        } catch (error) {
+            return cb(undefined, { code: 500, message: "Error", data: error })
+        }
+    },
+    addMemberToCoopec: async ({ inputs: { idmember, idcooperative, expiresIn, expiresInUnix, card }, transaction, cb }: { inputs: { idmember?: number, idcooperative: number, card: string, expiresIn: string, expiresInUnix: string }, transaction: any, cb: Function }) => {
+        if (!idmember || !idcooperative) return cb(undefined, { code: 401, message: "This request must have at least !", data: { idmember, idcooperative } });
+        try {
+            if (idmember) {
+                const member = await Hasmembers.create({
+                    id: parseInt(randomLongNumber({ length: 6 })),
+                    TblEcomCooperativeId: idcooperative,
+                    TblEcomUserId: idmember,
+                    carte: card,
+                    date_expiration: expiresIn,
+                    date_expiration_unix: expiresInUnix
+                }, { transaction })
+                return cb(undefined, { code: 200, message: "Done", data: member })
             }
         } catch (error) {
             return cb(undefined, { code: 500, message: "Error", data: error })

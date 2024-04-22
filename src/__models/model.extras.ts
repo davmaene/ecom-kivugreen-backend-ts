@@ -17,22 +17,22 @@ export const Extras = connect.define<Extra>('__tbl_ecom_extras', { // as carte m
         autoIncrement: true,
         allowNull: true
     },
-    carte: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        unique: true,
-        defaultValue: randomLongNumber({ length: 19 })
-    },
-    date_expiration: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        defaultValue: APP_ESCAPESTRING
-    },
-    date_expiration_unix: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        defaultValue: APP_ESCAPESTRING
-    },
+    // carte: {
+    //     type: DataTypes.STRING,
+    //     allowNull: true,
+    //     unique: true,
+    //     defaultValue: randomLongNumber({ length: 19 })
+    // },
+    // date_expiration: {
+    //     type: DataTypes.STRING,
+    //     allowNull: true,
+    //     defaultValue: APP_ESCAPESTRING
+    // },
+    // date_expiration_unix: {
+    //     type: DataTypes.STRING,
+    //     allowNull: true,
+    //     defaultValue: APP_ESCAPESTRING
+    // },
     id_user: {
         type: DataTypes.INTEGER,
         allowNull: false,

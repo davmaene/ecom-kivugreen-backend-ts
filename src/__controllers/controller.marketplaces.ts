@@ -21,9 +21,11 @@ export const __controllerMarketplace = {
     placecommand: async (req: Request, res: Response, next: NextFunction) => {
         const { currentuser } = req as any;
         const { __id, roles, uuid } = currentuser;
-        const { items, type_livraison, payament_phone, currency_payement } = req.body;
+        const { items, type_livraison, payament_phone, currency_payement, shipped_to } = req.body;
         if (!items || !Array.isArray(items) || !type_livraison) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least items and can not be empty ! and type_livraison");
-
+        if (type_livraison === 4) {
+            if (!shipped_to) return Responder(res, HttpStatusCode.NotAcceptable, "please provide the shipped_to as addresse !")
+        }
         try {
             const treated: any[] = []
             const c_treated: any[] = []
@@ -91,10 +93,10 @@ export const __controllerMarketplace = {
                 if (treated.length > 0) {
                     const somme: number[] = []
                     for (let index = 0; index < treated.length; index++) {
-                        const { id, qte, prix_unitaire, currency, __tbl_ecom_cooperative, __tbl_ecom_stock, __tbl_ecom_unitesmesure, __tbl_ecom_produit }: any = treated[index] as any;
+                        const { id, qte, prix_unitaire, currency, __tbl_ecom_cooperative, __tbl_ecom_stock, prix_plus_commission, __tbl_ecom_unitesmesure, __tbl_ecom_produit, tva }: any = treated[index] as any;
                         const { produit } = __tbl_ecom_produit
                         const { unity } = __tbl_ecom_unitesmesure
-                        let price: number = parseFloat(prix_unitaire) * parseFloat(qte)
+                        let price: number = (parseFloat(prix_plus_commission) * parseFloat(qte))
                         let { code, data, message } = await Services.converterDevise({ amount: price, currency: currency_payement || currency });
                         if (code === 200) {
                             const { amount: converted_price, currency: converted_currency } = data
@@ -102,6 +104,7 @@ export const __controllerMarketplace = {
                             const cmmd = await Commandes.create({
                                 id_produit: id,
                                 is_pending: 1,
+                                shipped_to: parseInt(type_livraison) === 4 ? shipped_to : "---",
                                 payament_phone: payament_phone || phone,
                                 currency: converted_currency,
                                 prix_total: converted_price,

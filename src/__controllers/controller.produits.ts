@@ -11,7 +11,7 @@ import { Unites } from "../__models/model.unitemesures";
 
 export const __controllerProduits = {
     add: async (req: Request, res: Response, next: NextFunction) => {
-        const { id_unity, id_category, id_souscategory, description, produit } = req.body;
+        const { id_unity, id_category, id_souscategory, description, produit, tva } = req.body;
         const { currentuser } = req as any;
         const { __id, roles, uuid, phone } = currentuser
         if (!req.files) return Responder(res, HttpStatusCode.NotAcceptable, "Please provide the image file for the product !")
@@ -30,6 +30,7 @@ export const __controllerProduits = {
                         if (code === 200) {
                             const { filename, fullpath: slink } = data
                             Produits.create({
+                                tva: tva ? (tva / 100) : .16,
                                 produit: capitalizeWords({ text: produit }),
                                 image: slink,
                                 id_unity: parseInt(id_unity),
@@ -59,6 +60,7 @@ export const __controllerProduits = {
                                         if (code === 200) {
                                             const { filename, path } = data
                                             Produits.create({
+                                                tva: (tva / 100),
                                                 produit: capitalizeWords({ text: produit }),
                                                 image: path,
                                                 id_unity: parseInt(id_unity),
@@ -101,7 +103,7 @@ export const __controllerProduits = {
             Produits.belongsTo(Unites, { foreignKey: "id_unity" })
             Produits.findAndCountAll({
                 where: {},
-                include:[
+                include: [
                     {
                         model: Unites,
                         required: true

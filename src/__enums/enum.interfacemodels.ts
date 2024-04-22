@@ -51,6 +51,7 @@ export interface IUnite extends globalInterface {
 
 export interface IProduit extends globalInterface {
     produit: string,
+    tva: number,
     description?: string,
     id_unity?: number,
     image: string,
@@ -61,7 +62,10 @@ export interface IProduit extends globalInterface {
 
 export interface IHasmember extends globalInterface {
     TblEcomUserId: number,
-    TblEcomCooperativeId: number
+    TblEcomCooperativeId: number,
+    carte: string,
+    date_expiration: string,
+    date_expiration_unix: string,
 }
 
 export interface IHasproducts extends globalInterface {
@@ -71,6 +75,7 @@ export interface IHasproducts extends globalInterface {
     currency: string,
     date_production: string,
     qte: number,
+    tva: number,
     TblEcomProduitId: number,
     TblEcomCategoryId: number,
     TblEcomUnitesmesureId: number,
@@ -175,7 +180,8 @@ export interface ICommande extends globalInterface {
     payament_phone: string,
     is_pending: number,
     state: number,
-    createdby: number
+    createdby: number,
+    shipped_to: string
 }
 
 export interface IExtras extends globalInterface {

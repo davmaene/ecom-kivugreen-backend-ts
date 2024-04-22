@@ -8,6 +8,7 @@ import { Sequelize } from "sequelize";
 import { log } from "console";
 
 export const __controllerCommandes = {
+    
     listcommandebytransaction: async (req: Request, res: Response) => {
         const { currentuser } = req as any;
         const { idtransaction } = req.params

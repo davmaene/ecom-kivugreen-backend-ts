@@ -27,9 +27,162 @@ dotenv.config()
 const { APP_EXIPRES_IN_ADMIN, APP_EXIPRES_IN_ALL, APP_ESCAPESTRING, APP_NAME } = process.env
 
 export const __controllerUsers = {
+    otp: async (req: Request, res: Response, next: NextFunction) => {
+        const { phone, password } = req.body;
+        const role = [1, 3, 2, 4, 5]// allowed roles to connect 
+        if (!phone) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !phone")
+
+        try {
+
+            const transaction = await connect.transaction();
+
+            Users.belongsToMany(Roles, { through: Hasroles });
+            Roles.belongsToMany(Users, { through: Hasroles });
+
+            Provinces.hasOne(Users, { foreignKey: "id" });
+            Users.belongsTo(Provinces, { foreignKey: "idprovince" });
+
+            Territoires.hasOne(Users, { foreignKey: "id" });
+            Users.belongsTo(Territoires, { foreignKey: "idterritoire" });
+
+            Villages.hasOne(Users, { foreignKey: "id" });
+            Users.belongsTo(Villages, { foreignKey: "idvillage" });
+
+            Users.findOne({
+                where: {
+                    [Op.or]: [
+                        { email: phone },
+                        { phone: fillphone({ phone }) }
+                    ]
+                },
+                include: [
+                    {
+                        model: Roles,
+                        required: true,
+                        attributes: ['id', 'role']
+                    },
+                    {
+                        model: Provinces,
+                        required: false,
+                        attributes: ['id', 'province']
+                    },
+                    {
+                        model: Territoires,
+                        required: false,
+                        attributes: ['id', 'territoire']
+                    },
+                    {
+                        model: Villages,
+                        required: false,
+                        attributes: ['id', 'village']
+                    }
+                ]
+            })
+                .then(async user => {
+                    if (user instanceof Users) {
+                        const { password: aspassword, isvalidated, __tbl_ecom_roles, id, phone: asphone, uuid, nom, postnom } = user.toJSON() as any;
+                        const extras = await Extras.findOne({
+                            where: {
+                                id_user: id
+                            }
+                        })
+                        const roles = Array.from(__tbl_ecom_roles).map((role: any) => role['id']);
+                        if ((Array.from(roles).some(r => role.includes(r))) && (extras instanceof Extras)) {
+                            const { verification } = extras.toJSON() as any
+                            Services.onSendSMS({
+                                is_flash: false,
+                                to: fillphone({ phone }),
+                                content: `Bonjour ${capitalizeWords({ text: nom })} nous avons reçu une demande de connexion à votre compte utilisez ce code pour la vérification ${verification}`,
+                            })
+                                .then(suc => {
+                                    transaction.commit()
+                                    return Responder(res, HttpStatusCode.Created, `A verification code was sent to ${asphone}`)
+                                })
+                                .catch(err => {
+                                    transaction.rollback()
+                                    return Responder(res, HttpStatusCode.InternalServerError, extras)
+                                })
+                        } else {
+                            transaction.rollback()
+                            return Responder(res, HttpStatusCode.Unauthorized, "You dont have right access please contact admin system !")
+                        }
+                    } else {
+                        const code_verfify = randomLongNumber({ length: 6 });
+                        const pwd = await hashPWD({ plaintext: code_verfify });
+                        const idroles: number[] = [5]
+                        Users.create({
+                            phone: fillphone({ phone }),
+                            password: pwd,
+                        })
+                            .then(async newuser => {
+                                if (newuser instanceof Users) {
+                                    const { nom, phone: asphone, id } = newuser.toJSON()
+                                    Services.addRoleToUser({
+                                        inputs: {
+                                            idroles,
+                                            iduser: id
+                                        },
+                                        transaction,
+                                        cb: (err: any, done: any) => {
+                                            if (done) {
+                                                const { code } = done;
+                                                if (code === 200) {
+                                                    Extras.create({
+                                                        verification: code_verfify,
+                                                        id_user: id
+                                                    })
+                                                        .then(ext => {
+                                                            if (ext instanceof Extras) {
+                                                                Services.onSendSMS({
+                                                                    is_flash: false,
+                                                                    to: fillphone({ phone: asphone }),
+                                                                    content: `Bonjour cher client votre compte a été crée avec succès. Ceci est votre code de vérification ${code_verfify}`,
+                                                                })
+                                                                    .then(suc => {
+                                                                        transaction.commit()
+                                                                        return Responder(res, HttpStatusCode.Created, `A verification code was sent to user ${asphone}`)
+                                                                    })
+                                                                    .catch(err => {
+                                                                        transaction.rollback()
+                                                                        return Responder(res, HttpStatusCode.InternalServerError, err)
+                                                                    })
+                                                            } else {
+                                                                transaction.rollback()
+                                                                return Responder(res, HttpStatusCode.Conflict, "Extras table was not succefuly initialized !")
+                                                            }
+                                                        })
+                                                        .catch(er => {
+                                                            transaction.rollback()
+                                                            return Responder(res, HttpStatusCode.Conflict, "Extras table was not succefuly initialized !")
+                                                        })
+                                                }
+                                            }
+                                        }
+                                    })
+                                } else {
+                                    transaction.rollback()
+                                    return Responder(res, HttpStatusCode.Forbidden, "Item user was not successfuly initialized !")
+                                }
+                            })
+                            .catch(err => {
+                                transaction.rollback()
+                                return Responder(res, HttpStatusCode.Forbidden, err.toString())
+                            })
+                    }
+                })
+                .catch(err => {
+                    log(err)
+                    return Responder(res, HttpStatusCode.Conflict, err)
+                })
+        } catch (error) {
+            log(error)
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
     signin: async (req: Request, res: Response, next: NextFunction) => {
         const { phone, password } = req.body;
         const role = [1, 3, 2, 4, 5]// allowed roles to connect 
+        if (!phone || !password) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !phone || !password")
 
         try {
 
@@ -366,7 +519,7 @@ export const __controllerUsers = {
                                                     Services.onSendSMS({
                                                         is_flash: false,
                                                         to: fillphone({ phone }),
-                                                        content: `Bonjour ${capitalizeWords({ text: nom })} votre compte a été crée avec succès. Ceci est votre code de vérirification ${code_}`,
+                                                        content: `Bonjour ${capitalizeWords({ text: nom })} votre compte a été crée avec succès. Ceci est votre code de vérification ${code_}`,
                                                     })
                                                         .then(suc => {
                                                             transaction.commit()
@@ -410,6 +563,7 @@ export const __controllerUsers = {
     auth: async (req: Request, res: Response, next: NextFunction) => {
         const { phone, password } = req.body;
         const role = [1, 3, 2]// allowed roles to connect 
+        if (!phone || !password) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !phone || !password")
 
         try {
 
@@ -1020,12 +1174,21 @@ export const __controllerUsers = {
         if (!id_user || !verification_code) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !id_user || !verification_code")
         try {
             Users.hasOne(Extras, { foreignKey: "id_user" })
+
+            Users.belongsToMany(Roles, { through: Hasroles });
+            Roles.belongsToMany(Users, { through: Hasroles });
+
             Users.findOne({
                 include: [
                     {
                         model: Extras,
                         required: true
-                    }
+                    },
+                    {
+                        model: Roles,
+                        required: true,
+                        attributes: ['id', 'role']
+                    },
                 ],
                 attributes: {
                     exclude: ['password']
@@ -1040,15 +1203,44 @@ export const __controllerUsers = {
             })
                 .then(user => {
                     if (user instanceof Users) {
-                        const { isvalidated, __tbl_ecom_extra } = user.toJSON() as any
-                        if (isvalidated === 0) {
+                        const { isvalidated, __tbl_ecom_extra, phone: asphone, uuid, id, __tbl_ecom_roles } = user.toJSON() as any
+                        if (1) { // isvalidated === 0
                             const { verification } = __tbl_ecom_extra;
+                            const roles = Array.from(__tbl_ecom_roles).map((role: any) => role['id']);
+
                             if (String(verification_code).trim() === String(verification).toString()) {
                                 user.update({
                                     isvalidated: 1
                                 })
                                     .then(U => {
-                                        return Responder(res, HttpStatusCode.Ok, user)
+                                        Middleware.onSignin({
+                                            expiresIn: APP_EXIPRES_IN_ADMIN || '45m',
+                                            data: {
+                                                phone: asphone || (user && user['phone']),
+                                                uuid: uuid || (user && user['uuid']),
+                                                __id: id || (user && user['id']),
+                                                roles
+                                            }
+                                        },
+                                            (reject: string, token: string) => {
+                                                if (token) {
+                                                    // user = formatUserModel({ model: user })
+                                                    if (user !== null) {
+                                                        if (user.hasOwnProperty('isvalidated')) {
+                                                            delete user['isvalidated']
+                                                        }
+                                                        if (user.hasOwnProperty('password')) {
+                                                            delete user['password']
+                                                        }
+                                                    }
+                                                    // transaction.commit()
+                                                    return Responder(res, HttpStatusCode.Ok, { token, user })
+                                                } else {
+                                                    // transaction.rollback()
+                                                    return Responder(res, HttpStatusCode.Forbidden, "Your refresh token already expired ! you must login to get a new one !")
+                                                }
+                                            })
+                                        // return Responder(res, HttpStatusCode.Ok, user)
                                     })
                                     .catch(Err => {
                                         return Responder(res, HttpStatusCode.BadRequest, Err)
@@ -1093,7 +1285,7 @@ export const __controllerUsers = {
                 .then(user => {
                     if (user instanceof Users) {
                         const { isvalidated, __tbl_ecom_extra, phone, nom } = user.toJSON() as any
-                        if (isvalidated === 0) {
+                        if (1) { // isvalidated === 0
                             const { verification } = __tbl_ecom_extra;
                             const code_ = verification || randomLongNumber({ length: 6 })
                             Services.onSendSMS({
