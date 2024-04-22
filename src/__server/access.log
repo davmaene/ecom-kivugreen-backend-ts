@@ -18,3 +18,5 @@
 ::ffff:127.0.0.1 - - [22/Apr/2024:08:44:36 +0000] "DELETE /api/users/user/30 HTTP/1.1" 200 120 "-" "PostmanRuntime/7.37.3"
 ::ffff:127.0.0.1 - - [22/Apr/2024:08:44:50 +0000] "POST /api/users/user/authentification HTTP/1.1" 201 90 "-" "PostmanRuntime/7.37.3"
 ::ffff:127.0.0.1 - - [22/Apr/2024:08:49:08 +0000] "PUT /api/users/user/verify HTTP/1.1" 404 81 "-" "PostmanRuntime/7.37.3"
+::ffff:127.0.0.1 - - [22/Apr/2024:08:58:02 +0000] "DELETE /api/users/user/31 HTTP/1.1" 200 120 "-" "PostmanRuntime/7.37.3"
+::ffff:127.0.0.1 - - [22/Apr/2024:08:58:09 +0000] "POST /api/users/user/authentification HTTP/1.1" 201 90 "-" "PostmanRuntime/7.37.3"

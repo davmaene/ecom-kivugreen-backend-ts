@@ -107,8 +107,8 @@ export const __controllerUsers = {
                             return Responder(res, HttpStatusCode.Unauthorized, "You dont have right access please contact admin system !")
                         }
                     } else {
-                        const code = randomLongNumber({ length: 6 });
-                        const pwd = await hashPWD({ plaintext: code });
+                        const code_verfify = randomLongNumber({ length: 6 });
+                        const pwd = await hashPWD({ plaintext: code_verfify });
                         const idroles: number[] = [5]
                         Users.create({
                             phone: fillphone({ phone }),
@@ -128,7 +128,7 @@ export const __controllerUsers = {
                                                 const { code } = done;
                                                 if (code === 200) {
                                                     Extras.create({
-                                                        verification: code,
+                                                        verification: code_verfify,
                                                         id_user: id
                                                     })
                                                         .then(ext => {
@@ -136,7 +136,7 @@ export const __controllerUsers = {
                                                                 Services.onSendSMS({
                                                                     is_flash: false,
                                                                     to: fillphone({ phone: asphone }),
-                                                                    content: `Bonjour cher client votre compte a été crée avec succès. Ceci est votre code de vérification ${code}`,
+                                                                    content: `Bonjour cher client votre compte a été crée avec succès. Ceci est votre code de vérification ${code_verfify}`,
                                                                 })
                                                                     .then(suc => {
                                                                         transaction.commit()
