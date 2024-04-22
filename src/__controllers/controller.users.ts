@@ -86,8 +86,8 @@ export const __controllerUsers = {
                             }
                         })
                         const roles = Array.from(__tbl_ecom_roles).map((role: any) => role['id']);
-                        if (Array.from(roles).some(r => role.includes(r)) && extras instanceof Extras) {
-
+                        if ((Array.from(roles).some(r => role.includes(r))) && (extras instanceof Extras)) {
+                            
                         } else {
                             transaction.rollback()
                             return Responder(res, HttpStatusCode.Unauthorized, "You dont have right access please contact admin system !")
