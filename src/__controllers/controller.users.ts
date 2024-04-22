@@ -27,6 +27,81 @@ dotenv.config()
 const { APP_EXIPRES_IN_ADMIN, APP_EXIPRES_IN_ALL, APP_ESCAPESTRING, APP_NAME } = process.env
 
 export const __controllerUsers = {
+    otp: async (req: Request, res: Response, next: NextFunction) => {
+        const { phone, password } = req.body;
+        const role = [1, 3, 2, 4, 5]// allowed roles to connect 
+
+        try {
+
+            const transaction = await connect.transaction();
+
+            Users.belongsToMany(Roles, { through: Hasroles });
+            Roles.belongsToMany(Users, { through: Hasroles });
+
+            Provinces.hasOne(Users, { foreignKey: "id" });
+            Users.belongsTo(Provinces, { foreignKey: "idprovince" });
+
+            Territoires.hasOne(Users, { foreignKey: "id" });
+            Users.belongsTo(Territoires, { foreignKey: "idterritoire" });
+
+            Villages.hasOne(Users, { foreignKey: "id" });
+            Users.belongsTo(Villages, { foreignKey: "idvillage" });
+
+            Users.findOne({
+                where: {
+                    [Op.or]: [
+                        { email: phone },
+                        { phone: fillphone({ phone }) }
+                    ]
+                },
+                include: [
+                    {
+                        model: Roles,
+                        required: true,
+                        attributes: ['id', 'role']
+                    },
+                    {
+                        model: Provinces,
+                        required: false,
+                        attributes: ['id', 'province']
+                    },
+                    {
+                        model: Territoires,
+                        required: false,
+                        attributes: ['id', 'territoire']
+                    },
+                    {
+                        model: Villages,
+                        required: false,
+                        attributes: ['id', 'village']
+                    }
+                ]
+            })
+                .then(async user => {
+                    if (user instanceof Users) {
+                        const { password: aspassword, isvalidated, __tbl_ecom_roles, id } = user.toJSON() as any;
+                        const extras = await Extras.findOne({
+                            where: {
+                                id_user: id
+                            }
+                        })
+                        const roles = Array.from(__tbl_ecom_roles).map((role: any) => role['id']);
+                        if (Array.from(roles).some(r => role.includes(r)) && extras instanceof Extras) {
+
+                        } else {
+                            transaction.rollback()
+                            return Responder(res, HttpStatusCode.Unauthorized, "You dont have right access please contact admin system !")
+                        }
+                    } else {
+                        transaction.rollback()
+                        return Responder(res, HttpStatusCode.Forbidden, "Phone | Email or Password incorrect !")
+                    }
+                })
+                .catch(err => Responder(res, HttpStatusCode.Conflict, err))
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
     signin: async (req: Request, res: Response, next: NextFunction) => {
         const { phone, password } = req.body;
         const role = [1, 3, 2, 4, 5]// allowed roles to connect 
