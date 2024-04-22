@@ -1,2 +1,3 @@
 ::ffff:127.0.0.1 - - [22/Apr/2024:07:37:39 +0000] "POST /api/users/user/authentification HTTP/1.1" 404 114 "-" "PostmanRuntime/7.37.3"
 ::ffff:127.0.0.1 - - [22/Apr/2024:07:46:09 +0000] "POST /api/users/user/authentification HTTP/1.1" 500 62 "-" "PostmanRuntime/7.37.3"
+::ffff:127.0.0.1 - - [22/Apr/2024:07:47:30 +0000] "POST /api/users/user/authentification HTTP/1.1" 500 62 "-" "PostmanRuntime/7.37.3"

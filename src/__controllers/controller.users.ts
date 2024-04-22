@@ -30,6 +30,7 @@ export const __controllerUsers = {
     otp: async (req: Request, res: Response, next: NextFunction) => {
         const { phone, password } = req.body;
         const role = [1, 3, 2, 4, 5]// allowed roles to connect 
+        if (!phone) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !phone")
 
         try {
 
@@ -109,6 +110,7 @@ export const __controllerUsers = {
     signin: async (req: Request, res: Response, next: NextFunction) => {
         const { phone, password } = req.body;
         const role = [1, 3, 2, 4, 5]// allowed roles to connect 
+        if (!phone || !password) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !phone || !password")
 
         try {
 
@@ -489,6 +491,7 @@ export const __controllerUsers = {
     auth: async (req: Request, res: Response, next: NextFunction) => {
         const { phone, password } = req.body;
         const role = [1, 3, 2]// allowed roles to connect 
+        if (!phone || !password) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !phone || !password")
 
         try {
 
