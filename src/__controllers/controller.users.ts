@@ -1110,6 +1110,84 @@ export const __controllerUsers = {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     },
+    listbyname: async (req: Request, res: Response, next: NextFunction) => {
+        const { name: idrole } = req.params
+        if (!idrole) return Responder(res, HttpStatusCode.NotAcceptable, "THis request must have at least name as param !")
+        try {
+            const transaction = await connect.transaction();
+
+            Users.belongsToMany(Roles, { through: Hasroles });
+            Roles.belongsToMany(Users, { through: Hasroles });
+
+            Provinces.hasOne(Users, { foreignKey: "id" });
+            Users.belongsTo(Provinces, { foreignKey: "idprovince" });
+
+            Territoires.hasOne(Users, { foreignKey: "id" });
+            Users.belongsTo(Territoires, { foreignKey: "idterritoire" });
+
+            Villages.hasOne(Users, { foreignKey: "id" });
+            Users.belongsTo(Villages, { foreignKey: "idvillage" });
+
+            Users.findAll({
+                where: {
+                    [Op.or]: [
+                        {
+                            nom: {
+                                [Op.like]: `%${idrole}%`
+                            }
+                        },
+                        {
+                            postnom: {
+                                [Op.like]: `%${idrole}%`
+                            }
+                        },
+                        {
+                            prenom: {
+                                [Op.like]: `%${idrole}%`
+                            }
+                        },
+                        {
+                            phone: {
+                                [Op.like]: `%${idrole}%`
+                            }
+                        },
+                    ],
+                    isvalidated: 1
+                },
+                attributes: {
+                    exclude: ['password', 'isvalidated', 'idprovince', 'idterritoire', 'idvillage']
+                },
+                include: [
+                    {
+                        model: Roles,
+                        required: true,
+                        attributes: ['id', 'role']
+                    },
+                    {
+                        model: Provinces,
+                        required: false,
+                        attributes: ['id', 'province']
+                    },
+                    {
+                        model: Territoires,
+                        required: false,
+                        attributes: ['id', 'territoire']
+                    },
+                    {
+                        model: Villages,
+                        required: false,
+                        attributes: ['id', 'village']
+                    }
+                ]
+            })
+                .then(user => {
+                    transaction.commit()
+                    return Responder(res, HttpStatusCode.Ok, { count: user.length, rows: user })
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
     listbyrole: async (req: Request, res: Response, next: NextFunction) => {
         const { idrole } = req.params
         if (!idrole) return Responder(res, HttpStatusCode.NotAcceptable, "THis request must have at least idrole as param !")
