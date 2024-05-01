@@ -8,6 +8,7 @@ import { Sequelize } from "sequelize";
 import { log } from "console";
 import { Unites } from "../__models/model.unitemesures";
 import { Users } from "../__models/model.users";
+import { groupedDataByColumn } from "../__helpers/helper.all";
 
 export const __controllerCommandes = {
 
@@ -78,7 +79,8 @@ export const __controllerCommandes = {
                 }
             })
                 .then(commandes => {
-                    return Responder(res, HttpStatusCode.Ok, { count: commandes.length, rows: commandes })
+                    const groupes = groupedDataByColumn({ column: "transaction", data: commandes })
+                    return Responder(res, HttpStatusCode.Ok, { count: commandes.length, rows: commandes, groupes })
                 })
                 .catch(err => {
                     return Responder(res, HttpStatusCode.InternalServerError, err)
@@ -123,7 +125,8 @@ export const __controllerCommandes = {
                 }
             })
                 .then(commandes => {
-                    return Responder(res, HttpStatusCode.Ok, { count: commandes.length, rows: commandes })
+                    const groupes = groupedDataByColumn({ column: "transaction", data: commandes })
+                    return Responder(res, HttpStatusCode.Ok, { count: commandes.length, rows: commandes, groupes })
                 })
                 .catch(err => {
                     return Responder(res, HttpStatusCode.InternalServerError, err)
