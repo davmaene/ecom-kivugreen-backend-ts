@@ -8,10 +8,42 @@ import { Sequelize } from "sequelize";
 import { log } from "console";
 
 export const __controllerCommandes = {
-    
+
     listcommandebytransaction: async (req: Request, res: Response) => {
         const { currentuser } = req as any;
         const { idtransaction } = req.params
+        const { __id, roles, uuid } = currentuser;
+        try {
+            Commandes.belongsTo(Produits, { foreignKey: "id_produit" })
+            Commandes.belongsTo(Typelivraisons, { foreignKey: "type_livraison" })
+            Commandes.findAll({
+                include: [
+                    {
+                        model: Produits,
+                        required: false,
+                    },
+                    {
+                        model: Typelivraisons,
+                        required: false,
+                    }
+                ],
+                where: {
+                    transaction: idtransaction
+                }
+            })
+                .then(commandes => {
+                    return Responder(res, HttpStatusCode.Ok, { count: commandes.length, rows: commandes })
+                })
+                .catch(err => {
+                    return Responder(res, HttpStatusCode.InternalServerError, err)
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    listcommandebycooperative: async (req: Request, res: Response) => {
+        const { currentuser } = req as any;
+        const { idcooperative: idtransaction } = req.params
         const { __id, roles, uuid } = currentuser;
         try {
             Commandes.belongsTo(Produits, { foreignKey: "id_produit" })

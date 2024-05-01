@@ -18,6 +18,11 @@ export const Commandes = connect.define<Commande>('__tbl_ecom_commandes', {
         autoIncrement: true,
         allowNull: true,
     },
+    id_cooperative: {
+        type: DataTypes.INTEGER,
+        defaultValue: 2,
+        allowNull: false
+    },
     transaction: DataTypes.STRING,
     id_produit: DataTypes.INTEGER,
     qte: DataTypes.INTEGER,

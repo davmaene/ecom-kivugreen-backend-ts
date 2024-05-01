@@ -9,5 +9,6 @@ __routesCommandes.get("/list/bystate/:status", __controllerCommandes.listbystate
 __routesCommandes.get("/list/byowner", __controllerCommandes.listbyowner)
 __routesCommandes.get("/list/transactions/byowner", __controllerCommandes.listtransaction)
 __routesCommandes.get("/list/bytransaction/:idtransaction", __controllerCommandes.listcommandebytransaction)
+__routesCommandes.get("/list/bycooperative/:idcooperative", __controllerCommandes.listcommandebycooperative)
 __routesCommandes.post("/commande/add", __controllerMarketplace.placecommand)
 __routesCommandes.put("/commande/validate/:idcommande", __controllerCommandes.validate)

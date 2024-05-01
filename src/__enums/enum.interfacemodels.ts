@@ -172,6 +172,7 @@ export interface ICommande extends globalInterface {
     transaction: string,
     id_produit: string,
     qte: number,
+    id_cooperative: number,
     type_livraison: number,
     description?: string,
     prix_total: number,
