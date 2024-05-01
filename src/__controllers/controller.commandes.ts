@@ -6,6 +6,8 @@ import { Produits } from "../__models/model.produits";
 import { Typelivraisons } from "../__models/model.typelivraison";
 import { Sequelize } from "sequelize";
 import { log } from "console";
+import { Unites } from "../__models/model.unitemesures";
+import { Users } from "../__models/model.users";
 
 export const __controllerCommandes = {
 
@@ -48,18 +50,75 @@ export const __controllerCommandes = {
         try {
             Commandes.belongsTo(Produits, { foreignKey: "id_produit" })
             Commandes.belongsTo(Typelivraisons, { foreignKey: "type_livraison" })
+            Commandes.belongsTo(Unites, { foreignKey: "id_unity" })
+            Commandes.belongsTo(Users, { foreignKey: "createdby" })
+
             Commandes.findAll({
                 include: [
                     {
                         model: Produits,
-                        required: false,
+                        required: true,
+                    },
+                    {
+                        model: Users,
+                        required: true,
+                        attributes: ['id', 'nom', 'postnom', 'prenom', 'phone', 'email', 'sexe']
+                    },
+                    {
+                        model: Unites,
+                        required: true,
                     },
                     {
                         model: Typelivraisons,
-                        required: false,
+                        required: true,
                     }
                 ],
                 where: {
+                    id_cooperative: idtransaction
+                }
+            })
+                .then(commandes => {
+                    return Responder(res, HttpStatusCode.Ok, { count: commandes.length, rows: commandes })
+                })
+                .catch(err => {
+                    return Responder(res, HttpStatusCode.InternalServerError, err)
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    listcommandebycooperativeandstate: async (req: Request, res: Response) => {
+        const { currentuser } = req as any;
+        const { idcooperative: idtransaction, state } = req.params
+        const { __id, roles, uuid } = currentuser;
+        try {
+            Commandes.belongsTo(Produits, { foreignKey: "id_produit" })
+            Commandes.belongsTo(Typelivraisons, { foreignKey: "type_livraison" })
+            Commandes.belongsTo(Unites, { foreignKey: "id_unity" })
+            Commandes.belongsTo(Users, { foreignKey: "createdby" })
+
+            Commandes.findAll({
+                include: [
+                    {
+                        model: Produits,
+                        required: true,
+                    },
+                    {
+                        model: Users,
+                        required: true,
+                        attributes: ['id', 'nom', 'postnom', 'prenom', 'phone', 'email', 'sexe']
+                    },
+                    {
+                        model: Unites,
+                        required: true,
+                    },
+                    {
+                        model: Typelivraisons,
+                        required: true,
+                    }
+                ],
+                where: {
+                    state: parseInt(state),
                     id_cooperative: idtransaction
                 }
             })

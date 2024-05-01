@@ -18,6 +18,11 @@ export const Commandes = connect.define<Commande>('__tbl_ecom_commandes', {
         autoIncrement: true,
         allowNull: true,
     },
+    id_unity: {
+        type: DataTypes.INTEGER,
+        defaultValue: 1,
+        allowNull: false
+    },
     id_cooperative: {
         type: DataTypes.INTEGER,
         defaultValue: 2,
@@ -33,7 +38,7 @@ export const Commandes = connect.define<Commande>('__tbl_ecom_commandes', {
     type_livraison: DataTypes.INTEGER,
     description: DataTypes.STRING,
     is_pending: DataTypes.INTEGER,
-    state: DataTypes.INTEGER,
+    state: DataTypes.INTEGER, // 
     createdby: DataTypes.INTEGER,
     shipped_to: {
         type: DataTypes.STRING,
