@@ -13,3 +13,4 @@ __routesCommandes.get("/list/bycooperative/:idcooperative", __controllerCommande
 __routesCommandes.get("/list/bycooperativeandstate/:idcooperative/:state", __controllerCommandes.listcommandebycooperativeandstate)
 __routesCommandes.post("/commande/add", __controllerMarketplace.placecommand)
 __routesCommandes.put("/commande/validate/:idcommande", __controllerCommandes.validate)
+__routesCommandes.put("/commande/changestate/:idcommande", __controllerCommandes.changestate)

@@ -60,6 +60,33 @@ const documentTypes = [
     // { fileType: "JSON", mimeType: "application/json" }
 ];
 
+export const renderState = ({ state }: { state: number }): { color: any, name: string } => {
+    const states: any = {
+        0: {
+            color: null,
+            name: "Commande non payée"
+        },
+        1: {
+            color: null,
+            name: "Commande annulée"
+        },
+        2: {
+            color: null,
+            name: "En cours de livraison par KGreen"
+        },
+        3: {
+            color: null,
+            name: "Commande payée possibilité de livraison"
+        },
+        4: {
+            color: null,
+            name: "Commande livrée avec succès"
+        }
+    }
+
+    return states[state] || { color: null, name: null }
+};
+
 export const checkFileType = ({ mimetype, as = "doc" || "img" }: { mimetype: string, as: string }): { mimetype: string, isKnownType: boolean } | false => {
     if (imageTypes.map(type => type['mimeType']).includes(mimetype) && as === "img") {
         return { isKnownType: true, mimetype };
