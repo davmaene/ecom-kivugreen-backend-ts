@@ -107,6 +107,12 @@ exports.__controllerCooperatives = {
             if (parseInt(isformel) === 1) {
                 if (!req.files)
                     return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "Please upload a attached file for this cooperative !");
+                if (!file)
+                    return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "Please provide the file cause this is formel cooperative");
+                const { mimetype } = req['files']['file'];
+                const type = (0, helper_all_1.checkFileType)({ as: 'doc', mimetype });
+                if (!type)
+                    return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "Please provide the cooperative's logo as image file");
                 const { code, message, data } = yield serives_all_1.Services.uploadfile({
                     inputs: {
                         file: req,

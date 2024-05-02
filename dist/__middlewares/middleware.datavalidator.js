@@ -14,6 +14,7 @@ const express_validator_1 = require("express-validator");
 const serives_all_1 = require("../__services/serives.all");
 const enum_httpsstatuscode_1 = require("../__enums/enum.httpsstatuscode");
 const helper_responseserver_1 = require("../__helpers/helper.responseserver");
+const console_1 = require("console");
 const enum_categoriescooperatives_1 = require("../__enums/enum.categoriescooperatives");
 const validateGender = (v) => {
     return ["M", "F"].indexOf(v) !== -1 ? true : false;
@@ -46,6 +47,7 @@ const provinceValidator = (v) => __awaiter(void 0, void 0, void 0, function* () 
 });
 exports.provinceValidator = provinceValidator;
 const territoireValidator = ({ v, vv }) => __awaiter(void 0, void 0, void 0, function* () {
+    (0, console_1.log)("===============> ", v, vv);
     v = (v ? v : '0');
     vv = (vv ? vv : '0');
     const t = (yield serives_all_1.Services.rawTerritoiresAsTableOfIds({ idprovince: parseInt(vv) }));
@@ -169,7 +171,8 @@ exports.userModelValidator = [
         });
     })).withMessage("`idprovince` the value for idprovince is not invalid ! this must be integer !"),
     (0, express_validator_1.body)('idterritoire').optional().isNumeric().custom((v, { req }) => __awaiter(void 0, void 0, void 0, function* () {
-        const validator = yield (0, exports.territoireValidator)(v);
+        const { idprovince } = req.body;
+        const validator = yield (0, exports.territoireValidator)({ v, vv: idprovince });
         return new Promise((resolve, reject) => {
             if (validator)
                 resolve(true);

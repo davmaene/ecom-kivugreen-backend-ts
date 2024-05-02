@@ -13,5 +13,7 @@ exports.__routesCommandes.get("/list/bystate/:status", controller_commandes_1.__
 exports.__routesCommandes.get("/list/byowner", controller_commandes_1.__controllerCommandes.listbyowner);
 exports.__routesCommandes.get("/list/transactions/byowner", controller_commandes_1.__controllerCommandes.listtransaction);
 exports.__routesCommandes.get("/list/bytransaction/:idtransaction", controller_commandes_1.__controllerCommandes.listcommandebytransaction);
+exports.__routesCommandes.get("/list/bycooperative/:idcooperative", controller_commandes_1.__controllerCommandes.listcommandebycooperative);
+exports.__routesCommandes.get("/list/bycooperativeandstate/:idcooperative/:state", controller_commandes_1.__controllerCommandes.listcommandebycooperativeandstate);
 exports.__routesCommandes.post("/commande/add", controller_marketplaces_1.__controllerMarketplace.placecommand);
 exports.__routesCommandes.put("/commande/validate/:idcommande", controller_commandes_1.__controllerCommandes.validate);

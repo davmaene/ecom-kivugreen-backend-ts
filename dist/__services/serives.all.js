@@ -1634,7 +1634,9 @@ exports.Services = {
             return cb(undefined, { code: 500, message: "Error", data: error });
         }
     }),
-    addMemberToCoopec: ({ inputs: { idmember, idcooperative, expiresIn, expiresInUnix, card }, transaction, cb }) => __awaiter(void 0, void 0, void 0, function* () {
+    addMemberToCoopec: ({ inputs, transaction, cb }) => __awaiter(void 0, void 0, void 0, function* () {
+        (0, console_1.log)("+++++++++++======>", inputs);
+        const { idmember, idcooperative, card, expiresIn, expiresInUnix } = inputs;
         if (!idmember || !idcooperative)
             return cb(undefined, { code: 401, message: "This request must have at least !", data: { idmember, idcooperative } });
         try {
@@ -1647,7 +1649,11 @@ exports.Services = {
                     date_expiration: expiresIn,
                     date_expiration_unix: expiresInUnix
                 }, { transaction });
-                return cb(undefined, { code: 200, message: "Done", data: member });
+                if (member instanceof model_hasmembers_1.Hasmembers) {
+                    return cb(undefined, { code: 200, message: "Done", data: member });
+                }
+                else
+                    return cb(undefined, { code: 500, message: "Error", data: null });
             }
         }
         catch (error) {

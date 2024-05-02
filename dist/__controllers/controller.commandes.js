@@ -17,6 +17,9 @@ const model_produits_1 = require("../__models/model.produits");
 const model_typelivraison_1 = require("../__models/model.typelivraison");
 const sequelize_1 = require("sequelize");
 const console_1 = require("console");
+const model_unitemesures_1 = require("../__models/model.unitemesures");
+const model_users_1 = require("../__models/model.users");
+const helper_all_1 = require("../__helpers/helper.all");
 exports.__controllerCommandes = {
     listcommandebytransaction: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { currentuser } = req;
@@ -42,6 +45,97 @@ exports.__controllerCommandes = {
             })
                 .then(commandes => {
                 return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: commandes.length, rows: commandes });
+            })
+                .catch(err => {
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, err);
+            });
+        }
+        catch (error) {
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
+        }
+    }),
+    listcommandebycooperative: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        const { currentuser } = req;
+        const { idcooperative: idtransaction } = req.params;
+        const { __id, roles, uuid } = currentuser;
+        try {
+            model_commandes_1.Commandes.belongsTo(model_produits_1.Produits, { foreignKey: "id_produit" });
+            model_commandes_1.Commandes.belongsTo(model_typelivraison_1.Typelivraisons, { foreignKey: "type_livraison" });
+            model_commandes_1.Commandes.belongsTo(model_unitemesures_1.Unites, { foreignKey: "id_unity" });
+            model_commandes_1.Commandes.belongsTo(model_users_1.Users, { foreignKey: "createdby" });
+            model_commandes_1.Commandes.findAll({
+                include: [
+                    {
+                        model: model_produits_1.Produits,
+                        required: true,
+                    },
+                    {
+                        model: model_users_1.Users,
+                        required: true,
+                        attributes: ['id', 'nom', 'postnom', 'prenom', 'phone', 'email', 'sexe']
+                    },
+                    {
+                        model: model_unitemesures_1.Unites,
+                        required: true,
+                    },
+                    {
+                        model: model_typelivraison_1.Typelivraisons,
+                        required: true,
+                    }
+                ],
+                where: {
+                    id_cooperative: idtransaction
+                }
+            })
+                .then(commandes => {
+                const groupes = (0, helper_all_1.groupedDataByColumn)({ column: "transaction", data: commandes });
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: commandes.length, rows: commandes, groupes });
+            })
+                .catch(err => {
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, err);
+            });
+        }
+        catch (error) {
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
+        }
+    }),
+    listcommandebycooperativeandstate: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        const { currentuser } = req;
+        const { idcooperative: idtransaction, state } = req.params;
+        const { __id, roles, uuid } = currentuser;
+        try {
+            model_commandes_1.Commandes.belongsTo(model_produits_1.Produits, { foreignKey: "id_produit" });
+            model_commandes_1.Commandes.belongsTo(model_typelivraison_1.Typelivraisons, { foreignKey: "type_livraison" });
+            model_commandes_1.Commandes.belongsTo(model_unitemesures_1.Unites, { foreignKey: "id_unity" });
+            model_commandes_1.Commandes.belongsTo(model_users_1.Users, { foreignKey: "createdby" });
+            model_commandes_1.Commandes.findAll({
+                include: [
+                    {
+                        model: model_produits_1.Produits,
+                        required: true,
+                    },
+                    {
+                        model: model_users_1.Users,
+                        required: true,
+                        attributes: ['id', 'nom', 'postnom', 'prenom', 'phone', 'email', 'sexe']
+                    },
+                    {
+                        model: model_unitemesures_1.Unites,
+                        required: true,
+                    },
+                    {
+                        model: model_typelivraison_1.Typelivraisons,
+                        required: true,
+                    }
+                ],
+                where: {
+                    state: parseInt(state),
+                    id_cooperative: idtransaction
+                }
+            })
+                .then(commandes => {
+                const groupes = (0, helper_all_1.groupedDataByColumn)({ column: "transaction", data: commandes });
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: commandes.length, rows: commandes, groupes });
             })
                 .catch(err => {
                 return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, err);

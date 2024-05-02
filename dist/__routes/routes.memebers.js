@@ -9,3 +9,4 @@ const express_1 = __importDefault(require("express"));
 exports.__routesMembers = express_1.default.Router();
 exports.__routesMembers.get("/list", controller_members_1.__controllerMembers.list);
 exports.__routesMembers.get("/list/bycooperative/:idcooperative", controller_members_1.__controllerMembers.listbycooperative);
+exports.__routesMembers.get("/list/byothercooperatives/:idcooperative", controller_members_1.__controllerMembers.listbyothercooperative);

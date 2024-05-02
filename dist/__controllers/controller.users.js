@@ -35,6 +35,7 @@ const serives_all_1 = require("../__services/serives.all");
 const model_extras_1 = require("../__models/model.extras");
 const model_hasmembers_1 = require("../__models/model.hasmembers");
 const model_cooperatives_1 = require("../__models/model.cooperatives");
+const helper_moment_1 = require("../__helpers/helper.moment");
 dotenv_1.default.config();
 const { APP_EXIPRES_IN_ADMIN, APP_EXIPRES_IN_ALL, APP_ESCAPESTRING, APP_NAME } = process.env;
 exports.__controllerUsers = {
@@ -831,7 +832,7 @@ exports.__controllerUsers = {
         }
     }),
     register: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-        const { nom, postnom, prenom, email, phone, adresse, idprovince, idterritoire, idvillage, date_naiss, genre, password, avatar, idroles } = req.body;
+        const { nom, postnom, prenom, email, phone, adresse, idprovince, idterritoire, idvillage, date_naiss, genre, password, avatar, idroles, id_cooperative } = req.body;
         try {
             const pwd = yield (0, helper_passwords_1.hashPWD)({ plaintext: password });
             const transaction = yield connecte_1.connect.transaction();
@@ -876,19 +877,98 @@ exports.__controllerUsers = {
                                             phone: user['phone'],
                                         });
                                     }
-                                    yield serives_all_1.Services.onSendSMS({
-                                        is_flash: false,
-                                        to: (0, helper_fillphone_1.fillphone)({ phone }),
-                                        content: `Bonjour ${(0, helper_all_1.capitalizeWords)({ text: nom })} votre compte a été crée avec succès. Ceci est votre mot de passe ${password}`,
-                                    }).then(sms => {
-                                        transaction.commit();
-                                        return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Created, user);
-                                    })
-                                        .catch(er => {
-                                        transaction.rollback();
-                                        (0, console_1.log)(er);
-                                        return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, "Role not initialized correctly !");
-                                    });
+                                    if (id_cooperative) {
+                                        const coop = yield model_cooperatives_1.Cooperatives.findOne({
+                                            where: {
+                                                id: id_cooperative
+                                            }
+                                        });
+                                        if (coop instanceof model_cooperatives_1.Cooperatives) {
+                                            const { cooperative, id: asid_cooperative } = coop;
+                                            serives_all_1.Services.onGenerateCardMember({
+                                                id_cooperative: id_cooperative,
+                                                id_user: id
+                                            })
+                                                .then(({ code, message, data }) => __awaiter(void 0, void 0, void 0, function* () {
+                                                (0, console_1.log)("Generated card is =======> ", data);
+                                                if (code === 200) {
+                                                    // log("Generated card is =======> ", code, "=======", data)
+                                                    const { card, expiresInString, expiresInUnix } = data;
+                                                    serives_all_1.Services.addMemberToCoopec({
+                                                        inputs: {
+                                                            idcooperative: parseInt(id_cooperative),
+                                                            idmember: id,
+                                                            card,
+                                                            expiresIn: expiresInString,
+                                                            expiresInUnix: expiresInUnix.toString()
+                                                        },
+                                                        transaction: transaction,
+                                                        cb: (err, done) => {
+                                                            (0, console_1.log)("Added member card is =======> ", code, "=======", done);
+                                                            if (done) {
+                                                                const { code, message, data } = done;
+                                                                if (code === 200) {
+                                                                    serives_all_1.Services.onSendSMS({
+                                                                        to: (0, helper_fillphone_1.fillphone)({ phone }),
+                                                                        is_flash: false,
+                                                                        content: `Bonjour ${nom}, votre enregistrement dans la coopérative ${cooperative} en date du ${(0, helper_moment_1.now)({ options: {} })} a réussi, votre carte de membre sera expiré le ${expiresInString.toString()}`
+                                                                    })
+                                                                        .then(m => {
+                                                                        transaction.commit();
+                                                                        return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, user);
+                                                                    })
+                                                                        .catch(e => {
+                                                                        transaction.rollback();
+                                                                        (0, console_1.log)(data);
+                                                                        return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, "Error on initializing members table !");
+                                                                    });
+                                                                }
+                                                                else {
+                                                                    transaction.rollback();
+                                                                    (0, console_1.log)(data);
+                                                                    return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, "Error on initializing members table !");
+                                                                }
+                                                            }
+                                                            else {
+                                                                transaction.rollback();
+                                                                (0, console_1.log)(done);
+                                                                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, "Error on initializing members table ! ===");
+                                                            }
+                                                        }
+                                                    });
+                                                }
+                                                else {
+                                                    transaction.rollback();
+                                                    return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.BadRequest, `The request can not be proceded cause the card can not be initialized !`);
+                                                }
+                                            }))
+                                                .catch(err => {
+                                                transaction.rollback();
+                                                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, err.toString());
+                                            });
+                                        }
+                                        else {
+                                            transaction.rollback();
+                                            (0, console_1.log)(coop);
+                                            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotFound, `The coopec with ID: XXXX:${id_cooperative} was not found !`);
+                                        }
+                                    }
+                                    else {
+                                        yield serives_all_1.Services.onSendSMS({
+                                            is_flash: false,
+                                            to: (0, helper_fillphone_1.fillphone)({ phone }),
+                                            content: `Bonjour ${(0, helper_all_1.capitalizeWords)({ text: nom })} votre compte a été crée avec succès. Ceci est votre mot de passe ${password}`,
+                                        })
+                                            .then(sms => {
+                                            transaction.commit();
+                                            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Created, user);
+                                        })
+                                            .catch(er => {
+                                            transaction.rollback();
+                                            (0, console_1.log)(er);
+                                            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, "Role not initialized correctly !");
+                                        });
+                                    }
                                 }
                                 else {
                                     transaction.rollback();
@@ -1087,6 +1167,81 @@ exports.__controllerUsers = {
                         model: model_roles_1.Roles,
                         required: true,
                         attributes: ['id', 'role'],
+                    },
+                    {
+                        model: model_provinces_1.Provinces,
+                        required: false,
+                        attributes: ['id', 'province']
+                    },
+                    {
+                        model: model_territoires_1.Territoires,
+                        required: false,
+                        attributes: ['id', 'territoire']
+                    },
+                    {
+                        model: model_villages_1.Villages,
+                        required: false,
+                        attributes: ['id', 'village']
+                    }
+                ]
+            })
+                .then(user => {
+                transaction.commit();
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: user.length, rows: user });
+            });
+        }
+        catch (error) {
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
+        }
+    }),
+    listbyname: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+        const { name: idrole } = req.params;
+        if (!idrole)
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "THis request must have at least name as param !");
+        try {
+            const transaction = yield connecte_1.connect.transaction();
+            model_users_1.Users.belongsToMany(model_roles_1.Roles, { through: model_hasroles_1.Hasroles });
+            model_roles_1.Roles.belongsToMany(model_users_1.Users, { through: model_hasroles_1.Hasroles });
+            model_provinces_1.Provinces.hasOne(model_users_1.Users, { foreignKey: "id" });
+            model_users_1.Users.belongsTo(model_provinces_1.Provinces, { foreignKey: "idprovince" });
+            model_territoires_1.Territoires.hasOne(model_users_1.Users, { foreignKey: "id" });
+            model_users_1.Users.belongsTo(model_territoires_1.Territoires, { foreignKey: "idterritoire" });
+            model_villages_1.Villages.hasOne(model_users_1.Users, { foreignKey: "id" });
+            model_users_1.Users.belongsTo(model_villages_1.Villages, { foreignKey: "idvillage" });
+            model_users_1.Users.findAll({
+                where: {
+                    [sequelize_1.Op.or]: [
+                        {
+                            nom: {
+                                [sequelize_1.Op.like]: `%${idrole}%`
+                            }
+                        },
+                        {
+                            postnom: {
+                                [sequelize_1.Op.like]: `%${idrole}%`
+                            }
+                        },
+                        {
+                            prenom: {
+                                [sequelize_1.Op.like]: `%${idrole}%`
+                            }
+                        },
+                        {
+                            phone: {
+                                [sequelize_1.Op.like]: `%${idrole}%`
+                            }
+                        },
+                    ],
+                    isvalidated: 1
+                },
+                attributes: {
+                    exclude: ['password', 'isvalidated', 'idprovince', 'idterritoire', 'idvillage']
+                },
+                include: [
+                    {
+                        model: model_roles_1.Roles,
+                        required: true,
+                        attributes: ['id', 'role']
                     },
                     {
                         model: model_provinces_1.Provinces,

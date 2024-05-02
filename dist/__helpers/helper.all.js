@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.groupArrayElementByColumn = exports.formatUserModel = exports.capitalizeWords = exports.truncatestring = exports.checkFileType = exports.imageTypes = exports.groupArrayByPairs = void 0;
+exports.groupArrayElementByColumn = exports.formatUserModel = exports.capitalizeWords = exports.truncatestring = exports.checkFileType = exports.imageTypes = exports.groupedDataByColumn = exports.groupArrayByPairs = void 0;
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const { APP_ESCAPESTRING: ESCAPESTRING } = process.env;
@@ -20,6 +20,20 @@ const groupArrayByPairs = ({ array }) => {
     return groupedArray;
 };
 exports.groupArrayByPairs = groupArrayByPairs;
+const groupedDataByColumn = ({ data, column }) => {
+    const groupedData = {};
+    [...data].forEach(element => {
+        const transaction = element[column];
+        if (groupedData[transaction]) {
+            groupedData[transaction].push(element);
+        }
+        else {
+            groupedData[transaction] = [element];
+        }
+    });
+    return groupedData;
+};
+exports.groupedDataByColumn = groupedDataByColumn;
 exports.imageTypes = [
     { fileType: "JPEG", mimeType: "image/jpeg" },
     { fileType: "PNG", mimeType: "image/png" },

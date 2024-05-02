@@ -22,6 +22,7 @@ exports.__routesUsers.put("/user/verify", controller_users_1.__controllerUsers.v
 exports.__routesUsers.put("/user/resendcode", controller_users_1.__controllerUsers.resendcode);
 exports.__routesUsers.get("/list", controller_users_1.__controllerUsers.list);
 exports.__routesUsers.get("/list/byrole/:idrole", controller_users_1.__controllerUsers.listbyrole);
+exports.__routesUsers.get("/list/byname/:name", controller_users_1.__controllerUsers.listbyname);
 exports.__routesUsers.get("/user/:iduser", controller_users_1.__controllerUsers.profile);
 exports.__routesUsers.put("/user/:iduser", controller_users_1.__controllerUsers.update);
 exports.__routesUsers.delete("/user/:iduser", controller_users_1.__controllerUsers.delete);

@@ -17,6 +17,16 @@ exports.Commandes = connecte_1.connect.define('__tbl_ecom_commandes', {
         autoIncrement: true,
         allowNull: true,
     },
+    id_unity: {
+        type: sequelize_1.DataTypes.INTEGER,
+        defaultValue: 1,
+        allowNull: false
+    },
+    id_cooperative: {
+        type: sequelize_1.DataTypes.INTEGER,
+        defaultValue: 2,
+        allowNull: false
+    },
     transaction: sequelize_1.DataTypes.STRING,
     id_produit: sequelize_1.DataTypes.INTEGER,
     qte: sequelize_1.DataTypes.INTEGER,
@@ -27,7 +37,7 @@ exports.Commandes = connecte_1.connect.define('__tbl_ecom_commandes', {
     type_livraison: sequelize_1.DataTypes.INTEGER,
     description: sequelize_1.DataTypes.STRING,
     is_pending: sequelize_1.DataTypes.INTEGER,
-    state: sequelize_1.DataTypes.INTEGER,
+    state: sequelize_1.DataTypes.INTEGER, // 
     createdby: sequelize_1.DataTypes.INTEGER,
     shipped_to: {
         type: sequelize_1.DataTypes.STRING,
