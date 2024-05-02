@@ -49,7 +49,7 @@ export const __controllerStocks = {
                                 } else {
                                     try {
                                         const prd = await Produits.findOne({
-                                            attributes: ['id', 'produit', 'id_unity', 'id_category', 'id_souscategory', 'image'],
+                                            attributes: ['id', 'produit', 'id_unity', 'id_category', 'id_souscategory', 'image', 'tva'],
                                             where: {
                                                 id: id_produit
                                             }
