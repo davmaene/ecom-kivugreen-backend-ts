@@ -58,7 +58,7 @@ export const __controllerStocks = {
                                             const { id, produit, id_unity, id_category, id_souscategory, image, tva } = prd.toJSON() as any
                                             const { id: asstockid } = stock.toJSON() as any;
                                             console.log('====================================');
-                                            console.log("TVA", tva);
+                                            console.log("TVA", tva, prd.toJSON());
                                             console.log('====================================');
                                             if (produit && id_category && id_unity) {
                                                 const [item, created] = await Hasproducts.findOrCreate({
