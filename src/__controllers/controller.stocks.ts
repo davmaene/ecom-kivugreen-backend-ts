@@ -96,6 +96,7 @@ export const __controllerStocks = {
                                         }
                                     } catch (error) {
                                         nottreated.push(array[index])
+                                        log(error)
                                         log("Error on treatement on object => ", id_produit)
                                     }
                                 }
@@ -107,10 +108,10 @@ export const __controllerStocks = {
                             } else {
                                 transaction.rollback()
                                 // log(nottreated, treated)
-                                return Responder(res, HttpStatusCode.Conflict, "this request must hava at least Configurations params for the price !")
+                                return Responder(res, HttpStatusCode.Conflict, "this request must have at least Configurations params for the price !, the table of product is empty")
                             }
                         } else {
-                            return Responder(res, HttpStatusCode.Conflict, "this request must hava at least Configurations params for the price !")
+                            return Responder(res, HttpStatusCode.Conflict, "this request must have at least Configurations params for the price !, we can not initialize the commission and taux table")
                         }
                     } else {
                         transaction.rollback()
