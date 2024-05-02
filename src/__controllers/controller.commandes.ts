@@ -6,9 +6,12 @@ import { Produits } from "../__models/model.produits";
 import { Typelivraisons } from "../__models/model.typelivraison";
 import { Sequelize } from "sequelize";
 import { log } from "console";
+import { Unites } from "../__models/model.unitemesures";
+import { Users } from "../__models/model.users";
+import { groupedDataByColumn } from "../__helpers/helper.all";
 
 export const __controllerCommandes = {
-    
+
     listcommandebytransaction: async (req: Request, res: Response) => {
         const { currentuser } = req as any;
         const { idtransaction } = req.params
@@ -33,6 +36,97 @@ export const __controllerCommandes = {
             })
                 .then(commandes => {
                     return Responder(res, HttpStatusCode.Ok, { count: commandes.length, rows: commandes })
+                })
+                .catch(err => {
+                    return Responder(res, HttpStatusCode.InternalServerError, err)
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    listcommandebycooperative: async (req: Request, res: Response) => {
+        const { currentuser } = req as any;
+        const { idcooperative: idtransaction } = req.params
+        const { __id, roles, uuid } = currentuser;
+        try {
+            Commandes.belongsTo(Produits, { foreignKey: "id_produit" })
+            Commandes.belongsTo(Typelivraisons, { foreignKey: "type_livraison" })
+            Commandes.belongsTo(Unites, { foreignKey: "id_unity" })
+            Commandes.belongsTo(Users, { foreignKey: "createdby" })
+
+            Commandes.findAll({
+                include: [
+                    {
+                        model: Produits,
+                        required: true,
+                    },
+                    {
+                        model: Users,
+                        required: true,
+                        attributes: ['id', 'nom', 'postnom', 'prenom', 'phone', 'email', 'sexe']
+                    },
+                    {
+                        model: Unites,
+                        required: true,
+                    },
+                    {
+                        model: Typelivraisons,
+                        required: true,
+                    }
+                ],
+                where: {
+                    id_cooperative: idtransaction
+                }
+            })
+                .then(commandes => {
+                    const groupes = groupedDataByColumn({ column: "transaction", data: commandes })
+                    return Responder(res, HttpStatusCode.Ok, { count: commandes.length, rows: commandes, groupes })
+                })
+                .catch(err => {
+                    return Responder(res, HttpStatusCode.InternalServerError, err)
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    listcommandebycooperativeandstate: async (req: Request, res: Response) => {
+        const { currentuser } = req as any;
+        const { idcooperative: idtransaction, state } = req.params
+        const { __id, roles, uuid } = currentuser;
+        try {
+            Commandes.belongsTo(Produits, { foreignKey: "id_produit" })
+            Commandes.belongsTo(Typelivraisons, { foreignKey: "type_livraison" })
+            Commandes.belongsTo(Unites, { foreignKey: "id_unity" })
+            Commandes.belongsTo(Users, { foreignKey: "createdby" })
+
+            Commandes.findAll({
+                include: [
+                    {
+                        model: Produits,
+                        required: true,
+                    },
+                    {
+                        model: Users,
+                        required: true,
+                        attributes: ['id', 'nom', 'postnom', 'prenom', 'phone', 'email', 'sexe']
+                    },
+                    {
+                        model: Unites,
+                        required: true,
+                    },
+                    {
+                        model: Typelivraisons,
+                        required: true,
+                    }
+                ],
+                where: {
+                    state: parseInt(state),
+                    id_cooperative: idtransaction
+                }
+            })
+                .then(commandes => {
+                    const groupes = groupedDataByColumn({ column: "transaction", data: commandes })
+                    return Responder(res, HttpStatusCode.Ok, { count: commandes.length, rows: commandes, groupes })
                 })
                 .catch(err => {
                     return Responder(res, HttpStatusCode.InternalServerError, err)

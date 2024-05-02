@@ -94,8 +94,9 @@ export const __controllerMarketplace = {
                     const somme: number[] = []
                     for (let index = 0; index < treated.length; index++) {
                         const { id, qte, prix_unitaire, currency, __tbl_ecom_cooperative, __tbl_ecom_stock, prix_plus_commission, __tbl_ecom_unitesmesure, __tbl_ecom_produit, tva }: any = treated[index] as any;
-                        const { produit } = __tbl_ecom_produit
+                        const { produit, id_unity } = __tbl_ecom_produit
                         const { unity } = __tbl_ecom_unitesmesure
+                        const { id: id_cooperative } = __tbl_ecom_cooperative as any;
                         let price: number = (parseFloat(prix_plus_commission) * parseFloat(qte))
                         let { code, data, message } = await Services.converterDevise({ amount: price, currency: currency_payement || currency });
                         if (code === 200) {
@@ -104,6 +105,8 @@ export const __controllerMarketplace = {
                             const cmmd = await Commandes.create({
                                 id_produit: id,
                                 is_pending: 1,
+                                id_cooperative,
+                                id_unity,
                                 shipped_to: parseInt(type_livraison) === 4 ? shipped_to : "---",
                                 payament_phone: payament_phone || phone,
                                 currency: converted_currency,

@@ -16,6 +16,19 @@ export const groupArrayByPairs = ({ array }: { array: any[] }) => {
     return groupedArray;
 };
 
+export const groupedDataByColumn = ({ data, column }: { data: any[], column: string }): any[] => {
+    const groupedData: any = {};
+    [...data].forEach(element => {
+        const transaction = element[column];
+        if (groupedData[transaction]) {
+            groupedData[transaction].push(element);
+        } else {
+            groupedData[transaction] = [element];
+        }
+    });
+    return groupedData
+};
+
 export const imageTypes = [
     { fileType: "JPEG", mimeType: "image/jpeg" },
     { fileType: "PNG", mimeType: "image/png" },

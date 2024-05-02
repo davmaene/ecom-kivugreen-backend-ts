@@ -21,6 +21,7 @@ import { Services } from '../__services/serives.all';
 import { Extras } from '../__models/model.extras';
 import { Hasmembers } from '../__models/model.hasmembers';
 import { Cooperatives } from '../__models/model.cooperatives';
+import { now } from '../__helpers/helper.moment';
 
 dotenv.config()
 
@@ -820,7 +821,7 @@ export const __controllerUsers = {
         }
     },
     register: async (req: Request, res: Response, next: NextFunction) => {
-        const { nom, postnom, prenom, email, phone, adresse, idprovince, idterritoire, idvillage, date_naiss, genre, password, avatar, idroles } = req.body;
+        const { nom, postnom, prenom, email, phone, adresse, idprovince, idterritoire, idvillage, date_naiss, genre, password, avatar, idroles, id_cooperative } = req.body;
 
         try {
             const pwd = await hashPWD({ plaintext: password })
@@ -851,7 +852,7 @@ export const __controllerUsers = {
                         delete user['idterritoire'];
                         delete user['idvillage'];
                         delete user['isvalidated'];
-                        const { id, } = user
+                        const { id, } = user as any
 
                         Services.addRoleToUser({
                             inputs: {
@@ -871,19 +872,99 @@ export const __controllerUsers = {
                                             })
                                         }
 
-                                        await Services.onSendSMS({
-                                            is_flash: false,
-                                            to: fillphone({ phone }),
-                                            content: `Bonjour ${capitalizeWords({ text: nom })} votre compte a été crée avec succès. Ceci est votre mot de passe ${password}`,
-                                        }).then(sms => {
-                                            transaction.commit()
-                                            return Responder(res, HttpStatusCode.Created, user)
-                                        })
-                                            .catch(er => {
-                                                transaction.rollback()
-                                                log(er)
-                                                return Responder(res, HttpStatusCode.InternalServerError, "Role not initialized correctly !")
+                                        if (id_cooperative) {
+                                            const coop = await Cooperatives.findOne({
+                                                where: {
+                                                    id: id_cooperative
+                                                }
                                             })
+                                            if (coop instanceof Cooperatives) {
+                                                const { cooperative, id: asid_cooperative } = coop
+                                                Services.onGenerateCardMember({
+                                                    id_cooperative: id_cooperative,
+                                                    id_user: id
+                                                })
+                                                    .then(async ({ code, message, data }) => {
+                                                        log("Generated card is =======> ", data)
+                                                        if (code === 200) {
+                                                            // log("Generated card is =======> ", code, "=======", data)
+
+                                                            const { card, expiresInString, expiresInUnix } = data
+
+                                                            Services.addMemberToCoopec({
+                                                                inputs: {
+                                                                    idcooperative: parseInt(id_cooperative),
+                                                                    idmember: id,
+                                                                    card,
+                                                                    expiresIn: expiresInString,
+                                                                    expiresInUnix: expiresInUnix.toString()
+                                                                },
+                                                                transaction: transaction,
+                                                                cb: (err: any, done: any) => {
+                                                                    log("Added member card is =======> ", code, "=======", done)
+
+                                                                    if (done) {
+                                                                        const { code, message, data } = done;
+                                                                        if (code === 200) {
+                                                                            Services.onSendSMS({
+                                                                                to: fillphone({ phone }),
+                                                                                is_flash: false,
+                                                                                content: `Bonjour ${nom}, votre enregistrement dans la coopérative ${cooperative} en date du ${now({ options: {} })} a réussi, votre carte de membre sera expiré le ${expiresInString.toString()}`
+                                                                            })
+                                                                                .then(m => {
+                                                                                    transaction.commit()
+                                                                                    return Responder(res, HttpStatusCode.Ok, user)
+                                                                                })
+                                                                                .catch(e => {
+                                                                                    transaction.rollback()
+                                                                                    log(data)
+                                                                                    return Responder(res, HttpStatusCode.InternalServerError, "Error on initializing members table !")
+                                                                                })
+
+                                                                        } else {
+                                                                            transaction.rollback()
+                                                                            log(data)
+                                                                            return Responder(res, HttpStatusCode.InternalServerError, "Error on initializing members table !")
+                                                                        }
+                                                                    } else {
+                                                                        transaction.rollback()
+                                                                        log(done)
+                                                                        return Responder(res, HttpStatusCode.InternalServerError, "Error on initializing members table ! ===")
+                                                                    }
+                                                                }
+                                                            })
+
+                                                        } else {
+                                                            transaction.rollback()
+                                                            return Responder(res, HttpStatusCode.BadRequest, `The request can not be proceded cause the card can not be initialized !`)
+                                                        }
+                                                    })
+                                                    .catch(err => {
+                                                        transaction.rollback()
+                                                        return Responder(res, HttpStatusCode.InternalServerError, err.toString())
+                                                    })
+                                            } else {
+                                                transaction.rollback();
+                                                log(coop)
+                                                return Responder(res, HttpStatusCode.NotFound, `The coopec with ID: XXXX:${id_cooperative} was not found !`)
+                                            }
+                                        } else {
+                                            await Services.onSendSMS({
+                                                is_flash: false,
+                                                to: fillphone({ phone }),
+                                                content: `Bonjour ${capitalizeWords({ text: nom })} votre compte a été crée avec succès. Ceci est votre mot de passe ${password}`,
+                                            })
+                                                .then(sms => {
+                                                    transaction.commit()
+                                                    return Responder(res, HttpStatusCode.Created, user)
+                                                })
+                                                .catch(er => {
+                                                    transaction.rollback()
+                                                    log(er)
+                                                    return Responder(res, HttpStatusCode.InternalServerError, "Role not initialized correctly !")
+                                                })
+                                        }
+
                                     } else {
                                         transaction.rollback()
                                         return Responder(res, HttpStatusCode.InternalServerError, "Role not initialized correctly !")
@@ -1084,6 +1165,84 @@ export const __controllerUsers = {
                         model: Roles,
                         required: true,
                         attributes: ['id', 'role'],
+                    },
+                    {
+                        model: Provinces,
+                        required: false,
+                        attributes: ['id', 'province']
+                    },
+                    {
+                        model: Territoires,
+                        required: false,
+                        attributes: ['id', 'territoire']
+                    },
+                    {
+                        model: Villages,
+                        required: false,
+                        attributes: ['id', 'village']
+                    }
+                ]
+            })
+                .then(user => {
+                    transaction.commit()
+                    return Responder(res, HttpStatusCode.Ok, { count: user.length, rows: user })
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    listbyname: async (req: Request, res: Response, next: NextFunction) => {
+        const { name: idrole } = req.params
+        if (!idrole) return Responder(res, HttpStatusCode.NotAcceptable, "THis request must have at least name as param !")
+        try {
+            const transaction = await connect.transaction();
+
+            Users.belongsToMany(Roles, { through: Hasroles });
+            Roles.belongsToMany(Users, { through: Hasroles });
+
+            Provinces.hasOne(Users, { foreignKey: "id" });
+            Users.belongsTo(Provinces, { foreignKey: "idprovince" });
+
+            Territoires.hasOne(Users, { foreignKey: "id" });
+            Users.belongsTo(Territoires, { foreignKey: "idterritoire" });
+
+            Villages.hasOne(Users, { foreignKey: "id" });
+            Users.belongsTo(Villages, { foreignKey: "idvillage" });
+
+            Users.findAll({
+                where: {
+                    [Op.or]: [
+                        {
+                            nom: {
+                                [Op.like]: `%${idrole}%`
+                            }
+                        },
+                        {
+                            postnom: {
+                                [Op.like]: `%${idrole}%`
+                            }
+                        },
+                        {
+                            prenom: {
+                                [Op.like]: `%${idrole}%`
+                            }
+                        },
+                        {
+                            phone: {
+                                [Op.like]: `%${idrole}%`
+                            }
+                        },
+                    ],
+                    isvalidated: 1
+                },
+                attributes: {
+                    exclude: ['password', 'isvalidated', 'idprovince', 'idterritoire', 'idvillage']
+                },
+                include: [
+                    {
+                        model: Roles,
+                        required: true,
+                        attributes: ['id', 'role']
                     },
                     {
                         model: Provinces,

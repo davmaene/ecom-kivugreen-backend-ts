@@ -36,8 +36,8 @@ export const accessValidator = (req: Request, res: Response, next: NextFunction)
                         return Responder(res, HttpStatusCode.Unauthorized, "Your Token has expired !")
                     }
                 }
-                if (authorization && authorization.includes("Bearer ")) {
 
+                if (authorization && authorization.includes("Bearer ")) {
                     onVerify({
                         token: authorization.split(" ")[1].trim(),
                         next,

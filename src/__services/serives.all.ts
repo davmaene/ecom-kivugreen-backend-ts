@@ -1632,7 +1632,9 @@ export const Services = {
             return cb(undefined, { code: 500, message: "Error", data: error })
         }
     },
-    addMemberToCoopec: async ({ inputs: { idmember, idcooperative, expiresIn, expiresInUnix, card }, transaction, cb }: { inputs: { idmember?: number, idcooperative: number, card: string, expiresIn: string, expiresInUnix: string }, transaction: any, cb: Function }) => {
+    addMemberToCoopec: async ({ inputs, transaction, cb }: { inputs: { idmember?: number, idcooperative: number, card: string, expiresIn: string, expiresInUnix: string }, transaction: any, cb: Function }) => {
+        log("+++++++++++======>", inputs)
+        const { idmember, idcooperative, card, expiresIn, expiresInUnix } = inputs;
         if (!idmember || !idcooperative) return cb(undefined, { code: 401, message: "This request must have at least !", data: { idmember, idcooperative } });
         try {
             if (idmember) {
@@ -1644,7 +1646,9 @@ export const Services = {
                     date_expiration: expiresIn,
                     date_expiration_unix: expiresInUnix
                 }, { transaction })
-                return cb(undefined, { code: 200, message: "Done", data: member })
+                if(member instanceof Hasmembers){
+                    return cb(undefined, { code: 200, message: "Done", data: member })
+                }else return cb(undefined, { code: 500, message: "Error", data: null })
             }
         } catch (error) {
             return cb(undefined, { code: 500, message: "Error", data: error })
