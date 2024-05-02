@@ -97,7 +97,7 @@ export const __controllerStocks = {
                                     } catch (error) {
                                         nottreated.push(array[index])
                                         log(error)
-                                        log("Error on treatement on object => ", id_produit)
+                                        log("Error on treatement on object => ", id_produit, configs)
                                     }
                                 }
                             }
