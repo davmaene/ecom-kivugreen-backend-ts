@@ -281,5 +281,51 @@ exports.__controllerCommandes = {
         catch (error) {
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
         }
+    }),
+    changestate: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        const { idcommande: transaction } = req.params;
+        if (!transaction)
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "this request must have at least idcommande in the request !");
+        try {
+            model_commandes_1.Commandes.belongsTo(model_produits_1.Produits, { foreignKey: "id_produit" });
+            model_commandes_1.Commandes.belongsTo(model_typelivraison_1.Typelivraisons, { foreignKey: "type_livraison" });
+            model_commandes_1.Commandes.findAll({
+                include: [
+                    {
+                        model: model_produits_1.Produits,
+                        required: false,
+                    },
+                    {
+                        model: model_produits_1.Produits,
+                        required: false,
+                    }
+                ],
+                where: {
+                    transaction,
+                    state: 3, // 3: livrable, payed and can be livrable
+                }
+            })
+                .then(commandes => {
+                if (commandes && commandes.length > 0) {
+                    model_commandes_1.Commandes.update({
+                        state: 2
+                    }, {
+                        where: {
+                            transaction
+                        }
+                    });
+                    return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, commandes);
+                }
+                else {
+                    return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.BadRequest, {});
+                }
+            })
+                .catch(err => {
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, err);
+            });
+        }
+        catch (error) {
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
+        }
     })
 };

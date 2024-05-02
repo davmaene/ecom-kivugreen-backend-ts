@@ -20,3 +20,5 @@
 ::1 - - [02/May/2024:21:32:21 +0000] "GET /api/users/list?page=1 HTTP/1.1" 200 10009 "http://localhost:3000/" "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36 Edg/124.0.0.0"
 ::1 - - [02/May/2024:21:32:21 +0000] "POST /api/stocks/stock/in HTTP/1.1" 409 144 "-" "PostmanRuntime/7.37.3"
 ::1 - - [02/May/2024:21:32:21 +0000] "GET / HTTP/1.1" 200 1883 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0"
+::1 - - [02/May/2024:21:34:38 +0000] "POST /api/stocks/stock/in HTTP/1.1" 200 448 "-" "PostmanRuntime/7.37.3"
+::1 - - [02/May/2024:21:34:50 +0000] "POST /api/stocks/stock/in HTTP/1.1" 200 659 "-" "PostmanRuntime/7.37.3"

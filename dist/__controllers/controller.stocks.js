@@ -61,7 +61,7 @@ exports.__controllerStocks = {
                             else {
                                 try {
                                     const prd = yield model_produits_1.Produits.findOne({
-                                        attributes: ['id', 'produit', 'id_unity', 'id_category', 'id_souscategory', 'image'],
+                                        attributes: ['id', 'produit', 'id_unity', 'id_category', 'id_souscategory', 'image', 'tva'],
                                         where: {
                                             id: id_produit
                                         }
@@ -69,6 +69,9 @@ exports.__controllerStocks = {
                                     if (prd instanceof model_produits_1.Produits) {
                                         const { id, produit, id_unity, id_category, id_souscategory, image, tva } = prd.toJSON();
                                         const { id: asstockid } = stock.toJSON();
+                                        console.log('====================================');
+                                        console.log("TVA", tva, prd.toJSON());
+                                        console.log('====================================');
                                         if (produit && id_category && id_unity) {
                                             const [item, created] = yield model_hasproducts_1.Hasproducts.findOrCreate({
                                                 where: {
@@ -112,7 +115,11 @@ exports.__controllerStocks = {
                                 }
                                 catch (error) {
                                     nottreated.push(array[index]);
-                                    (0, console_1.log)("Error on treatement on object => ", id_produit);
+                                    // log(error)
+                                    console.log('====================================');
+                                    console.log(id_produit, prix_unitaire, commission_price);
+                                    console.log('====================================');
+                                    (0, console_1.log)("Error on treatement on object => ", id_produit, configs);
                                 }
                             }
                         }
@@ -123,11 +130,11 @@ exports.__controllerStocks = {
                         else {
                             transaction.rollback();
                             // log(nottreated, treated)
-                            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Conflict, "this request must hava at least Configurations params for the price !");
+                            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Conflict, "this request must have at least Configurations params for the price !, the table of product is empty");
                         }
                     }
                     else {
-                        return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Conflict, "this request must hava at least Configurations params for the price !");
+                        return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Conflict, "this request must have at least Configurations params for the price !, we can not initialize the commission and taux table");
                     }
                 }
                 else {

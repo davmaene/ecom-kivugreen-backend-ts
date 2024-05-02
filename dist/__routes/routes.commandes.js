@@ -17,3 +17,4 @@ exports.__routesCommandes.get("/list/bycooperative/:idcooperative", controller_c
 exports.__routesCommandes.get("/list/bycooperativeandstate/:idcooperative/:state", controller_commandes_1.__controllerCommandes.listcommandebycooperativeandstate);
 exports.__routesCommandes.post("/commande/add", controller_marketplaces_1.__controllerMarketplace.placecommand);
 exports.__routesCommandes.put("/commande/validate/:idcommande", controller_commandes_1.__controllerCommandes.validate);
+exports.__routesCommandes.put("/commande/changestate/:idcommande", controller_commandes_1.__controllerCommandes.changestate);

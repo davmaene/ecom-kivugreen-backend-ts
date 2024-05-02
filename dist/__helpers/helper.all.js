@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.groupArrayElementByColumn = exports.formatUserModel = exports.capitalizeWords = exports.truncatestring = exports.checkFileType = exports.imageTypes = exports.groupedDataByColumn = exports.groupArrayByPairs = void 0;
+exports.groupArrayElementByColumn = exports.formatUserModel = exports.capitalizeWords = exports.truncatestring = exports.checkFileType = exports.renderState = exports.imageTypes = exports.groupedDataByColumn = exports.groupArrayByPairs = void 0;
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const { APP_ESCAPESTRING: ESCAPESTRING } = process.env;
@@ -63,6 +63,32 @@ const documentTypes = [
     // { fileType: "XML", mimeType: "application/xml" },
     // { fileType: "JSON", mimeType: "application/json" }
 ];
+const renderState = ({ state }) => {
+    const states = {
+        0: {
+            color: null,
+            name: "Commande non payée"
+        },
+        1: {
+            color: null,
+            name: "Commande annulée"
+        },
+        2: {
+            color: null,
+            name: "En cours de livraison par KGreen"
+        },
+        3: {
+            color: null,
+            name: "Commande payée possibilité de livraison"
+        },
+        4: {
+            color: null,
+            name: "Commande livrée avec succès"
+        }
+    };
+    return states[state] || { color: null, name: null };
+};
+exports.renderState = renderState;
 const checkFileType = ({ mimetype, as = "doc" || "img" }) => {
     if (exports.imageTypes.map(type => type['mimeType']).includes(mimetype) && as === "img") {
         return { isKnownType: true, mimetype };
