@@ -4,7 +4,7 @@ import { HttpStatusCode } from "../__enums/enum.httpsstatuscode";
 import { Responder } from "../__helpers/helper.responseserver";
 import { Response, Request } from "express";
 import { Produits } from '../__models/model.produits';
-import { log } from 'console';
+import { Console, log } from 'console';
 import { Cooperatives } from '../__models/model.cooperatives';
 import { Hasproducts } from '../__models/model.hasproducts';
 import { connect } from '../__databases/connecte';
@@ -57,6 +57,9 @@ export const __controllerStocks = {
                                         if (prd instanceof Produits) {
                                             const { id, produit, id_unity, id_category, id_souscategory, image, tva } = prd.toJSON() as any
                                             const { id: asstockid } = stock.toJSON() as any;
+                                            console.log('====================================');
+                                            console.log("TVA", tva);
+                                            console.log('====================================');
                                             if (produit && id_category && id_unity) {
                                                 const [item, created] = await Hasproducts.findOrCreate({
                                                     where: {
@@ -96,7 +99,10 @@ export const __controllerStocks = {
                                         }
                                     } catch (error) {
                                         nottreated.push(array[index])
-                                        log(error)
+                                        // log(error)
+                                        console.log('====================================');
+                                        console.log(id_produit, prix_unitaire, commission_price);
+                                        console.log('====================================');
                                         log("Error on treatement on object => ", id_produit, configs)
                                     }
                                 }
