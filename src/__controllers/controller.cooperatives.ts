@@ -98,6 +98,10 @@ export const __controllerCooperatives = {
         try {
             if (parseInt(isformel) === 1) {
                 if (!req.files) return Responder(res, HttpStatusCode.NotAcceptable, "Please upload a attached file for this cooperative !")
+                if (!file) return Responder(res, HttpStatusCode.NotAcceptable, "Please provide the file cause this is formel cooperative");
+                const { mimetype } = req['files']['file'] as any
+                const type: false | any = checkFileType({ as: 'doc', mimetype })
+                if (!type) return Responder(res, HttpStatusCode.NotAcceptable, "Please provide the cooperative's logo as image file");
                 const { code, message, data } = await Services.uploadfile({
                     inputs: {
                         file: req,
