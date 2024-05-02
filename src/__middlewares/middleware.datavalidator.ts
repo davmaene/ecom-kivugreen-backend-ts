@@ -135,6 +135,7 @@ export const produitValidator = [
     body('id_souscategory').optional().isNumeric().withMessage("`id_souscategory` is required and it can not be empty !"),
 ];
 
+// .isStrongPassword()
 export const userModelValidator = [
     body('nom').notEmpty().isString().withMessage("`nom` is required and it can not be empty !"),
     body('postnom').notEmpty().isString().withMessage("`postnom` is required and it can not be empty !"),
@@ -159,7 +160,7 @@ export const userModelValidator = [
         });
     }).withMessage("`idterritoire` the value for idterritoire is not invalid ! this must be integer !"),
     body('idvillage').optional().isNumeric().withMessage("`idvillage` the value for idterritoire is not invalid ! this must be integer !"),
-    body('password').notEmpty().isStrongPassword().withMessage("the password must have at least 8 characters; 1 Special character; 1 number, 1 lowercase letter, 1 uppercase letter. Ex: D@v12345678"),
+    body('password').notEmpty().withMessage("the password must have at least 8 characters; 1 Special character; 1 number, 1 lowercase letter, 1 uppercase letter. Ex: D@v12345678"),
     body('idroles').isArray({ min: 1 }).custom(async (v, { req }) => {
         const validator = await roleValidator(v);
         return new Promise((resolve, reject) => {
