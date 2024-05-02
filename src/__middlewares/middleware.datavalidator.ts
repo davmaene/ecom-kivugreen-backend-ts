@@ -37,6 +37,7 @@ export const provinceValidator = async (v: string) => {
 };
 
 export const territoireValidator = async ({ v, vv }: { v: string, vv: string }) => {
+    log("===============> ",v, vv)
     v = (v ? v : '0')
     vv = (vv ? vv : '0')
     const t = (await Services.rawTerritoiresAsTableOfIds({ idprovince: parseInt(vv) }));
@@ -150,7 +151,8 @@ export const userModelValidator = [
         });
     }).withMessage("`idprovince` the value for idprovince is not invalid ! this must be integer !"),
     body('idterritoire').optional().isNumeric().custom(async (v, { req }) => {
-        const validator = await territoireValidator(v);
+        const { idprovince } = req.body
+        const validator = await territoireValidator({ v, vv: idprovince })
         return new Promise((resolve, reject) => {
             if (validator) resolve(true);
             else reject(false);
