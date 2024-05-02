@@ -265,5 +265,48 @@ export const __controllerCommandes = {
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
+    },
+    changestate: async (req: Request, res: Response) => {
+        const { idcommande: transaction } = req.params;
+        if (!transaction) return Responder(res, HttpStatusCode.NotAcceptable, "this request must have at least idcommande in the request !")
+        try {
+            Commandes.belongsTo(Produits, { foreignKey: "id_produit" })
+            Commandes.belongsTo(Typelivraisons, { foreignKey: "type_livraison" })
+            Commandes.findAll({
+                include: [
+                    {
+                        model: Produits,
+                        required: false,
+                    },
+                    {
+                        model: Produits,
+                        required: false,
+                    }
+                ],
+                where: {
+                    transaction,
+                    state: 3, // 3: livrable, payed and can be livrable
+                }
+            })
+                .then(commandes => {
+                    if (commandes && commandes.length > 0) {
+                        Commandes.update({
+                            state: 2
+                        }, {
+                            where: {
+                                transaction
+                            }
+                        })
+                        return Responder(res, HttpStatusCode.Ok, commandes)
+                    } else {
+                        return Responder(res, HttpStatusCode.BadRequest, {})
+                    }
+                })
+                .catch(err => {
+                    return Responder(res, HttpStatusCode.InternalServerError, err)
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
     }
 }
