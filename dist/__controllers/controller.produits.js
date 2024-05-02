@@ -21,7 +21,7 @@ const model_souscategories_1 = require("../__models/model.souscategories");
 const model_unitemesures_1 = require("../__models/model.unitemesures");
 exports.__controllerProduits = {
     add: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-        const { id_unity, id_category, id_souscategory, description, produit } = req.body;
+        const { id_unity, id_category, id_souscategory, description, produit, tva } = req.body;
         const { currentuser } = req;
         const { __id, roles, uuid, phone } = currentuser;
         if (!req.files)
@@ -41,6 +41,7 @@ exports.__controllerProduits = {
                         if (code === 200) {
                             const { filename, fullpath: slink } = data;
                             model_produits_1.Produits.create({
+                                tva: tva ? (tva / 100) : .16,
                                 produit: (0, helper_all_1.capitalizeWords)({ text: produit }),
                                 image: slink,
                                 id_unity: parseInt(id_unity),
@@ -68,6 +69,7 @@ exports.__controllerProduits = {
                                         if (code === 200) {
                                             const { filename, path } = data;
                                             model_produits_1.Produits.create({
+                                                tva: (tva / 100),
                                                 produit: (0, helper_all_1.capitalizeWords)({ text: produit }),
                                                 image: path,
                                                 id_unity: parseInt(id_unity),

@@ -38,9 +38,162 @@ const model_cooperatives_1 = require("../__models/model.cooperatives");
 dotenv_1.default.config();
 const { APP_EXIPRES_IN_ADMIN, APP_EXIPRES_IN_ALL, APP_ESCAPESTRING, APP_NAME } = process.env;
 exports.__controllerUsers = {
+    otp: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+        const { phone, password } = req.body;
+        const role = [1, 3, 2, 4, 5]; // allowed roles to connect 
+        if (!phone)
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "This request must have at least !phone");
+        try {
+            const transaction = yield connecte_1.connect.transaction();
+            model_users_1.Users.belongsToMany(model_roles_1.Roles, { through: model_hasroles_1.Hasroles });
+            model_roles_1.Roles.belongsToMany(model_users_1.Users, { through: model_hasroles_1.Hasroles });
+            model_provinces_1.Provinces.hasOne(model_users_1.Users, { foreignKey: "id" });
+            model_users_1.Users.belongsTo(model_provinces_1.Provinces, { foreignKey: "idprovince" });
+            model_territoires_1.Territoires.hasOne(model_users_1.Users, { foreignKey: "id" });
+            model_users_1.Users.belongsTo(model_territoires_1.Territoires, { foreignKey: "idterritoire" });
+            model_villages_1.Villages.hasOne(model_users_1.Users, { foreignKey: "id" });
+            model_users_1.Users.belongsTo(model_villages_1.Villages, { foreignKey: "idvillage" });
+            model_users_1.Users.findOne({
+                where: {
+                    [sequelize_1.Op.or]: [
+                        { email: phone },
+                        { phone: (0, helper_fillphone_1.fillphone)({ phone }) }
+                    ]
+                },
+                include: [
+                    {
+                        model: model_roles_1.Roles,
+                        required: true,
+                        attributes: ['id', 'role']
+                    },
+                    {
+                        model: model_provinces_1.Provinces,
+                        required: false,
+                        attributes: ['id', 'province']
+                    },
+                    {
+                        model: model_territoires_1.Territoires,
+                        required: false,
+                        attributes: ['id', 'territoire']
+                    },
+                    {
+                        model: model_villages_1.Villages,
+                        required: false,
+                        attributes: ['id', 'village']
+                    }
+                ]
+            })
+                .then((user) => __awaiter(void 0, void 0, void 0, function* () {
+                if (user instanceof model_users_1.Users) {
+                    const { password: aspassword, isvalidated, __tbl_ecom_roles, id, phone: asphone, uuid, nom, postnom } = user.toJSON();
+                    const extras = yield model_extras_1.Extras.findOne({
+                        where: {
+                            id_user: id
+                        }
+                    });
+                    const roles = Array.from(__tbl_ecom_roles).map((role) => role['id']);
+                    if ((Array.from(roles).some(r => role.includes(r))) && (extras instanceof model_extras_1.Extras)) {
+                        const { verification } = extras.toJSON();
+                        serives_all_1.Services.onSendSMS({
+                            is_flash: false,
+                            to: (0, helper_fillphone_1.fillphone)({ phone }),
+                            content: `Bonjour ${(0, helper_all_1.capitalizeWords)({ text: nom })} nous avons reçu une demande de connexion à votre compte utilisez ce code pour la vérification ${verification}`,
+                        })
+                            .then(suc => {
+                            transaction.commit();
+                            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Created, `A verification code was sent to ${asphone}`);
+                        })
+                            .catch(err => {
+                            transaction.rollback();
+                            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, extras);
+                        });
+                    }
+                    else {
+                        transaction.rollback();
+                        return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Unauthorized, "You dont have right access please contact admin system !");
+                    }
+                }
+                else {
+                    const code_verfify = (0, helper_random_1.randomLongNumber)({ length: 6 });
+                    const pwd = yield (0, helper_passwords_1.hashPWD)({ plaintext: code_verfify });
+                    const idroles = [5];
+                    model_users_1.Users.create({
+                        phone: (0, helper_fillphone_1.fillphone)({ phone }),
+                        password: pwd,
+                    })
+                        .then((newuser) => __awaiter(void 0, void 0, void 0, function* () {
+                        if (newuser instanceof model_users_1.Users) {
+                            const { nom, phone: asphone, id } = newuser.toJSON();
+                            serives_all_1.Services.addRoleToUser({
+                                inputs: {
+                                    idroles,
+                                    iduser: id
+                                },
+                                transaction,
+                                cb: (err, done) => {
+                                    if (done) {
+                                        const { code } = done;
+                                        if (code === 200) {
+                                            model_extras_1.Extras.create({
+                                                verification: code_verfify,
+                                                id_user: id
+                                            })
+                                                .then(ext => {
+                                                if (ext instanceof model_extras_1.Extras) {
+                                                    serives_all_1.Services.onSendSMS({
+                                                        is_flash: false,
+                                                        to: (0, helper_fillphone_1.fillphone)({ phone: asphone }),
+                                                        content: `Bonjour cher client votre compte a été crée avec succès. Ceci est votre code de vérification ${code_verfify}`,
+                                                    })
+                                                        .then(suc => {
+                                                        transaction.commit();
+                                                        return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Created, `A verification code was sent to user ${asphone}`);
+                                                    })
+                                                        .catch(err => {
+                                                        transaction.rollback();
+                                                        return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, err);
+                                                    });
+                                                }
+                                                else {
+                                                    transaction.rollback();
+                                                    return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Conflict, "Extras table was not succefuly initialized !");
+                                                }
+                                            })
+                                                .catch(er => {
+                                                transaction.rollback();
+                                                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Conflict, "Extras table was not succefuly initialized !");
+                                            });
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                        else {
+                            transaction.rollback();
+                            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Forbidden, "Item user was not successfuly initialized !");
+                        }
+                    }))
+                        .catch(err => {
+                        transaction.rollback();
+                        return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Forbidden, err.toString());
+                    });
+                }
+            }))
+                .catch(err => {
+                (0, console_1.log)(err);
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Conflict, err);
+            });
+        }
+        catch (error) {
+            (0, console_1.log)(error);
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
+        }
+    }),
     signin: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         const { phone, password } = req.body;
         const role = [1, 3, 2, 4, 5]; // allowed roles to connect 
+        if (!phone || !password)
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "This request must have at least !phone || !password");
         try {
             const transaction = yield connecte_1.connect.transaction();
             model_users_1.Users.belongsToMany(model_roles_1.Roles, { through: model_hasroles_1.Hasroles });
@@ -374,7 +527,7 @@ exports.__controllerUsers = {
                                             serives_all_1.Services.onSendSMS({
                                                 is_flash: false,
                                                 to: (0, helper_fillphone_1.fillphone)({ phone }),
-                                                content: `Bonjour ${(0, helper_all_1.capitalizeWords)({ text: nom })} votre compte a été crée avec succès. Ceci est votre code de vérirification ${code_}`,
+                                                content: `Bonjour ${(0, helper_all_1.capitalizeWords)({ text: nom })} votre compte a été crée avec succès. Ceci est votre code de vérification ${code_}`,
                                             })
                                                 .then(suc => {
                                                 transaction.commit();
@@ -424,6 +577,8 @@ exports.__controllerUsers = {
     auth: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         const { phone, password } = req.body;
         const role = [1, 3, 2]; // allowed roles to connect 
+        if (!phone || !password)
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "This request must have at least !phone || !password");
         try {
             const transaction = yield connecte_1.connect.transaction();
             model_users_1.Users.belongsToMany(model_roles_1.Roles, { through: model_hasroles_1.Hasroles });
@@ -1021,12 +1176,19 @@ exports.__controllerUsers = {
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "This request must have at least !id_user || !verification_code");
         try {
             model_users_1.Users.hasOne(model_extras_1.Extras, { foreignKey: "id_user" });
+            model_users_1.Users.belongsToMany(model_roles_1.Roles, { through: model_hasroles_1.Hasroles });
+            model_roles_1.Roles.belongsToMany(model_users_1.Users, { through: model_hasroles_1.Hasroles });
             model_users_1.Users.findOne({
                 include: [
                     {
                         model: model_extras_1.Extras,
                         required: true
-                    }
+                    },
+                    {
+                        model: model_roles_1.Roles,
+                        required: true,
+                        attributes: ['id', 'role']
+                    },
                 ],
                 attributes: {
                     exclude: ['password']
@@ -1041,15 +1203,43 @@ exports.__controllerUsers = {
             })
                 .then(user => {
                 if (user instanceof model_users_1.Users) {
-                    const { isvalidated, __tbl_ecom_extra } = user.toJSON();
-                    if (isvalidated === 0) {
+                    const { isvalidated, __tbl_ecom_extra, phone: asphone, uuid, id, __tbl_ecom_roles } = user.toJSON();
+                    if (1) { // isvalidated === 0
                         const { verification } = __tbl_ecom_extra;
+                        const roles = Array.from(__tbl_ecom_roles).map((role) => role['id']);
                         if (String(verification_code).trim() === String(verification).toString()) {
                             user.update({
                                 isvalidated: 1
                             })
                                 .then(U => {
-                                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, user);
+                                middleware_cookies_1.Middleware.onSignin({
+                                    expiresIn: APP_EXIPRES_IN_ADMIN || '45m',
+                                    data: {
+                                        phone: asphone || (user && user['phone']),
+                                        uuid: uuid || (user && user['uuid']),
+                                        __id: id || (user && user['id']),
+                                        roles
+                                    }
+                                }, (reject, token) => {
+                                    if (token) {
+                                        // user = formatUserModel({ model: user })
+                                        if (user !== null) {
+                                            if (user.hasOwnProperty('isvalidated')) {
+                                                delete user['isvalidated'];
+                                            }
+                                            if (user.hasOwnProperty('password')) {
+                                                delete user['password'];
+                                            }
+                                        }
+                                        // transaction.commit()
+                                        return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { token, user });
+                                    }
+                                    else {
+                                        // transaction.rollback()
+                                        return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Forbidden, "Your refresh token already expired ! you must login to get a new one !");
+                                    }
+                                });
+                                // return Responder(res, HttpStatusCode.Ok, user)
                             })
                                 .catch(Err => {
                                 return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.BadRequest, Err);
@@ -1099,7 +1289,7 @@ exports.__controllerUsers = {
                 .then(user => {
                 if (user instanceof model_users_1.Users) {
                     const { isvalidated, __tbl_ecom_extra, phone, nom } = user.toJSON();
-                    if (isvalidated === 0) {
+                    if (1) { // isvalidated === 0
                         const { verification } = __tbl_ecom_extra;
                         const code_ = verification || (0, helper_random_1.randomLongNumber)({ length: 6 });
                         serives_all_1.Services.onSendSMS({

@@ -9,7 +9,7 @@ const controller_commandes_1 = require("../__controllers/controller.commandes");
 const express_1 = __importDefault(require("express"));
 exports.__routesCommandes = express_1.default.Router();
 exports.__routesCommandes.get("/list", controller_commandes_1.__controllerCommandes.list);
-exports.__routesCommandes.get("/list/bystate/:status/", controller_commandes_1.__controllerCommandes.listbystate);
+exports.__routesCommandes.get("/list/bystate/:status", controller_commandes_1.__controllerCommandes.listbystate);
 exports.__routesCommandes.get("/list/byowner", controller_commandes_1.__controllerCommandes.listbyowner);
 exports.__routesCommandes.get("/list/transactions/byowner", controller_commandes_1.__controllerCommandes.listtransaction);
 exports.__routesCommandes.get("/list/bytransaction/:idtransaction", controller_commandes_1.__controllerCommandes.listcommandebytransaction);

@@ -67,7 +67,7 @@ exports.__controllerStocks = {
                                         }
                                     });
                                     if (prd instanceof model_produits_1.Produits) {
-                                        const { id, produit, id_unity, id_category, id_souscategory, image } = prd.toJSON();
+                                        const { id, produit, id_unity, id_category, id_souscategory, image, tva } = prd.toJSON();
                                         const { id: asstockid } = stock.toJSON();
                                         if (produit && id_category && id_unity) {
                                             const [item, created] = yield model_hasproducts_1.Hasproducts.findOrCreate({
@@ -76,8 +76,9 @@ exports.__controllerStocks = {
                                                     TblEcomCooperativeId: id_ccoperative
                                                 },
                                                 defaults: {
-                                                    prix_plus_commission: prix_unitaire + (prix_unitaire * parseFloat(commission_price)),
+                                                    prix_plus_commission: prix_unitaire + (prix_unitaire * parseFloat(commission_price)) + (prix_unitaire * parseFloat(tva)),
                                                     currency,
+                                                    tva,
                                                     prix_unitaire,
                                                     date_production: asdate_production,
                                                     TblEcomCategoryId: id_category,

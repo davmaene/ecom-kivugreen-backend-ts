@@ -1610,7 +1610,7 @@ exports.Services = {
                 reject({ code: 500, message: " --- can not encode card ", data: {} });
         });
     }),
-    addMembersToCoopec: ({ inputs: { idmembers, idcooperative }, transaction, cb }) => __awaiter(void 0, void 0, void 0, function* () {
+    addMembersToCoopec: ({ inputs: { idmembers, idcooperative, expiresIn, expiresInUnix, card }, transaction, cb }) => __awaiter(void 0, void 0, void 0, function* () {
         if (!idmembers || !idcooperative)
             return cb(undefined, { code: 401, message: "This request must have at least !", data: { idmembers, idcooperative } });
         try {
@@ -1620,11 +1620,34 @@ exports.Services = {
                     const r = yield model_hasmembers_1.Hasmembers.create({
                         id: parseInt((0, helper_random_1.randomLongNumber)({ length: 6 })),
                         TblEcomCooperativeId: idcooperative,
-                        TblEcomUserId: member
+                        TblEcomUserId: member,
+                        carte: card,
+                        date_expiration: expiresIn,
+                        date_expiration_unix: expiresInUnix
                     }, { transaction });
                     done.push(r);
                 }
                 return cb(undefined, { code: 200, message: "Done", data: done });
+            }
+        }
+        catch (error) {
+            return cb(undefined, { code: 500, message: "Error", data: error });
+        }
+    }),
+    addMemberToCoopec: ({ inputs: { idmember, idcooperative, expiresIn, expiresInUnix, card }, transaction, cb }) => __awaiter(void 0, void 0, void 0, function* () {
+        if (!idmember || !idcooperative)
+            return cb(undefined, { code: 401, message: "This request must have at least !", data: { idmember, idcooperative } });
+        try {
+            if (idmember) {
+                const member = yield model_hasmembers_1.Hasmembers.create({
+                    id: parseInt((0, helper_random_1.randomLongNumber)({ length: 6 })),
+                    TblEcomCooperativeId: idcooperative,
+                    TblEcomUserId: idmember,
+                    carte: card,
+                    date_expiration: expiresIn,
+                    date_expiration_unix: expiresInUnix
+                }, { transaction });
+                return cb(undefined, { code: 200, message: "Done", data: member });
             }
         }
         catch (error) {

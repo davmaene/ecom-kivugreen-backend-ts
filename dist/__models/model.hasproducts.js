@@ -15,6 +15,10 @@ exports.Hasproducts = connecte_1.connect.define('__tbl_ecom_hasproducts', {
         autoIncrement: true,
         allowNull: true,
     },
+    tva: {
+        type: sequelize_1.DataTypes.FLOAT,
+        defaultValue: 0
+    },
     id_membre: sequelize_1.DataTypes.INTEGER,
     date_production: sequelize_1.DataTypes.STRING,
     qte: sequelize_1.DataTypes.INTEGER,

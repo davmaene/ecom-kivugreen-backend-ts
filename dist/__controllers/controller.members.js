@@ -16,7 +16,6 @@ const helper_responseserver_1 = require("../__helpers/helper.responseserver");
 const model_hasmembers_1 = require("../__models/model.hasmembers");
 const console_1 = require("console");
 const model_cooperatives_1 = require("../__models/model.cooperatives");
-const model_extras_1 = require("../__models/model.extras");
 exports.__controllerMembers = {
     list: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
@@ -37,19 +36,22 @@ exports.__controllerMembers = {
                 ]
             })
                 .then((list) => __awaiter(void 0, void 0, void 0, function* () {
-                const __ = [];
-                for (let index = 0; index < list.length; index++) {
-                    const { TblEcomUserId } = list[index].toJSON();
-                    const element = list[index].toJSON();
-                    const extra = yield model_extras_1.Extras.findOne({
-                        attributes: ['id', 'carte', 'date_expiration', 'date_expiration_unix', 'createdAt'],
-                        where: {
-                            id_user: TblEcomUserId
-                        }
-                    });
-                    __.push(Object.assign(Object.assign({}, extra === null || extra === void 0 ? void 0 : extra.toJSON()), element));
-                }
-                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: __.length, rows: __ });
+                // const __: any[] = []
+                // for (let index = 0; index < list.length; index++) {
+                //     const { TblEcomUserId } = list[index].toJSON() as any;
+                //     const element = list[index].toJSON() as any;
+                //     const extra = await Extras.findOne({
+                //         attributes: ['id','carte', 'date_expiration', 'date_expiration_unix', 'createdAt'],
+                //         where: {
+                //             id_user: TblEcomUserId
+                //         }
+                //     })
+                //     __.push({
+                //         ...extra?.toJSON(),
+                //         ...element,
+                //     })
+                // }
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: list.length, rows: list });
             }))
                 .catch(err => {
                 (0, console_1.log)(err);
@@ -84,19 +86,22 @@ exports.__controllerMembers = {
                 ]
             })
                 .then((list) => __awaiter(void 0, void 0, void 0, function* () {
-                const __ = [];
-                for (let index = 0; index < list.length; index++) {
-                    const { TblEcomUserId } = list[index].toJSON();
-                    const element = list[index].toJSON();
-                    const extra = yield model_extras_1.Extras.findOne({
-                        attributes: ['id', 'carte', 'date_expiration', 'date_expiration_unix', 'createdAt'],
-                        where: {
-                            id_user: TblEcomUserId
-                        }
-                    });
-                    __.push(Object.assign(Object.assign({}, extra === null || extra === void 0 ? void 0 : extra.toJSON()), element));
-                }
-                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: __.length, rows: __ });
+                // const __: any[] = []
+                // for (let index = 0; index < list.length; index++) {
+                //     const { TblEcomUserId } = list[index].toJSON() as any;
+                //     const element = list[index].toJSON() as any;
+                //     const extra = await Extras.findOne({
+                //         attributes: ['id','carte', 'date_expiration', 'date_expiration_unix', 'createdAt'],
+                //         where: {
+                //             id_user: TblEcomUserId
+                //         }
+                //     })
+                //     __.push({
+                //         ...extra?.toJSON(),
+                //         ...element,
+                //     })
+                // }
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: list.length, rows: list });
             }))
                 .catch(err => {
                 (0, console_1.log)(err);

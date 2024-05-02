@@ -7,7 +7,6 @@ exports.Extras = void 0;
 const sequelize_1 = require("sequelize");
 const connecte_1 = require("../__databases/connecte");
 const dotenv_1 = __importDefault(require("dotenv"));
-const helper_random_1 = require("../__helpers/helper.random");
 dotenv_1.default.config();
 const { APP_ESCAPESTRING } = process.env;
 exports.Extras = connecte_1.connect.define('__tbl_ecom_extras', {
@@ -17,22 +16,22 @@ exports.Extras = connecte_1.connect.define('__tbl_ecom_extras', {
         autoIncrement: true,
         allowNull: true
     },
-    carte: {
-        type: sequelize_1.DataTypes.STRING,
-        allowNull: true,
-        unique: true,
-        defaultValue: (0, helper_random_1.randomLongNumber)({ length: 19 })
-    },
-    date_expiration: {
-        type: sequelize_1.DataTypes.STRING,
-        allowNull: true,
-        defaultValue: APP_ESCAPESTRING
-    },
-    date_expiration_unix: {
-        type: sequelize_1.DataTypes.STRING,
-        allowNull: true,
-        defaultValue: APP_ESCAPESTRING
-    },
+    // carte: {
+    //     type: DataTypes.STRING,
+    //     allowNull: true,
+    //     unique: true,
+    //     defaultValue: randomLongNumber({ length: 19 })
+    // },
+    // date_expiration: {
+    //     type: DataTypes.STRING,
+    //     allowNull: true,
+    //     defaultValue: APP_ESCAPESTRING
+    // },
+    // date_expiration_unix: {
+    //     type: DataTypes.STRING,
+    //     allowNull: true,
+    //     defaultValue: APP_ESCAPESTRING
+    // },
     id_user: {
         type: sequelize_1.DataTypes.INTEGER,
         allowNull: false,

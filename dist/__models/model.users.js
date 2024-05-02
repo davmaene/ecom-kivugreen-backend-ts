@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Users = void 0;
 const sequelize_1 = require("sequelize");
 const connecte_1 = require("../__databases/connecte");
+const uuid_1 = require("uuid");
 exports.Users = connecte_1.connect.define('__tbl_ecom_users', {
     id: {
         type: sequelize_1.DataTypes.INTEGER,
@@ -31,12 +32,18 @@ exports.Users = connecte_1.connect.define('__tbl_ecom_users', {
     idprovince: sequelize_1.DataTypes.STRING,
     idterritoire: sequelize_1.DataTypes.STRING,
     idvillage: sequelize_1.DataTypes.STRING,
-    hectare_cultive: sequelize_1.DataTypes.STRING,
+    hectare_cultive: {
+        type: sequelize_1.DataTypes.STRING,
+        defaultValue: 0
+    },
     isvalidated: {
         type: sequelize_1.DataTypes.INTEGER,
         defaultValue: 0
     },
-    uuid: sequelize_1.DataTypes.STRING,
+    uuid: {
+        type: sequelize_1.DataTypes.STRING,
+        defaultValue: (0, uuid_1.v4)()
+    },
     password: sequelize_1.DataTypes.STRING
 }, {
     paranoid: false,

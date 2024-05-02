@@ -10,6 +10,11 @@ exports.Produits = connecte_1.connect.define('__tbl_ecom_produits', {
         autoIncrement: true,
         allowNull: true,
     },
+    tva: {
+        type: sequelize_1.DataTypes.FLOAT,
+        defaultValue: 0,
+        allowNull: true
+    },
     produit: {
         type: sequelize_1.DataTypes.STRING,
         unique: true

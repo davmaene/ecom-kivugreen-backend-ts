@@ -144,6 +144,7 @@ exports.creditModelValidator = [
     (0, express_validator_1.body)('periode_remboursement').notEmpty().isNumeric().withMessage("`periode_remboursement` the value entered for periode_remboursement it seems to be not a valide number !"),
 ];
 exports.produitValidator = [
+    (0, express_validator_1.body)('tva').optional().isNumeric().withMessage("Please provide the value of the tva as a number !"),
     (0, express_validator_1.body)('produit').notEmpty().isString().withMessage("the name of the `produit` is required and it can not be empty !"),
     (0, express_validator_1.body)('description').notEmpty().isString().withMessage("`description` is required and it can not be empty !"),
     (0, express_validator_1.body)('id_unity').notEmpty().isNumeric().withMessage("`id_unity` is required and it can not be empty !"),
