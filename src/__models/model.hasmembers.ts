@@ -19,6 +19,11 @@ export const Hasmembers = connect.define<Hasmember>('__tbl_ecom_hasmembers', {
         autoIncrement: true,
         allowNull: true,
     },
+    is_payed: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        defaultValue: 0
+    },
     carte: {
         type: DataTypes.STRING,
         allowNull: true,

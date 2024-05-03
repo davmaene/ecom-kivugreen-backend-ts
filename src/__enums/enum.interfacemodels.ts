@@ -66,6 +66,7 @@ export interface IHasmember extends globalInterface {
     carte: string,
     date_expiration: string,
     date_expiration_unix: string,
+    is_payed?: number
 }
 
 export interface IHasproducts extends globalInterface {
