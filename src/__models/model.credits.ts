@@ -12,6 +12,7 @@ export const Credits = connect.define<Credit>('__tbl_ecom_credits', {
         allowNull: true,
     },
     id_cooperative: DataTypes.INTEGER,
+    createdat: DataTypes.DATE,
     id_user: DataTypes.INTEGER,
     montant: DataTypes.FLOAT,
     currency: DataTypes.STRING,
@@ -23,7 +24,7 @@ export const Credits = connect.define<Credit>('__tbl_ecom_credits', {
     },
     periode_remboursement: {
         type: DataTypes.FLOAT,
-        allowNull: false
+        allowNull: false 
     }
 
 }, { paranoid: true, timestamps: false, freezeTableName: true });

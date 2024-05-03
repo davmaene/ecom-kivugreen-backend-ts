@@ -1,0 +1,7 @@
+::ffff:192.168.1.111 - - [03/May/2024:08:39:02 +0000] "POST /api/users/user/auth HTTP/1.1" 200 2449 "-" "okhttp/4.9.2"
+::ffff:192.168.1.111 - - [03/May/2024:08:45:08 +0000] "POST /api/users/user/auth HTTP/1.1" 200 2449 "-" "okhttp/4.9.2"
+::ffff:192.168.1.111 - - [03/May/2024:08:45:39 +0000] "GET /api/cooperatives/cooperative/2 HTTP/1.1" 200 2281 "-" "okhttp/4.9.2"
+::ffff:192.168.1.111 - - [03/May/2024:08:45:42 +0000] "GET /api/cooperatives/cooperative/2 HTTP/1.1" 200 2281 "-" "okhttp/4.9.2"
+::ffff:192.168.1.111 - - [03/May/2024:08:47:01 +0000] "GET /api/commandes/list/bycooperative/2 HTTP/1.1" 304 - "-" "okhttp/4.9.2"
+::ffff:192.168.1.111 - - [03/May/2024:08:47:20 +0000] "GET /api/stocks/stock/2 HTTP/1.1" 200 2890 "-" "okhttp/4.9.2"
+::ffff:192.168.1.111 - - [03/May/2024:08:52:24 +0000] "GET /api/stocks/stock/2 HTTP/1.1" 304 - "-" "okhttp/4.9.2"
