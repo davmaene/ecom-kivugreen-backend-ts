@@ -14,6 +14,7 @@ export const __controllerMembers = {
         try {
             Hasmembers.belongsTo(Users, { foreignKey: "TblEcomUserId" })
             Hasmembers.belongsTo(Cooperatives)
+            
             Hasmembers.findAll({
                 where: {},
                 include: [
