@@ -45,6 +45,10 @@ export const dateFormated = ({ longDate }: { longDate: any }) => {
     return moment(longDate).format("L")
 };
 
-export const unixToDate = ({ unix }: {unix: number}) => {
+export const unixToDate = ({ unix }: { unix: number }) => {
     return moment.unix(unix).format("LTS, L")
+};
+
+export const __endOfTheDayWithDate = ({ date }: { date: string }) => {
+    return moment(date).endOf('day').unix()
 }

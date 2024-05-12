@@ -28,7 +28,7 @@ export const Hasmembers = connect.define<Hasmember>('__tbl_ecom_hasmembers', {
         type: DataTypes.STRING,
         allowNull: true,
         unique: true,
-        defaultValue: randomLongNumber({ length: 19 })
+        defaultValue: randomLongNumber({ length: 12 })
     },
     date_expiration: {
         type: DataTypes.STRING,

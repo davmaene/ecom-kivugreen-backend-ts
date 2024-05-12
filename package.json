@@ -14,7 +14,7 @@
     "kivugreen",
     "hewagri"
   ],
-  "author": "github.davmaene.io",
+  "author": "https://davmaene.github.io",
   "license": "ISC",
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
