@@ -11,8 +11,7 @@ dotenv.config()
 const { APP_FLEXPAYURLCHECK, APP_FLEXPAYTOKEN } = process.env;
 
 export const Scheduler = {
-    checkPayement: async ({ munites }: { munites: number }): Promise<{ code: number, message: string, data: any }> => {
-        log("======================= Checkeng paiement in", munites, "munites")
+    checkPayement: async ({ munites, secondes }: { munites: number, secondes: number }): Promise<{ code: number, message: string, data: any }> => {
         const rule: any = new schedule.RecurrenceRule();
         const cb: Function = () => { }
 
@@ -23,6 +22,7 @@ export const Scheduler = {
             moment().date(),
             moment().hours(),
             moment().minutes() + (munites),
+            moment().seconds() + (secondes),
             0
         );
 

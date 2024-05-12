@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import { randomLongNumber } from '../__helpers/helper.random';
 import { Paiements } from '../__models/model.payements';
 import { log } from 'console';
+import { Commandes } from '../__models/model.commandes';
 
 dotenv.config();
 
@@ -35,12 +36,13 @@ axios.interceptors.response.use(
 const timeout = 120000;
 
 export const Payements = {
-    pay: async ({ phone, amount, currency, createdby, reference }: { phone: string, amount: number, currency: string, createdby: number, reference: string }): Promise<{ code: number, message: string, data: any }> => {
+    pay: async ({ phone, amount, currency, createdby, reference, customer_phone }: { phone: string, customer_phone: string, amount: number, currency: string, createdby: number, reference: string }): Promise<{ code: number, message: string, data: any }> => {
         return new Promise(async (resolve, reject) => {
             try {
                 const _opphone = completeCodeCountryToPhoneNumber({ phone: fillphone({ phone }), withoutplus: true });
-                const _operationref = reference || randomLongNumber({ length: 13 })
-                const _amount = Services.calcAmountBeforePaiement({ amount })
+                const _copphone = fillphone({ phone: customer_phone });
+                const _operationref = reference || randomLongNumber({ length: 13 });
+                const _amount = Services.calcAmountBeforePaiement({ amount });
 
                 const payload = {
                     "merchant": APP_FLEXPAYMERCHANTID,
@@ -77,6 +79,7 @@ export const Payements = {
                                 Paiements.create({
                                     realref: _operationref,
                                     reference: orderNumber,
+                                    customer_phone: _copphone,
                                     phone: _opphone,
                                     amount,
                                     currency,
@@ -112,8 +115,8 @@ export const Payements = {
                                     to: fillphone({ phone: _opphone }),
                                     content: `Désolé une erreur vient de se produire lors du paiement veuillez réessayer plus tard !`
                                 })
-                                .then(_ => {})
-                                .catch(_ => {})
+                                    .then(_ => { })
+                                    .catch(_ => { })
                                 // log(response.data, payload)
                                 Services.loggerSystem({
                                     message: JSON.stringify({ ...data, phone: _opphone, amount, currency }),
@@ -145,9 +148,86 @@ export const Payements = {
             }
         })
     },
-    check: async ({ phone, amount, currency }: { phone: string, amount: number, currency: string }): Promise<{ code: number, message: string, data: any }> => {
-        return new Promise((resolve, reject) => {
+    check: async ({ idtransaction }: { idtransaction: string }): Promise<{ code: number, message: string, data: any }> => {
+        return new Promise(async (resolve, reject) => {
+            const p = await Paiements.findOne({
+                where: {
+                    realref: idtransaction, // means where paiement est encore en attente
+                },
+            });
+            if (p instanceof Paiements) {
+                const { status: aspstatus, phone, amount, category, createdby, currency, description, customer_phone, createdAt, deletedAt, id, realref, reference, updatedAt } = p.toJSON();
+                const chk = await axios({
+                    method: 'GET',
+                    timeout: 0,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${APP_FLEXPAYTOKEN}`,
+                    },
+                    url: APP_FLEXPAYURLCHECK + "/" + idtransaction,
+                })
 
+                const { status, config, data, headers, statusText } = chk
+                if (status === 200) {
+                    const { code, message, transaction } = data;
+                    const { status: asstatus } = transaction as any;
+                    console.log('====================================');
+                    console.log("Message from Flexpay =======> ", data);
+                    console.log('====================================');
+                    // console.log("Message from transacrion is ==> ", message, transaction, "The value of the state is ===> ", status);
+                    if (asstatus === '0' || asstatus === 0) {
+                        if (aspstatus === 0) {
+                            Commandes.update({
+                                state: 3
+                            }, {
+                                where: {
+                                    transaction: idtransaction
+                                }
+                            })
+                                .then(__ => {
+                                    p.update({ status: 2 })
+                                    Services.onSendSMS({
+                                        is_flash: false,
+                                        to: fillphone({ phone: customer_phone }),
+                                        content: `Désolé votre paiement de ${amount}${currency} est en cours de traietement !ID:${idtransaction}`
+                                    })
+                                        .then(_ => { })
+                                        .catch(_ => { })
+                                    return reject({ code: 200, message: "Transaction done resolved !", data: data })
+                                })
+                                .catch(err => {
+                                    Services.onSendSMS({
+                                        is_flash: false,
+                                        to: fillphone({ phone: customer_phone }),
+                                        content: `Désolé votre paiement de ${amount}${currency} est en cours de traietement !ID:${idtransaction}`
+                                    })
+                                        .then(_ => { })
+                                        .catch(_ => { })
+                                    return reject({ code: 500, message: "An error occured when trying to resolve payement !", data: data })
+                                })
+                        } else {
+                            Services.onSendSMS({
+                                is_flash: false,
+                                to: fillphone({ phone: customer_phone }),
+                                content: `Désolé votre paiement de ${amount}${currency} est en cours de traietement !`
+                            })
+                                .then(_ => { })
+                                .catch(_ => { })
+                            return reject({ code: 500, message: "An error occured when trying to resolve payement !", data: data })
+                        }
+                    } else {
+                        return reject({ code: 500, message: "An error occured when trying to resolve payement !", data: data })
+                    }
+                } else {
+                    return reject({ code: 500, message: "An error occured when trying to resolve payement !", data: data })
+                }
+            } else {
+                reject({
+                    code: 404,
+                    message: "Not found" + idtransaction,
+                    data: idtransaction
+                })
+            }
         })
     }
 }

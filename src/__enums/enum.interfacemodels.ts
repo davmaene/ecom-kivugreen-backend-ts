@@ -147,6 +147,7 @@ export interface ICategorie extends globalInterface {
 }
 export interface IPayement extends globalInterface {
     realref?: string,
+    customer_phone: string,
     reference?: string,
     phone: string,
     amount: number,
