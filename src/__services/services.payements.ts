@@ -156,7 +156,8 @@ export const Payements = {
                 },
             });
             if (p instanceof Paiements) {
-                const { status: aspstatus, phone, amount, category, createdby, currency, description, customer_phone, createdAt, deletedAt, id, realref, reference, updatedAt } = p.toJSON();
+                const { status: aspstatus, phone, category, createdby, currency, description, customer_phone, createdAt, deletedAt, id, realref, reference, updatedAt } = p.toJSON();
+                const amount = Services.reCalcAmountBeforePaiement({ amount: p.toJSON()['amount'] })
                 const chk = await axios({
                     method: 'GET',
                     timeout: 0,
@@ -188,17 +189,17 @@ export const Payements = {
                                     p.update({ status: 2 })
                                     Services.onSendSMS({
                                         is_flash: false,
-                                        to: fillphone({ phone: customer_phone }),
-                                        content: `Désolé votre paiement de ${amount}${currency} est en cours de traietement !ID:${idtransaction}`
+                                        to: fillphone({ phone: customer_phone || phone }),
+                                        content: `Félicitations votre paiement de ${amount}${currency} a été reçu avec succès !ID:${idtransaction}`
                                     })
                                         .then(_ => { })
                                         .catch(_ => { })
-                                    return reject({ code: 200, message: "Transaction done resolved !", data: data })
+                                    return resolve({ code: 200, message: "Transaction done resolved !", data: data })
                                 })
                                 .catch(err => {
                                     Services.onSendSMS({
                                         is_flash: false,
-                                        to: fillphone({ phone: customer_phone }),
+                                        to: fillphone({ phone: customer_phone || phone }),
                                         content: `Désolé votre paiement de ${amount}${currency} est en cours de traietement !ID:${idtransaction}`
                                     })
                                         .then(_ => { })
@@ -208,7 +209,7 @@ export const Payements = {
                         } else {
                             Services.onSendSMS({
                                 is_flash: false,
-                                to: fillphone({ phone: customer_phone }),
+                                to: fillphone({ phone: customer_phone || phone }),
                                 content: `Désolé votre paiement de ${amount}${currency} est en cours de traietement !`
                             })
                                 .then(_ => { })

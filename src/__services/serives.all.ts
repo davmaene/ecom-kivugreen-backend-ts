@@ -30,6 +30,10 @@ export const Services = {
         const comm: number = parseFloat(APP_FLEXPAYRETROCOMMISIONNE) || 0
         return (amount - (amount * (comm / 100)));
     },
+    reCalcAmountBeforePaiement: ({ amount }: { amount: number }) => {
+        const comm: number = parseFloat(APP_FLEXPAYRETROCOMMISIONNE) || 0
+        return (amount + (amount * (comm / 100)));
+    },
     converterDevise: async ({ amount, currency }: { currency: string, amount: number }) => {
         const configs = await Configs.findAll({
             order: [['id', 'DESC']],

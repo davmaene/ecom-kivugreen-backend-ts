@@ -6,6 +6,9 @@ import axios from 'axios';
 import dotenv from 'dotenv';
 import { now } from '../__helpers/helper.moment';
 import { log } from 'console';
+import { Commandes } from '../__models/model.commandes';
+import { fillphone } from '../__helpers/helper.fillphone';
+
 dotenv.config()
 
 const { APP_FLEXPAYURLCHECK, APP_FLEXPAYTOKEN } = process.env;
@@ -38,7 +41,7 @@ export const Scheduler = {
                     const __treated: any[] = [];
 
                     for (let index = 0; index < p.length; index++) {
-                        const { reference: idtransaction, amount, currency, realref, phone, description, category, createdby, createdAt, deletedAt, id, status: asstatus, updatedAt } = p[index].toJSON();
+                        const { reference: idtransaction, amount, currency, realref, phone, customer_phone, description, category, createdby, createdAt, deletedAt, id, status: asstatus, updatedAt } = p[index].toJSON();
                         const _p = p[index];
                         const chk = await axios({
                             method: 'GET',
@@ -62,11 +65,11 @@ export const Scheduler = {
                                 //status === '0' || status === 0
                                 const {
                                     currency,
-                                    amountCustomer,
+                                    amountCustomer: amount,
                                     reference,
                                     channel,
                                     createdAt,
-                                    amount,
+                                    // amount,
                                 } = transaction;
                                 try {
                                     Paiements.findOne({
@@ -81,6 +84,34 @@ export const Scheduler = {
                                                     status: 1 // ie. paiement effectuer avec succes
                                                 })
                                                 __treated.push(_p.toJSON())
+                                                Commandes.update({
+                                                    state: 3
+                                                }, {
+                                                    where: {
+                                                        transaction: idtransaction
+                                                    }
+                                                })
+                                                    .then(__ => {
+                                                        // p.update({ status: 2 })
+                                                        Services.onSendSMS({
+                                                            is_flash: false,
+                                                            to: fillphone({ phone: customer_phone || phone }),
+                                                            content: `Félicitations votre paiement de ${amount}${currency} a été reçu avec succès !ID:${idtransaction}`
+                                                        })
+                                                            .then(_ => { })
+                                                            .catch(_ => { })
+                                                        // return resolve({ code: 200, message: "Transaction done resolved !", data: data })
+                                                    })
+                                                    .catch(err => {
+                                                        Services.onSendSMS({
+                                                            is_flash: false,
+                                                            to: fillphone({ phone: customer_phone || phone }),
+                                                            content: `Désolé votre paiement de ${amount}${currency} est en cours de traietement !ID:${idtransaction}`
+                                                        })
+                                                            .then(_ => { })
+                                                            .catch(_ => { })
+                                                        // return reject({ code: 500, message: "An error occured when trying to resolve payement !", data: data })
+                                                    })
                                                 // return cb(undefined, {
                                                 //     code: 200,
                                                 //     message: 'We can not process with the request right now',
