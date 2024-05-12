@@ -104,7 +104,7 @@ export const Services = {
                 else return reject({ code: status, message: statusText, data })
 
             } catch (error: any) {
-                log(error)
+                log(error.toString())
                 return reject({ code: 500, message: "Error on sending message", data: error.toString() })
             }
         })

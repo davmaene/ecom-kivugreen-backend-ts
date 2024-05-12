@@ -122,7 +122,7 @@ export const __controllerMarketplace = {
                                 Services.onSendSMS({
                                     is_flash: true,
                                     to: fillphone({ phone }),
-                                    content: `Bonjour ${nom} nous avons reçu votre commande de (${qte}${unity}) de ${produit}, un push message vous sera envoyé veuillez acceptez le paiement sur votre téléphone, montant à payer ${converted_price}${converted_currency}, transID: ${transaction}`
+                                    content: `Bonjour ${nom} nous avons reçu votre commande de (${qte}${unity}) de ${produit}, veuillez acceptez le paiement sur votre téléphone, montant à payer ${converted_price}${converted_currency}, transID: ${transaction}`
                                 })
                                     .then(sms => { })
                                     .catch((err: any) => { })

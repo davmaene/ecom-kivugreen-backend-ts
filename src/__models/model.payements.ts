@@ -13,7 +13,7 @@ export const Paiements = connect.define<Payement>('__tbl_ecom_payements', {
     },
     status: {
         type: DataTypes.INTEGER,
-        defaultValue: 0,
+        defaultValue: 0, // 0: Paiment initié 1: Paiement effectue' avec succes 2: Paiement echoué
         allowNull: true
     },
     realref: DataTypes.STRING,

@@ -92,7 +92,6 @@ export const Payements = {
                                         }
                                     })
                                     .catch(err => {
-                                        console.log(err);
                                         return reject({ code: 400, message: "An error occured when trying to resolve payement !", data: { ...err } });
                                     })
                             } else {
