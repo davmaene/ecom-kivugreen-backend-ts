@@ -25,3 +25,6 @@
 ::ffff:127.0.0.1 - - [12/May/2024:19:18:13 +0000] "POST /api/marketplace/command HTTP/1.1" 200 433 "-" "PostmanRuntime/7.37.3"
 ::ffff:127.0.0.1 - - [12/May/2024:19:44:38 +0000] "POST /api/marketplace/command HTTP/1.1" 200 435 "-" "PostmanRuntime/7.37.3"
 ::ffff:127.0.0.1 - - [12/May/2024:20:54:51 +0000] "GET /api/payements/list HTTP/1.1" 200 2576 "-" "PostmanRuntime/7.37.3"
+::ffff:127.0.0.1 - - [12/May/2024:21:20:11 +0000] "GET /api/payements/list HTTP/1.1" 200 2576 "-" "PostmanRuntime/7.37.3"
+::ffff:127.0.0.1 - - [12/May/2024:21:20:27 +0000] "POST /api/marketplace/command HTTP/1.1" 200 725 "-" "PostmanRuntime/7.37.3"
+::ffff:127.0.0.1 - - [12/May/2024:21:42:30 +0000] "POST /api/marketplace/command HTTP/1.1" 200 433 "-" "PostmanRuntime/7.37.3"

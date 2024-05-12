@@ -16,6 +16,7 @@ import { fillphone } from '../__helpers/helper.fillphone';
 import { connect } from '../__databases/connecte';
 import { Categories } from '../__models/model.categories';
 import { Payements } from '../__services/services.payements';
+import { Scheduler } from '../__services/services.scheduler';
 
 export const __controllerMarketplace = {
     placecommand: async (req: Request, res: Response, next: NextFunction) => {
@@ -137,7 +138,7 @@ export const __controllerMarketplace = {
                     }
                     Payements.pay({
                         amount: somme.reduce((p, c) => p + c),
-                        currency: "CDF",
+                        currency: currency_payement || "CDF",
                         phone: payament_phone || phone,
                         createdby: __id,
                         reference: transaction
@@ -145,6 +146,7 @@ export const __controllerMarketplace = {
                         .then(({ code, data, message }) => {
                             if (code === 200) {
                                 tr_.commit()
+                                Scheduler.checkPayement({ munites: 1 })
                                 return Responder(res, HttpStatusCode.Ok, { prix_totale: somme.reduce((p, c) => p + c), currency: "CDF", c_treated, c_nottreated })
                             } else {
                                 tr_.rollback()

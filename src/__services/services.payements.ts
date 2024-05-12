@@ -38,16 +38,16 @@ export const Payements = {
     pay: async ({ phone, amount, currency, createdby, reference }: { phone: string, amount: number, currency: string, createdby: number, reference: string }): Promise<{ code: number, message: string, data: any }> => {
         return new Promise(async (resolve, reject) => {
             try {
-                // const { APP_FLEXPAYMERCHANTID, APP_FLEXPAYURL, APP_CALLBACKURL, APP_FLEXPAYTOKEN } = process.env;
                 const _opphone = completeCodeCountryToPhoneNumber({ phone: fillphone({ phone }), withoutplus: true });
                 const _operationref = reference || randomLongNumber({ length: 13 })
+                const _amount = Services.calcAmountBeforePaiement({ amount })
 
                 const data = {
                     "merchant": APP_FLEXPAYMERCHANTID,
                     "type": "1",
                     "phone": _opphone,
                     "reference": _operationref,
-                    "amount": amount,
+                    "amount": _amount,
                     "currency": currency.trim().toUpperCase(),
                     "callbackUrl": APP_CALLBACKURL
                 };

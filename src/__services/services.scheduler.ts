@@ -5,13 +5,16 @@ import { Paiements } from '../__models/model.payements';
 import axios from 'axios';
 import dotenv from 'dotenv';
 import { now } from '../__helpers/helper.moment';
+import { log } from 'console';
 dotenv.config()
 
 const { APP_FLEXPAYURLCHECK, APP_FLEXPAYTOKEN } = process.env;
 
 export const Scheduler = {
-    checkPayement: async ({ munites }: { munites: number }, cb: Function): Promise<{ code: number, message: string, data: any }> => {
-        const rule = new schedule.RecurrenceRule();
+    checkPayement: async ({ munites }: { munites: number }): Promise<{ code: number, message: string, data: any }> => {
+        log("======================= Checkeng paiement in", munites, "munites")
+        const rule: any = new schedule.RecurrenceRule();
+        const cb: Function = () => { }
 
         rule.tz = 'Etc/GMT-2';
         var date = new Date(
