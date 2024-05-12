@@ -21,14 +21,14 @@ import base64 from 'base-64';
 dotenv.config()
 
 const { API_SMS_ENDPOINT, APP_NAME, API_SMS_TOKEN, API_SMS_IS_FLASH, APP_FLEXPAYRETROCOMMISIONNE } = process.env
-if(!APP_FLEXPAYRETROCOMMISIONNE || !APP_NAME || !API_SMS_ENDPOINT) throw new Error
+if (!APP_FLEXPAYRETROCOMMISIONNE || !APP_NAME || !API_SMS_ENDPOINT) throw new Error
 
 let tempfolder: string = 'as_assets'
 
 export const Services = {
     calcAmountBeforePaiement: ({ amount }: { amount: number }) => {
         const comm: number = parseFloat(APP_FLEXPAYRETROCOMMISIONNE) || 0
-        return amount - (amount * comm);
+        return (amount - (amount * (comm / 100)));
     },
     converterDevise: async ({ amount, currency }: { currency: string, amount: number }) => {
         const configs = await Configs.findAll({
