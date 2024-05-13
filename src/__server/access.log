@@ -1,0 +1,6 @@
+::ffff:127.0.0.1 - - [12/May/2024:23:18:57 +0000] "GET /api/payements/list HTTP/1.1" 200 5187 "-" "PostmanRuntime/7.37.3"
+::ffff:127.0.0.1 - - [12/May/2024:23:19:21 +0000] "POST /api/marketplace/command HTTP/1.1" 200 435 "-" "PostmanRuntime/7.37.3"
+::ffff:127.0.0.1 - - [13/May/2024:06:32:49 +0000] "GET /api/stocks/list HTTP/1.1" 200 4066 "-" "PostmanRuntime/7.37.3"
+::ffff:127.0.0.1 - - [13/May/2024:06:33:23 +0000] "GET /api/stocks/stock/byid/40 HTTP/1.1" 200 1771 "-" "PostmanRuntime/7.37.3"
+::ffff:127.0.0.1 - - [13/May/2024:06:35:04 +0000] "GET /api/stocks/stock/histories/40 HTTP/1.1" 406 90 "-" "PostmanRuntime/7.37.3"
+::ffff:127.0.0.1 - - [13/May/2024:06:53:19 +0000] "GET /api/stocks/stock/byid/40 HTTP/1.1" 200 1771 "-" "PostmanRuntime/7.37.3"

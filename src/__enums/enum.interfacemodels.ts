@@ -71,6 +71,7 @@ export interface IHasmember extends globalInterface {
 
 export interface IHasproducts extends globalInterface {
     id_membre: number,
+    qte_critique?: number,
     prix_unitaire: number,
     prix_plus_commission: number,
     currency: string,
