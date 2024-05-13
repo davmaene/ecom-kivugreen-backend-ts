@@ -7,6 +7,7 @@ import { Produits } from './model.produits';
 import { Categories } from './model.categories';
 import { Unites } from './model.unitemesures';
 import { Cooperatives } from './model.cooperatives';
+import { Stocks } from './model.stocks';
 
 export interface IHistoriesstocks extends Model<IHistoriesstock>, IHistoriesstock { }
 
@@ -53,8 +54,14 @@ export const Historiquesmembersstocks = connect.define<IHistoriesstocks>('__tbl_
             model: Cooperatives,
             key: 'id'
         }
+    },
+    TblEcomStockId: {
+        type: DataTypes.INTEGER,
+        references: {
+            model: Stocks,
+            key: 'id'
+        }
     }
-
 }, {
     paranoid: false,
     timestamps: true,

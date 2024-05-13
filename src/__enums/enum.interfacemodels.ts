@@ -100,6 +100,7 @@ export interface IHistoriesstock extends globalInterface {
     TblEcomCategoryId: number,
     TblEcomUnitesmesureId: number,
     TblEcomUserId: number,
+    TblEcomStockId: number,
     TblEcomCooperativeId: number
 }
 

@@ -14,6 +14,7 @@ import { Unites } from '../__models/model.unitemesures';
 import { Commandes } from '../__models/model.commandes';
 import { Typelivraisons } from '../__models/model.typelivraison';
 import { supprimerDoublons } from '../__helpers/helper.all';
+import { Historiquesmembersstocks } from '../__models/model.histories';
 
 export const __controllerStocks = {
     history: async (req: Request, res: Response, next: NextFunction) => {
@@ -155,16 +156,38 @@ export const __controllerStocks = {
                                                         TblEcomStockId: asstockid || 0,
                                                         TblEcomUnitesmesureId: id_unity,
                                                         qte,
-                                                        id_membre: id_member || 0
+                                                        id_membre: [id_member || 0]
                                                     },
                                                     transaction
                                                 })
                                                 if (created) {
+                                                    Historiquesmembersstocks.create({
+                                                        TblEcomUserId: id_member,
+                                                        qte,
+                                                        date_production: asdate_production,
+                                                        TblEcomCategoryId: id_category,
+                                                        TblEcomCooperativeId: id_ccoperative,
+                                                        TblEcomProduitId: id_produit,
+                                                        TblEcomStockId: asstockid || 0,
+                                                        TblEcomUnitesmesureId: id_unity,
+                                                    }, {})
                                                     treated.push(array[index])
+
                                                 } else {
-                                                    const { qte: asqte, id_membre: asids } = item.toJSON()
+                                                    const { qte: asqte, id_membre: asids } = item?.toJSON()
+                                                    Historiquesmembersstocks.create({
+                                                        TblEcomUserId: id_member,
+                                                        qte,
+                                                        date_production: asdate_production,
+                                                        TblEcomCategoryId: id_category,
+                                                        TblEcomCooperativeId: id_ccoperative,
+                                                        TblEcomProduitId: id_produit,
+                                                        TblEcomStockId: asstockid || 0,
+                                                        TblEcomUnitesmesureId: id_unity,
+                                                    }, {})
+                                                    const __ = !Array.isArray(asids) ? [asids] : asids
                                                     item.update({
-                                                        id_membre: [...supprimerDoublons({ tableau: [...asids as any] })],
+                                                        id_membre: [...supprimerDoublons({ tableau: [...__ as any] })],
                                                         qte: qte + asqte
                                                     })
                                                     treated.push({ ...array[index], produit })
@@ -179,9 +202,9 @@ export const __controllerStocks = {
                                         nottreated.push(array[index])
                                         // log(error)
                                         console.log('====================================');
-                                        console.log(id_produit, prix_unitaire, commission_price);
+                                        console.log(id_produit, prix_unitaire, commission_price, " ============> ", id_member);
                                         console.log('====================================');
-                                        log("Error on treatement on object => ", id_produit, configs)
+                                        log("Error on treatement on object => ", id_produit, configs, error)
                                     }
                                 }
                             }
