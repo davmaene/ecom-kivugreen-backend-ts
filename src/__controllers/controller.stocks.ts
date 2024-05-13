@@ -13,6 +13,7 @@ import { Categories } from '../__models/model.categories';
 import { Unites } from '../__models/model.unitemesures';
 import { Commandes } from '../__models/model.commandes';
 import { Typelivraisons } from '../__models/model.typelivraison';
+import { supprimerDoublons } from '../__helpers/helper.all';
 
 export const __controllerStocks = {
     history: async (req: Request, res: Response, next: NextFunction) => {
@@ -44,7 +45,7 @@ export const __controllerStocks = {
             })
                 .then(async stck => {
                     if (stck instanceof Stocks) {
-                        const __mouvements = []
+                        const __mouvements: any[] = []
                         const { __tbl_ecom_cooperative, __tbl_ecom_produits, date_expiration, date_production, createdby, description, id_cooperative, transaction, createdAt, id, updatedAt } = stck.toJSON() as any
                         for (let index = 0; index < __tbl_ecom_produits.length; index++) {
                             const { id: asproduct, __tbl_ecom_hasproducts } = __tbl_ecom_produits[index];
@@ -67,14 +68,27 @@ export const __controllerStocks = {
                                     id_produit: ashasproduct
                                 }
                             })
+                            __mouvements.push({
+                                ...__tbl_ecom_produits,
+                                mouvements: {
+                                    ...__tbl_ecom_hasproducts,
+
+                                }
+                            })
                         }
+                        return Responder(res, HttpStatusCode.Ok, { ...stck.toJSON(), mouvements: __mouvements })
                     } else {
+                        log(stck)
                         return Responder(res, HttpStatusCode.InternalServerError, stck)
                     }
                 })
-                .catch(er => Responder(res, HttpStatusCode.InternalServerError, er))
+                .catch(er => {
+                    log(er)
+                    return Responder(res, HttpStatusCode.InternalServerError, er)
+                })
 
         } catch (error) {
+            log(error)
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     },
@@ -108,8 +122,8 @@ export const __controllerStocks = {
                         if (configs instanceof Configs) {
                             const { taux_change, commission_price } = configs.toJSON() as any;
                             for (let index = 0; index < array.length; index++) {
-                                const { id_produit, qte, prix_unitaire, currency, date_production: asdate_production, id_membre, qte_critique }: any = array[index];
-                                if (!id_produit || !qte || !prix_unitaire || !currency || !asdate_production) { // || !id_membre
+                                const { id_produit, qte, prix_unitaire, currency, date_production: asdate_production, id_member, qte_critique }: any = array[index];
+                                if (!id_produit || !qte || !prix_unitaire || !currency || !asdate_production || !id_member) { // || !id_membre
                                     nottreated.push(array[index])
                                 } else {
                                     try {
@@ -140,16 +154,16 @@ export const __controllerStocks = {
                                                         TblEcomProduitId: id_produit,
                                                         TblEcomStockId: asstockid || 0,
                                                         TblEcomUnitesmesureId: id_unity,
-                                                        qte,
-                                                        id_membre: 0
+                                                        qte
                                                     },
                                                     transaction
                                                 })
                                                 if (created) {
                                                     treated.push(array[index])
                                                 } else {
-                                                    const { qte: asqte } = item.toJSON()
+                                                    const { qte: asqte, id_membre: asids } = item.toJSON()
                                                     item.update({
+                                                        id_membre: supprimerDoublons({ tableau: [...asids as any] }),
                                                         qte: qte + asqte
                                                     })
                                                     treated.push({ ...array[index], produit })
