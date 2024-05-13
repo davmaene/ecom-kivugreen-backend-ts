@@ -88,18 +88,18 @@ export interface IHasproducts extends globalInterface {
 }
 
 export interface IHistoriesstock extends globalInterface {
-    id_membres: number[],
-    qte_critique?: number,
-    prix_unitaire: number,
-    prix_plus_commission: number,
-    currency: string,
+    // id_membres: number[],
+    // qte_critique?: number,
+    // prix_unitaire: number,
+    // prix_plus_commission: number,
+    // currency: string,
+    // tva: number,
     date_production: string,
     qte: number,
-    tva: number,
     TblEcomProduitId: number,
     TblEcomCategoryId: number,
     TblEcomUnitesmesureId: number,
-    // TblEcomUserId: number,
+    TblEcomUserId: number,
     TblEcomCooperativeId: number
 }
 

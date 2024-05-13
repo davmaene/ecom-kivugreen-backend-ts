@@ -163,7 +163,7 @@ export const __controllerStocks = {
                                                 } else {
                                                     const { qte: asqte, id_membre: asids } = item.toJSON()
                                                     item.update({
-                                                        id_membre: supprimerDoublons({ tableau: [...asids as any] }),
+                                                        id_membre: [...supprimerDoublons({ tableau: [...asids as any] })],
                                                         qte: qte + asqte
                                                     })
                                                     treated.push({ ...array[index], produit })
@@ -190,7 +190,6 @@ export const __controllerStocks = {
                                 return Responder(res, HttpStatusCode.Ok, { ...stock.toJSON(), produits: treated })
                             } else {
                                 transaction.rollback()
-                                // log(nottreated, treated)
                                 return Responder(res, HttpStatusCode.Conflict, "this request must have at least Configurations params for the price !, the table of product is empty")
                             }
                         } else {
