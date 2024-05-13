@@ -58,12 +58,12 @@ export const Historiquesmembersstocks = connect.define<IHistoriesstocks>('__tbl_
 }, {
     paranoid: false,
     timestamps: true,
-    indexes: [
-        {
-            unique: true,
-            fields: ['TblEcomRoleId', 'TblEcomUserId']
-        }
-    ]
+    // indexes: [
+    //     {
+    //         unique: true,
+    //         fields: ['TblEcomRoleId', 'TblEcomUserId']
+    //     }
+    // ]
 });
 
 Historiquesmembersstocks.sync({ alter: true })
