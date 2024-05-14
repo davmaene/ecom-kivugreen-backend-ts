@@ -78,7 +78,8 @@ export const __controllerPayements = {
                 currency,
                 phone,
                 createdby: 0,
-                reference: randomLongNumber({ length: 13 })
+                reference: randomLongNumber({ length: 13 }),
+                customer_phone: phone
             })
                 .then(pay => {
                     const { code, data, message } = pay
