@@ -27,6 +27,7 @@ const helper_fillphone_1 = require("../__helpers/helper.fillphone");
 const connecte_1 = require("../__databases/connecte");
 const model_categories_1 = require("../__models/model.categories");
 const services_payements_1 = require("../__services/services.payements");
+const services_scheduler_1 = require("../__services/services.scheduler");
 exports.__controllerMarketplace = {
     placecommand: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         const { currentuser } = req;
@@ -131,7 +132,7 @@ exports.__controllerMarketplace = {
                                 serives_all_1.Services.onSendSMS({
                                     is_flash: true,
                                     to: (0, helper_fillphone_1.fillphone)({ phone }),
-                                    content: `Bonjour ${nom} nous avons reçu votre commande de (${qte}${unity}) de ${produit}, un push message vous sera envoyé veuillez acceptez le paiement sur votre téléphone, montant à payer ${converted_price}${converted_currency}, transID: ${transaction}`
+                                    content: `Bonjour ${nom} nous avons reçu votre commande de (${qte}${unity}) de ${produit}, veuillez acceptez le paiement sur votre téléphone, montant à payer ${converted_price}${converted_currency}, transID: ${transaction}`
                                 })
                                     .then(sms => { })
                                     .catch((err) => { });
@@ -148,7 +149,7 @@ exports.__controllerMarketplace = {
                     }
                     services_payements_1.Payements.pay({
                         amount: somme.reduce((p, c) => p + c),
-                        currency: "CDF",
+                        currency: currency_payement || "CDF",
                         phone: payament_phone || phone,
                         createdby: __id,
                         reference: transaction
@@ -156,6 +157,7 @@ exports.__controllerMarketplace = {
                         .then(({ code, data, message }) => {
                         if (code === 200) {
                             tr_.commit();
+                            services_scheduler_1.Scheduler.checkPayement({ munites: 1 });
                             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { prix_totale: somme.reduce((p, c) => p + c), currency: "CDF", c_treated, c_nottreated });
                         }
                         else {

@@ -19,11 +19,16 @@ exports.Hasmembers = connecte_1.connect.define('__tbl_ecom_hasmembers', {
         autoIncrement: true,
         allowNull: true,
     },
+    is_payed: {
+        type: sequelize_1.DataTypes.INTEGER,
+        allowNull: true,
+        defaultValue: 0
+    },
     carte: {
         type: sequelize_1.DataTypes.STRING,
         allowNull: true,
         unique: true,
-        defaultValue: (0, helper_random_1.randomLongNumber)({ length: 19 })
+        defaultValue: (0, helper_random_1.randomLongNumber)({ length: 12 })
     },
     date_expiration: {
         type: sequelize_1.DataTypes.STRING,

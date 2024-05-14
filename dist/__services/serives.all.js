@@ -33,9 +33,15 @@ const model_configs_1 = require("../__models/model.configs");
 const helper_moment_1 = require("../__helpers/helper.moment");
 const base_64_1 = __importDefault(require("base-64"));
 dotenv_1.default.config();
-const { API_SMS_ENDPOINT, APP_NAME, API_SMS_TOKEN, API_SMS_IS_FLASH } = process.env;
+const { API_SMS_ENDPOINT, APP_NAME, API_SMS_TOKEN, API_SMS_IS_FLASH, APP_FLEXPAYRETROCOMMISIONNE } = process.env;
+if (!APP_FLEXPAYRETROCOMMISIONNE || !APP_NAME || !API_SMS_ENDPOINT)
+    throw new Error;
 let tempfolder = 'as_assets';
 exports.Services = {
+    calcAmountBeforePaiement: ({ amount }) => {
+        const comm = parseFloat(APP_FLEXPAYRETROCOMMISIONNE) || 0;
+        return (amount - (amount * (comm / 100)));
+    },
     converterDevise: ({ amount, currency }) => __awaiter(void 0, void 0, void 0, function* () {
         const configs = yield model_configs_1.Configs.findAll({
             order: [['id', 'DESC']],
@@ -116,7 +122,7 @@ exports.Services = {
                     return reject({ code: status, message: statusText, data });
             }
             catch (error) {
-                (0, console_1.log)(error);
+                (0, console_1.log)(error.toString());
                 return reject({ code: 500, message: "Error on sending message", data: error.toString() });
             }
         }));

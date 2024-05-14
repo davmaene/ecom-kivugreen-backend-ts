@@ -1,6 +1,6 @@
 {
   "name": "ecom-kivugreen-api",
-  "version": "1.3.9",
+  "version": "1.4.1",
   "description": "Ecommerce app de kivugreen, ",
   "main": "index.js",
   "scripts": {
@@ -14,7 +14,7 @@
     "kivugreen",
     "hewagri"
   ],
-  "author": "github.davmaene.io",
+  "author": "https://davmaene.github.io",
   "license": "ISC",
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",

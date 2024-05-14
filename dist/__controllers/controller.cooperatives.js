@@ -306,8 +306,24 @@ exports.__controllerCooperatives = {
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "This request must have at least idccoperative !");
         if (Object.keys(req.body).length <= 0)
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "The body should not be empty !");
+        const { id_territoire, id_province, coordonnees_gps, adresse, phone, email, num_enregistrement, isformel, sigle, cooperative, id_adjoint, id_responsable, description, id_category } = req.body;
         try {
-            model_cooperatives_1.Cooperatives.update(Object.assign({}, req.body), {
+            model_cooperatives_1.Cooperatives.update({
+                id_territoire,
+                id_province,
+                coordonnees_gps,
+                adresse,
+                phone,
+                email,
+                num_enregistrement,
+                isformel,
+                sigle,
+                cooperative,
+                id_adjoint,
+                id_responsable,
+                description,
+                id_category
+            }, {
                 where: {
                     id: parseInt(idcooperative)
                 }

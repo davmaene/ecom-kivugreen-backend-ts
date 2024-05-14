@@ -38,16 +38,16 @@ export const Payements = {
     pay: async ({ phone, amount, currency, createdby, reference }: { phone: string, amount: number, currency: string, createdby: number, reference: string }): Promise<{ code: number, message: string, data: any }> => {
         return new Promise(async (resolve, reject) => {
             try {
-                // const { APP_FLEXPAYMERCHANTID, APP_FLEXPAYURL, APP_CALLBACKURL, APP_FLEXPAYTOKEN } = process.env;
                 const _opphone = completeCodeCountryToPhoneNumber({ phone: fillphone({ phone }), withoutplus: true });
                 const _operationref = reference || randomLongNumber({ length: 13 })
+                const _amount = Services.calcAmountBeforePaiement({ amount })
 
-                const data = {
+                const payload = {
                     "merchant": APP_FLEXPAYMERCHANTID,
                     "type": "1",
                     "phone": _opphone,
                     "reference": _operationref,
-                    "amount": amount,
+                    "amount": _amount,
                     "currency": currency.trim().toUpperCase(),
                     "callbackUrl": APP_CALLBACKURL
                 };
@@ -60,7 +60,7 @@ export const Payements = {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${APP_FLEXPAYTOKEN}`
                     },
-                    data: { ...data }
+                    data: { ...payload }
                 })
                     .then((response) => {
                         const { data, status } = response;
@@ -86,13 +86,24 @@ export const Payements = {
                                 })
                                     .then(resp => {
                                         if (resp instanceof Paiements) {
+                                            Services.loggerSystem({
+                                                message: JSON.stringify({ ...data, phone: _opphone, amount, currency }),
+                                                title: "PAIEMENT AVEC FLEXPAY LOUNCHED"
+                                            });
                                             return resolve({ code: 200, message: "A push message was sent the customer", data: { ...data } });
                                         } else {
+                                            Services.loggerSystem({
+                                                message: JSON.stringify({ ...data, phone: _opphone, amount, currency }),
+                                                title: "PAIEMENT AVEC FLEXPAY CRASHED"
+                                            });
                                             return reject({ code: 400, message: "An error occured when trying to resolve payement !", data: { error: resp } });
                                         }
                                     })
                                     .catch(err => {
-                                        console.log(err);
+                                        Services.loggerSystem({
+                                            message: JSON.stringify({ ...data, phone: _opphone, amount, currency }),
+                                            title: "PAIEMENT AVEC FLEXPAY CRASHED"
+                                        });
                                         return reject({ code: 400, message: "An error occured when trying to resolve payement !", data: { ...err } });
                                     })
                             } else {
@@ -101,6 +112,13 @@ export const Payements = {
                                     to: fillphone({ phone: _opphone }),
                                     content: `Désolé une erreur vient de se produire lors du paiement veuillez réessayer plus tard !`
                                 })
+                                .then(_ => {})
+                                .catch(_ => {})
+                                // log(response.data, payload)
+                                Services.loggerSystem({
+                                    message: JSON.stringify({ ...data, phone: _opphone, amount, currency }),
+                                    title: "PAIEMENT AVEC FLEXPAY CRASHED"
+                                });
                                 return reject({ code, message, data })
                             }
 
@@ -114,7 +132,7 @@ export const Payements = {
                     })
                     .catch((error) => {
                         Services.loggerSystem({
-                            message: JSON.stringify({ ...data, phone: _opphone, amount, currency }),
+                            message: JSON.stringify({ ...payload, phone: _opphone, amount, currency }),
                             title: "PAIEMENT AVEC FLEXPAY CRASHED"
                         });
                         console.log("Error on paiement ===> ", error);

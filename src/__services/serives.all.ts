@@ -20,11 +20,16 @@ import base64 from 'base-64';
 
 dotenv.config()
 
-const { API_SMS_ENDPOINT, APP_NAME, API_SMS_TOKEN, API_SMS_IS_FLASH } = process.env
+const { API_SMS_ENDPOINT, APP_NAME, API_SMS_TOKEN, API_SMS_IS_FLASH, APP_FLEXPAYRETROCOMMISIONNE } = process.env
+if (!APP_FLEXPAYRETROCOMMISIONNE || !APP_NAME || !API_SMS_ENDPOINT) throw new Error
 
 let tempfolder: string = 'as_assets'
 
 export const Services = {
+    calcAmountBeforePaiement: ({ amount }: { amount: number }) => {
+        const comm: number = parseFloat(APP_FLEXPAYRETROCOMMISIONNE) || 0
+        return (amount - (amount * (comm / 100)));
+    },
     converterDevise: async ({ amount, currency }: { currency: string, amount: number }) => {
         const configs = await Configs.findAll({
             order: [['id', 'DESC']],
@@ -104,7 +109,7 @@ export const Services = {
                 else return reject({ code: status, message: statusText, data })
 
             } catch (error: any) {
-                log(error)
+                log(error.toString())
                 return reject({ code: 500, message: "Error on sending message", data: error.toString() })
             }
         })
@@ -1646,9 +1651,9 @@ export const Services = {
                     date_expiration: expiresIn,
                     date_expiration_unix: expiresInUnix
                 }, { transaction })
-                if(member instanceof Hasmembers){
+                if (member instanceof Hasmembers) {
                     return cb(undefined, { code: 200, message: "Done", data: member })
-                }else return cb(undefined, { code: 500, message: "Error", data: null })
+                } else return cb(undefined, { code: 500, message: "Error", data: null })
             }
         } catch (error) {
             return cb(undefined, { code: 500, message: "Error", data: error })

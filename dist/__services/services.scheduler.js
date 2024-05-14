@@ -20,39 +20,43 @@ const model_payements_1 = require("../__models/model.payements");
 const axios_1 = __importDefault(require("axios"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const helper_moment_1 = require("../__helpers/helper.moment");
+const console_1 = require("console");
 dotenv_1.default.config();
 const { APP_FLEXPAYURLCHECK, APP_FLEXPAYTOKEN } = process.env;
 exports.Scheduler = {
-    checkPayement: ({ munites }, cb) => __awaiter(void 0, void 0, void 0, function* () {
+    checkPayement: ({ munites }) => __awaiter(void 0, void 0, void 0, function* () {
+        (0, console_1.log)("======================= Checkeng paiement in", munites, "munites");
         const rule = new node_schedule_1.default.RecurrenceRule();
+        const cb = () => { };
         rule.tz = 'Etc/GMT-2';
         var date = new Date((0, moment_1.default)().year(), (0, moment_1.default)().month(), (0, moment_1.default)().date(), (0, moment_1.default)().hours(), (0, moment_1.default)().minutes() + (munites), 0);
-        try {
-            const j = node_schedule_1.default.scheduleJob(date, () => __awaiter(void 0, void 0, void 0, function* () {
-                const p = yield model_payements_1.Paiements.findAll({
-                    where: {
-                        status: 1,
-                    },
-                });
-                p.forEach((_p, _i) => __awaiter(void 0, void 0, void 0, function* () {
-                    const idtransaction = _p && _p['reference'];
-                    const { amount, currency, realref } = _p;
-                    (0, axios_1.default)({
-                        method: 'GET',
-                        timeout: 0,
-                        headers: {
-                            'Content-Type': 'application/json',
-                            Authorization: `Bearer ${APP_FLEXPAYTOKEN}`,
+        return new Promise((resolve, reject) => __awaiter(void 0, void 0, void 0, function* () {
+            try {
+                const j = node_schedule_1.default.scheduleJob(date, () => __awaiter(void 0, void 0, void 0, function* () {
+                    const p = yield model_payements_1.Paiements.findAll({
+                        where: {
+                            status: 0, // means where paiement est encore en attente
                         },
-                        url: APP_FLEXPAYURLCHECK + "/" + idtransaction,
-                    })
-                        .then((chk) => {
+                    });
+                    const __treated = [];
+                    for (let index = 0; index < p.length; index++) {
+                        const { reference: idtransaction, amount, currency, realref, phone, description, category, createdby, createdAt, deletedAt, id, status: asstatus, updatedAt } = p[index].toJSON();
+                        const _p = p[index];
+                        const chk = yield (0, axios_1.default)({
+                            method: 'GET',
+                            timeout: 0,
+                            headers: {
+                                'Content-Type': 'application/json',
+                                Authorization: `Bearer ${APP_FLEXPAYTOKEN}`,
+                            },
+                            url: APP_FLEXPAYURLCHECK + "/" + idtransaction,
+                        });
                         let { status, data } = chk;
                         if (status === 200) {
                             const { code, message, transaction } = data;
                             const { status } = transaction;
                             console.log('====================================');
-                            console.log("Message from Flexpay =======> ");
+                            console.log("Message from Flexpay =======> ", data);
                             console.log('====================================');
                             // console.log("Message from transacrion is ==> ", message, transaction, "The value of the state is ===> ", status);
                             if (status === '0' || status === 0) {
@@ -67,32 +71,56 @@ exports.Scheduler = {
                                     })
                                         .then((_s) => {
                                         if (_s instanceof model_payements_1.Paiements) {
+                                            _s.update({
+                                                status: 1 // ie. paiement effectuer avec succes
+                                            });
+                                            __treated.push(_p.toJSON());
+                                            // return cb(undefined, {
+                                            //     code: 200,
+                                            //     message: 'We can not process with the request right now',
+                                            //     data: data,
+                                            // })
                                         }
                                         else {
                                             console.log(' Updating pending paiement failed ==>  ', _s);
-                                            return cb(undefined, {
-                                                code: 400,
-                                                message: 'We can not process with the request right now',
-                                                data: data,
-                                            });
+                                            // reject({
+                                            //     code: 400,
+                                            //     message: 'We can not process with the request right now',
+                                            //     data: data,
+                                            // })
+                                            // return cb(undefined, {
+                                            //     code: 400,
+                                            //     message: 'We can not process with the request right now',
+                                            //     data: data,
+                                            // });
                                         }
                                     })
                                         .catch((err) => {
                                         console.log(' Updating pending paiement failed ==>  ', err);
-                                        return cb(undefined, {
-                                            code: 400,
-                                            message: 'We can not process with the request right now',
-                                            data: data,
-                                        });
+                                        // reject({
+                                        //     code: 400,
+                                        //     message: 'We can not process with the request right now',
+                                        //     data: data,
+                                        // })
+                                        // return cb(undefined, {
+                                        //     code: 400,
+                                        //     message: 'We can not process with the request right now',
+                                        //     data: data,
+                                        // });
                                     });
                                 }
                                 catch (error) {
                                     console.log(' Updating pending paiement failed ==>  ', error);
-                                    return cb(undefined, {
-                                        code: 400,
-                                        message: 'We can not process with the request right now',
-                                        data: data,
-                                    });
+                                    // reject({
+                                    //     code: 400,
+                                    //     message: 'We can not process with the request right now',
+                                    //     data: data,
+                                    // })
+                                    // return cb(undefined, {
+                                    //     code: 400,
+                                    //     message: 'We can not process with the request right now',
+                                    //     data: data,
+                                    // });
                                 }
                             }
                             else {
@@ -101,42 +129,57 @@ exports.Scheduler = {
                                 });
                                 serives_all_1.Services.onSendSMS({
                                     is_flash: false,
-                                    to: _p && _p['phone'],
+                                    to: phone,
                                     content: `votre paiement de ${amount}${currency} a echoué, ID transaction ${realref}, veillez réessayer un peu plus tard, en date du ${(0, helper_moment_1.now)({ options: {} })}`,
                                 })
-                                    .then(d => {
-                                })
-                                    .catch(er => {
-                                });
-                                // console.log(' Paiement faild or not succeded ! ');
-                                return cb(undefined, {
-                                    code: 400,
-                                    message: 'Paiement still pending',
-                                    data: data,
-                                });
+                                    .then(d => { })
+                                    .catch(er => { });
+                                console.log(' Paiement succeded ! ', _p.toJSON());
+                                // reject({
+                                //     code: 400,
+                                //     message: 'Paiement still pending',
+                                //     data: data,
+                                // })
+                                // return cb(undefined, {
+                                //     code: 400,
+                                //     message: 'Paiement still pending',
+                                //     data: data,
+                                // });
                             }
                         }
                         else {
-                            // console.log(chk['data']);
-                            return cb(undefined, {
-                                code: 400,
-                                message: 'We can not process with the request right now, cause is still pending',
-                                data: data,
-                            });
+                            console.log(chk['data']);
+                            // reject({
+                            //     code: 400,
+                            //     message: 'We can not process with the request right now, cause is still pending',
+                            //     data: data,
+                            // })
+                            // return cb(undefined, {
+                            //     code: 400,
+                            //     message: 'We can not process with the request right now, cause is still pending',
+                            //     data: data,
+                            // });
                         }
-                    })
-                        .catch((err) => {
-                        // console.log(err);
-                        return cb(undefined, {
-                            code: 500,
-                            message: 'An error was occured ',
-                            data: {},
-                        });
+                    }
+                    resolve({
+                        code: 200,
+                        message: "Succeded paiement",
+                        data: __treated
                     });
                 }));
-            }));
-        }
-        catch (error) {
-        }
+            }
+            catch (error) {
+                reject({
+                    code: 500,
+                    message: error.toString(),
+                    data: error
+                });
+                return cb(undefined, ({
+                    code: 500,
+                    message: error.toString(),
+                    data: error
+                }));
+            }
+        }));
     })
 };

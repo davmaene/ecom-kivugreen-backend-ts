@@ -40,15 +40,15 @@ exports.Payements = {
     pay: ({ phone, amount, currency, createdby, reference }) => __awaiter(void 0, void 0, void 0, function* () {
         return new Promise((resolve, reject) => __awaiter(void 0, void 0, void 0, function* () {
             try {
-                // const { APP_FLEXPAYMERCHANTID, APP_FLEXPAYURL, APP_CALLBACKURL, APP_FLEXPAYTOKEN } = process.env;
                 const _opphone = (0, helper_fillphone_1.completeCodeCountryToPhoneNumber)({ phone: (0, helper_fillphone_1.fillphone)({ phone }), withoutplus: true });
                 const _operationref = reference || (0, helper_random_1.randomLongNumber)({ length: 13 });
-                const data = {
+                const _amount = serives_all_1.Services.calcAmountBeforePaiement({ amount });
+                const payload = {
                     "merchant": APP_FLEXPAYMERCHANTID,
                     "type": "1",
                     "phone": _opphone,
                     "reference": _operationref,
-                    "amount": amount,
+                    "amount": _amount,
                     "currency": currency.trim().toUpperCase(),
                     "callbackUrl": APP_CALLBACKURL
                 };
@@ -60,7 +60,7 @@ exports.Payements = {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${APP_FLEXPAYTOKEN}`
                     },
-                    data: Object.assign({}, data)
+                    data: Object.assign({}, payload)
                 })
                     .then((response) => {
                     const { data, status } = response;
@@ -83,14 +83,25 @@ exports.Payements = {
                             })
                                 .then(resp => {
                                 if (resp instanceof model_payements_1.Paiements) {
+                                    serives_all_1.Services.loggerSystem({
+                                        message: JSON.stringify(Object.assign(Object.assign({}, data), { phone: _opphone, amount, currency })),
+                                        title: "PAIEMENT AVEC FLEXPAY LOUNCHED"
+                                    });
                                     return resolve({ code: 200, message: "A push message was sent the customer", data: Object.assign({}, data) });
                                 }
                                 else {
+                                    serives_all_1.Services.loggerSystem({
+                                        message: JSON.stringify(Object.assign(Object.assign({}, data), { phone: _opphone, amount, currency })),
+                                        title: "PAIEMENT AVEC FLEXPAY CRASHED"
+                                    });
                                     return reject({ code: 400, message: "An error occured when trying to resolve payement !", data: { error: resp } });
                                 }
                             })
                                 .catch(err => {
-                                console.log(err);
+                                serives_all_1.Services.loggerSystem({
+                                    message: JSON.stringify(Object.assign(Object.assign({}, data), { phone: _opphone, amount, currency })),
+                                    title: "PAIEMENT AVEC FLEXPAY CRASHED"
+                                });
                                 return reject({ code: 400, message: "An error occured when trying to resolve payement !", data: Object.assign({}, err) });
                             });
                         }
@@ -99,6 +110,13 @@ exports.Payements = {
                                 is_flash: false,
                                 to: (0, helper_fillphone_1.fillphone)({ phone: _opphone }),
                                 content: `Désolé une erreur vient de se produire lors du paiement veuillez réessayer plus tard !`
+                            })
+                                .then(_ => { })
+                                .catch(_ => { });
+                            // log(response.data, payload)
+                            serives_all_1.Services.loggerSystem({
+                                message: JSON.stringify(Object.assign(Object.assign({}, data), { phone: _opphone, amount, currency })),
+                                title: "PAIEMENT AVEC FLEXPAY CRASHED"
                             });
                             return reject({ code, message, data });
                         }
@@ -113,7 +131,7 @@ exports.Payements = {
                 })
                     .catch((error) => {
                     serives_all_1.Services.loggerSystem({
-                        message: JSON.stringify(Object.assign(Object.assign({}, data), { phone: _opphone, amount, currency })),
+                        message: JSON.stringify(Object.assign(Object.assign({}, payload), { phone: _opphone, amount, currency })),
                         title: "PAIEMENT AVEC FLEXPAY CRASHED"
                     });
                     console.log("Error on paiement ===> ", error);

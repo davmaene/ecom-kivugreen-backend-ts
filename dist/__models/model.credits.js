@@ -11,6 +11,7 @@ exports.Credits = connecte_1.connect.define('__tbl_ecom_credits', {
         allowNull: true,
     },
     id_cooperative: sequelize_1.DataTypes.INTEGER,
+    createdat: sequelize_1.DataTypes.DATE,
     id_user: sequelize_1.DataTypes.INTEGER,
     montant: sequelize_1.DataTypes.FLOAT,
     currency: sequelize_1.DataTypes.STRING,

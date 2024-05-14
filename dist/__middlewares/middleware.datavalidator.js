@@ -153,6 +153,7 @@ exports.produitValidator = [
     (0, express_validator_1.body)('id_category').notEmpty().isNumeric().withMessage("`id_category` is required and it can not be empty !"),
     (0, express_validator_1.body)('id_souscategory').optional().isNumeric().withMessage("`id_souscategory` is required and it can not be empty !"),
 ];
+// .isStrongPassword()
 exports.userModelValidator = [
     (0, express_validator_1.body)('nom').notEmpty().isString().withMessage("`nom` is required and it can not be empty !"),
     (0, express_validator_1.body)('postnom').notEmpty().isString().withMessage("`postnom` is required and it can not be empty !"),
@@ -181,7 +182,7 @@ exports.userModelValidator = [
         });
     })).withMessage("`idterritoire` the value for idterritoire is not invalid ! this must be integer !"),
     (0, express_validator_1.body)('idvillage').optional().isNumeric().withMessage("`idvillage` the value for idterritoire is not invalid ! this must be integer !"),
-    (0, express_validator_1.body)('password').notEmpty().isStrongPassword().withMessage("the password must have at least 8 characters; 1 Special character; 1 number, 1 lowercase letter, 1 uppercase letter. Ex: D@v12345678"),
+    (0, express_validator_1.body)('password').notEmpty().isString().withMessage("the password must have at least 8 characters; 1 Special character; 1 number, 1 lowercase letter, 1 uppercase letter. Ex: D@v12345678"),
     (0, express_validator_1.body)('idroles').isArray({ min: 1 }).custom((v, { req }) => __awaiter(void 0, void 0, void 0, function* () {
         const validator = yield (0, exports.roleValidator)(v);
         return new Promise((resolve, reject) => {

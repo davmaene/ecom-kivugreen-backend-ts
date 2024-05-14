@@ -131,7 +131,7 @@ export const formatUserModel = ({ model }: { model: any }) => {
     }
 };
 
-export const groupArrayElementByColumn = ({ arr, columnName }: { arr: any[], columnName: string }) => {
+export const groupArrayElementByColumn = ({ arr, columnName, convertColumn }: { arr: any[], columnName: string, convertColumn: boolean }) => {
 
     const groups = new Map();
 

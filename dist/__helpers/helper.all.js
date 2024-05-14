@@ -126,7 +126,7 @@ const formatUserModel = ({ model }) => {
     return Object.assign(Object.assign({}, model), { province: (province ? province['province'] : ESCAPESTRING), territoire: (territoire ? territoire['territoire'] : ESCAPESTRING), village: (village ? village['village'] : ESCAPESTRING), roles: (roles.map((r) => r && r['id'])) });
 };
 exports.formatUserModel = formatUserModel;
-const groupArrayElementByColumn = ({ arr, columnName }) => {
+const groupArrayElementByColumn = ({ arr, columnName, convertColumn }) => {
     const groups = new Map();
     arr.forEach((item) => {
         const columnValue = item[columnName];

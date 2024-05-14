@@ -285,10 +285,24 @@ export const __controllerCooperatives = {
     update: async (res: Response, req: Request) => {
         const { idcooperative } = req.params
         if (idcooperative) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least idccoperative !")
-        if (Object.keys(req.body).length <= 0) return Responder(res, HttpStatusCode.NotAcceptable, "The body should not be empty !")
+        if (Object.keys(req.body).length <= 0) return Responder(res, HttpStatusCode.NotAcceptable, "The body should not be empty !");
+        const { id_territoire, id_province, coordonnees_gps, adresse, phone, email, num_enregistrement, isformel, sigle, cooperative, id_adjoint, id_responsable, description, id_category } = req.body as any
         try {
             Cooperatives.update({
-                ...req.body,
+                id_territoire,
+                id_province,
+                coordonnees_gps,
+                adresse,
+                phone,
+                email,
+                num_enregistrement,
+                isformel,
+                sigle,
+                cooperative,
+                id_adjoint,
+                id_responsable,
+                description,
+                id_category
             }, {
                 where: {
                     id: parseInt(idcooperative)

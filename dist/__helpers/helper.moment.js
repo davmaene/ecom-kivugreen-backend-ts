@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.unixToDate = exports.dateFormated = exports.addDaysThenReturnUnix = exports.daysPerTypeSouscription = exports.nowInUnix = exports.nowPlusDays = exports.now = void 0;
+exports.__endOfTheDayWithDate = exports.unixToDate = exports.dateFormated = exports.addDaysThenReturnUnix = exports.daysPerTypeSouscription = exports.nowInUnix = exports.nowPlusDays = exports.now = void 0;
 const moment_1 = __importDefault(require("moment"));
 moment_1.default.locale("fr");
 const now = ({ options }) => {
@@ -50,6 +50,10 @@ const dateFormated = ({ longDate }) => {
 };
 exports.dateFormated = dateFormated;
 const unixToDate = ({ unix }) => {
-    return moment_1.default.unix(unix).format("LTS, L");
+    return moment_1.default.unix(unix).format("DD/MM/YYYY");
 };
 exports.unixToDate = unixToDate;
+const __endOfTheDayWithDate = ({ date }) => {
+    return (0, moment_1.default)(date).endOf('day').unix();
+};
+exports.__endOfTheDayWithDate = __endOfTheDayWithDate;
