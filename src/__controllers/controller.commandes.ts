@@ -162,15 +162,25 @@ export const __controllerCommandes = {
         try {
             Commandes.belongsTo(Produits, { foreignKey: "id_produit" })
             Commandes.belongsTo(Typelivraisons, { foreignKey: "type_livraison" })
+            Commandes.belongsTo(Unites, { foreignKey: "id_unity" })
+            Commandes.belongsTo(Users, { foreignKey: "createdby" })
             Commandes.findAll({
                 include: [
                     {
                         model: Produits,
-                        required: false,
+                        required: true,
                     },
                     {
                         model: Typelivraisons,
-                        required: false,
+                        required: true,
+                    },
+                    {
+                        model: Unites,
+                        required: true,
+                    },
+                    {
+                        model: Users,
+                        required: true,
                     }
                 ],
                 where: {}
@@ -191,11 +201,26 @@ export const __controllerCommandes = {
 
         try {
             Commandes.belongsTo(Produits, { foreignKey: "id_produit" })
+            Commandes.belongsTo(Typelivraisons, { foreignKey: "type_livraison" })
+            Commandes.belongsTo(Unites, { foreignKey: "id_unity" })
+            Commandes.belongsTo(Users, { foreignKey: "createdby" })
             Commandes.findAll({
                 include: [
                     {
                         model: Produits,
-                        required: false,
+                        required: true,
+                    },
+                    {
+                        model: Typelivraisons,
+                        required: true,
+                    },
+                    {
+                        model: Unites,
+                        required: true,
+                    },
+                    {
+                        model: Users,
+                        required: true,
                     }
                 ],
                 where: {
@@ -218,11 +243,26 @@ export const __controllerCommandes = {
         if (!status) return Responder(res, HttpStatusCode.NotAcceptable, "this request must have at least status in the request !")
         try {
             Commandes.belongsTo(Produits, { foreignKey: "id_produit" })
+            Commandes.belongsTo(Typelivraisons, { foreignKey: "type_livraison" })
+            Commandes.belongsTo(Unites, { foreignKey: "id_unity" })
+            Commandes.belongsTo(Users, { foreignKey: "createdby" })
             Commandes.findAll({
                 include: [
                     {
                         model: Produits,
-                        required: false,
+                        required: true,
+                    },
+                    {
+                        model: Typelivraisons,
+                        required: true,
+                    },
+                    {
+                        model: Unites,
+                        required: true,
+                    },
+                    {
+                        model: Users,
+                        required: true,
                     }
                 ],
                 where: {
