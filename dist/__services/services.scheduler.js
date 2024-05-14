@@ -20,16 +20,16 @@ const model_payements_1 = require("../__models/model.payements");
 const axios_1 = __importDefault(require("axios"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const helper_moment_1 = require("../__helpers/helper.moment");
-const console_1 = require("console");
+const model_commandes_1 = require("../__models/model.commandes");
+const helper_fillphone_1 = require("../__helpers/helper.fillphone");
 dotenv_1.default.config();
 const { APP_FLEXPAYURLCHECK, APP_FLEXPAYTOKEN } = process.env;
 exports.Scheduler = {
-    checkPayement: ({ munites }) => __awaiter(void 0, void 0, void 0, function* () {
-        (0, console_1.log)("======================= Checkeng paiement in", munites, "munites");
+    checkPayement: ({ munites, secondes }) => __awaiter(void 0, void 0, void 0, function* () {
         const rule = new node_schedule_1.default.RecurrenceRule();
         const cb = () => { };
         rule.tz = 'Etc/GMT-2';
-        var date = new Date((0, moment_1.default)().year(), (0, moment_1.default)().month(), (0, moment_1.default)().date(), (0, moment_1.default)().hours(), (0, moment_1.default)().minutes() + (munites), 0);
+        var date = new Date((0, moment_1.default)().year(), (0, moment_1.default)().month(), (0, moment_1.default)().date(), (0, moment_1.default)().hours(), (0, moment_1.default)().minutes() + (munites), (0, moment_1.default)().seconds() + (secondes), 0);
         return new Promise((resolve, reject) => __awaiter(void 0, void 0, void 0, function* () {
             try {
                 const j = node_schedule_1.default.scheduleJob(date, () => __awaiter(void 0, void 0, void 0, function* () {
@@ -40,7 +40,7 @@ exports.Scheduler = {
                     });
                     const __treated = [];
                     for (let index = 0; index < p.length; index++) {
-                        const { reference: idtransaction, amount, currency, realref, phone, description, category, createdby, createdAt, deletedAt, id, status: asstatus, updatedAt } = p[index].toJSON();
+                        const { reference: idtransaction, amount, currency, realref, phone, customer_phone, description, category, createdby, createdAt, deletedAt, id, status: asstatus, updatedAt } = p[index].toJSON();
                         const _p = p[index];
                         const chk = yield (0, axios_1.default)({
                             method: 'GET',
@@ -61,7 +61,9 @@ exports.Scheduler = {
                             // console.log("Message from transacrion is ==> ", message, transaction, "The value of the state is ===> ", status);
                             if (status === '0' || status === 0) {
                                 //status === '0' || status === 0
-                                const { currency, amountCustomer, reference, channel, createdAt, amount, } = transaction;
+                                const { currency, amountCustomer: amount, reference, channel, createdAt,
+                                // amount,
+                                 } = transaction;
                                 try {
                                     model_payements_1.Paiements.findOne({
                                         where: {
@@ -75,6 +77,34 @@ exports.Scheduler = {
                                                 status: 1 // ie. paiement effectuer avec succes
                                             });
                                             __treated.push(_p.toJSON());
+                                            model_commandes_1.Commandes.update({
+                                                state: 3
+                                            }, {
+                                                where: {
+                                                    transaction: idtransaction
+                                                }
+                                            })
+                                                .then(__ => {
+                                                // p.update({ status: 2 })
+                                                serives_all_1.Services.onSendSMS({
+                                                    is_flash: false,
+                                                    to: (0, helper_fillphone_1.fillphone)({ phone: customer_phone || phone }),
+                                                    content: `Félicitations votre paiement de ${amount}${currency} a été reçu avec succès !ID:${idtransaction}`
+                                                })
+                                                    .then(_ => { })
+                                                    .catch(_ => { });
+                                                // return resolve({ code: 200, message: "Transaction done resolved !", data: data })
+                                            })
+                                                .catch(err => {
+                                                serives_all_1.Services.onSendSMS({
+                                                    is_flash: false,
+                                                    to: (0, helper_fillphone_1.fillphone)({ phone: customer_phone || phone }),
+                                                    content: `Désolé votre paiement de ${amount}${currency} est en cours de traietement !ID:${idtransaction}`
+                                                })
+                                                    .then(_ => { })
+                                                    .catch(_ => { });
+                                                // return reject({ code: 500, message: "An error occured when trying to resolve payement !", data: data })
+                                            });
                                             // return cb(undefined, {
                                             //     code: 200,
                                             //     message: 'We can not process with the request right now',

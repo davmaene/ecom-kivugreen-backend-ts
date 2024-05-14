@@ -173,15 +173,25 @@ exports.__controllerCommandes = {
         try {
             model_commandes_1.Commandes.belongsTo(model_produits_1.Produits, { foreignKey: "id_produit" });
             model_commandes_1.Commandes.belongsTo(model_typelivraison_1.Typelivraisons, { foreignKey: "type_livraison" });
+            model_commandes_1.Commandes.belongsTo(model_unitemesures_1.Unites, { foreignKey: "id_unity" });
+            model_commandes_1.Commandes.belongsTo(model_users_1.Users, { foreignKey: "createdby" });
             model_commandes_1.Commandes.findAll({
                 include: [
                     {
                         model: model_produits_1.Produits,
-                        required: false,
+                        required: true,
                     },
                     {
                         model: model_typelivraison_1.Typelivraisons,
-                        required: false,
+                        required: true,
+                    },
+                    {
+                        model: model_unitemesures_1.Unites,
+                        required: true,
+                    },
+                    {
+                        model: model_users_1.Users,
+                        required: true,
                     }
                 ],
                 where: {}
@@ -202,11 +212,26 @@ exports.__controllerCommandes = {
         const { __id, roles, uuid } = currentuser;
         try {
             model_commandes_1.Commandes.belongsTo(model_produits_1.Produits, { foreignKey: "id_produit" });
+            model_commandes_1.Commandes.belongsTo(model_typelivraison_1.Typelivraisons, { foreignKey: "type_livraison" });
+            model_commandes_1.Commandes.belongsTo(model_unitemesures_1.Unites, { foreignKey: "id_unity" });
+            model_commandes_1.Commandes.belongsTo(model_users_1.Users, { foreignKey: "createdby" });
             model_commandes_1.Commandes.findAll({
                 include: [
                     {
                         model: model_produits_1.Produits,
-                        required: false,
+                        required: true,
+                    },
+                    {
+                        model: model_typelivraison_1.Typelivraisons,
+                        required: true,
+                    },
+                    {
+                        model: model_unitemesures_1.Unites,
+                        required: true,
+                    },
+                    {
+                        model: model_users_1.Users,
+                        required: true,
                     }
                 ],
                 where: {
@@ -231,11 +256,26 @@ exports.__controllerCommandes = {
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "this request must have at least status in the request !");
         try {
             model_commandes_1.Commandes.belongsTo(model_produits_1.Produits, { foreignKey: "id_produit" });
+            model_commandes_1.Commandes.belongsTo(model_typelivraison_1.Typelivraisons, { foreignKey: "type_livraison" });
+            model_commandes_1.Commandes.belongsTo(model_unitemesures_1.Unites, { foreignKey: "id_unity" });
+            model_commandes_1.Commandes.belongsTo(model_users_1.Users, { foreignKey: "createdby" });
             model_commandes_1.Commandes.findAll({
                 include: [
                     {
                         model: model_produits_1.Produits,
-                        required: false,
+                        required: true,
+                    },
+                    {
+                        model: model_typelivraison_1.Typelivraisons,
+                        required: true,
+                    },
+                    {
+                        model: model_unitemesures_1.Unites,
+                        required: true,
+                    },
+                    {
+                        model: model_users_1.Users,
+                        required: true,
                     }
                 ],
                 where: {

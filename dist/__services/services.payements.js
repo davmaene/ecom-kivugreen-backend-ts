@@ -19,6 +19,7 @@ const axios_1 = __importDefault(require("axios"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const helper_random_1 = require("../__helpers/helper.random");
 const model_payements_1 = require("../__models/model.payements");
+const model_commandes_1 = require("../__models/model.commandes");
 dotenv_1.default.config();
 const { APP_FLEXPAYMERCHANTID, APP_FLEXPAYURL, APP_CALLBACKURL, APP_FLEXPAYTOKEN, APP_FLEXPAYURLCHECK } = process.env;
 axios_1.default.interceptors.request.use(config => {
@@ -37,10 +38,11 @@ axios_1.default.interceptors.response.use((resposne) => {
 });
 const timeout = 120000;
 exports.Payements = {
-    pay: ({ phone, amount, currency, createdby, reference }) => __awaiter(void 0, void 0, void 0, function* () {
+    pay: ({ phone, amount, currency, createdby, reference, customer_phone }) => __awaiter(void 0, void 0, void 0, function* () {
         return new Promise((resolve, reject) => __awaiter(void 0, void 0, void 0, function* () {
             try {
                 const _opphone = (0, helper_fillphone_1.completeCodeCountryToPhoneNumber)({ phone: (0, helper_fillphone_1.fillphone)({ phone }), withoutplus: true });
+                const _copphone = (0, helper_fillphone_1.fillphone)({ phone: customer_phone });
                 const _operationref = reference || (0, helper_random_1.randomLongNumber)({ length: 13 });
                 const _amount = serives_all_1.Services.calcAmountBeforePaiement({ amount });
                 const payload = {
@@ -74,6 +76,7 @@ exports.Payements = {
                             model_payements_1.Paiements.create({
                                 realref: _operationref,
                                 reference: orderNumber,
+                                customer_phone: _copphone,
                                 phone: _opphone,
                                 amount,
                                 currency,
@@ -145,8 +148,90 @@ exports.Payements = {
             }
         }));
     }),
-    check: ({ phone, amount, currency }) => __awaiter(void 0, void 0, void 0, function* () {
-        return new Promise((resolve, reject) => {
-        });
+    check: ({ idtransaction }) => __awaiter(void 0, void 0, void 0, function* () {
+        return new Promise((resolve, reject) => __awaiter(void 0, void 0, void 0, function* () {
+            const p = yield model_payements_1.Paiements.findOne({
+                where: {
+                    realref: idtransaction, // means where paiement est encore en attente
+                },
+            });
+            if (p instanceof model_payements_1.Paiements) {
+                const { status: aspstatus, phone, category, createdby, currency, description, customer_phone, createdAt, deletedAt, id, realref, reference, updatedAt } = p.toJSON();
+                const amount = serives_all_1.Services.reCalcAmountBeforePaiement({ amount: p.toJSON()['amount'] });
+                const chk = yield (0, axios_1.default)({
+                    method: 'GET',
+                    timeout: 0,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${APP_FLEXPAYTOKEN}`,
+                    },
+                    url: APP_FLEXPAYURLCHECK + "/" + idtransaction,
+                });
+                const { status, config, data, headers, statusText } = chk;
+                if (status === 200) {
+                    const { code, message, transaction } = data;
+                    const { status: asstatus } = transaction;
+                    console.log('====================================');
+                    console.log("Message from Flexpay =======> ", data);
+                    console.log('====================================');
+                    // console.log("Message from transacrion is ==> ", message, transaction, "The value of the state is ===> ", status);
+                    if (asstatus === '0' || asstatus === 0) {
+                        if (aspstatus === 0) {
+                            model_commandes_1.Commandes.update({
+                                state: 3
+                            }, {
+                                where: {
+                                    transaction: idtransaction
+                                }
+                            })
+                                .then(__ => {
+                                p.update({ status: 2 });
+                                serives_all_1.Services.onSendSMS({
+                                    is_flash: false,
+                                    to: (0, helper_fillphone_1.fillphone)({ phone: customer_phone || phone }),
+                                    content: `Félicitations votre paiement de ${amount}${currency} a été reçu avec succès !ID:${idtransaction}`
+                                })
+                                    .then(_ => { })
+                                    .catch(_ => { });
+                                return resolve({ code: 200, message: "Transaction done resolved !", data: data });
+                            })
+                                .catch(err => {
+                                serives_all_1.Services.onSendSMS({
+                                    is_flash: false,
+                                    to: (0, helper_fillphone_1.fillphone)({ phone: customer_phone || phone }),
+                                    content: `Désolé votre paiement de ${amount}${currency} est en cours de traietement !ID:${idtransaction}`
+                                })
+                                    .then(_ => { })
+                                    .catch(_ => { });
+                                return reject({ code: 500, message: "An error occured when trying to resolve payement !", data: data });
+                            });
+                        }
+                        else {
+                            serives_all_1.Services.onSendSMS({
+                                is_flash: false,
+                                to: (0, helper_fillphone_1.fillphone)({ phone: customer_phone || phone }),
+                                content: `Désolé votre paiement de ${amount}${currency} est en cours de traietement !`
+                            })
+                                .then(_ => { })
+                                .catch(_ => { });
+                            return reject({ code: 500, message: "An error occured when trying to resolve payement !", data: data });
+                        }
+                    }
+                    else {
+                        return reject({ code: 500, message: "An error occured when trying to resolve payement !", data: data });
+                    }
+                }
+                else {
+                    return reject({ code: 500, message: "An error occured when trying to resolve payement !", data: data });
+                }
+            }
+            else {
+                reject({
+                    code: 404,
+                    message: "Not found" + idtransaction,
+                    data: idtransaction
+                });
+            }
+        }));
     })
 };

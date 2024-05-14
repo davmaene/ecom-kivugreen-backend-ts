@@ -37,7 +37,7 @@ exports.Commandes = connecte_1.connect.define('__tbl_ecom_commandes', {
     type_livraison: sequelize_1.DataTypes.INTEGER,
     description: sequelize_1.DataTypes.STRING,
     is_pending: sequelize_1.DataTypes.INTEGER,
-    state: sequelize_1.DataTypes.INTEGER, // 
+    state: sequelize_1.DataTypes.INTEGER, // 0: non paye' | 1: Annuler | 2: Encours de livr | 3: Possibilite liv 4: livree'
     createdby: sequelize_1.DataTypes.INTEGER,
     shipped_to: {
         type: sequelize_1.DataTypes.STRING,

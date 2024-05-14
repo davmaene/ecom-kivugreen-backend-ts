@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.groupArrayElementByColumn = exports.formatUserModel = exports.capitalizeWords = exports.truncatestring = exports.checkFileType = exports.renderState = exports.imageTypes = exports.groupedDataByColumn = exports.groupArrayByPairs = void 0;
+exports.supprimerDoublons = exports.groupArrayElementByColumn = exports.formatUserModel = exports.capitalizeWords = exports.truncatestring = exports.checkFileType = exports.renderState = exports.documentTypes = exports.imageTypes = exports.groupedDataByColumn = exports.groupArrayByPairs = void 0;
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const { APP_ESCAPESTRING: ESCAPESTRING } = process.env;
@@ -46,7 +46,7 @@ exports.imageTypes = [
     // { fileType: "PSD", mimeType: "image/vnd.adobe.photoshop" },
     // { fileType: "EPS", mimeType: "image/eps" }
 ];
-const documentTypes = [
+exports.documentTypes = [
     { fileType: "PDF", mimeType: "application/pdf" },
     { fileType: "DOCX", mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" },
     { fileType: "DOC", mimeType: "application/msword" },
@@ -93,7 +93,7 @@ const checkFileType = ({ mimetype, as = "doc" || "img" }) => {
     if (exports.imageTypes.map(type => type['mimeType']).includes(mimetype) && as === "img") {
         return { isKnownType: true, mimetype };
     }
-    else if (documentTypes.map(type => type['mimeType']).includes(mimetype) && as === "doc") {
+    else if (exports.documentTypes.map(type => type['mimeType']).includes(mimetype) && as === "doc") {
         return { isKnownType: true, mimetype };
     }
     else {
@@ -140,3 +140,8 @@ const groupArrayElementByColumn = ({ arr, columnName, convertColumn }) => {
     return Object.fromEntries(groups);
 };
 exports.groupArrayElementByColumn = groupArrayElementByColumn;
+const supprimerDoublons = ({ tableau }) => {
+    const tableauUnique = tableau.filter((element, index) => tableau.indexOf(element) === index);
+    return tableauUnique;
+};
+exports.supprimerDoublons = supprimerDoublons;

@@ -22,7 +22,82 @@ const connecte_1 = require("../__databases/connecte");
 const model_configs_1 = require("../__models/model.configs");
 const model_categories_1 = require("../__models/model.categories");
 const model_unitemesures_1 = require("../__models/model.unitemesures");
+const model_commandes_1 = require("../__models/model.commandes");
+const model_typelivraison_1 = require("../__models/model.typelivraison");
+const helper_all_1 = require("../__helpers/helper.all");
+const model_histories_1 = require("../__models/model.histories");
 exports.__controllerStocks = {
+    history: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+        const { currentuser } = req;
+        const { __id, roles, uuid, phone } = currentuser;
+        const { idstock } = req.params;
+        if (!idstock)
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "This request must have at least stockid");
+        try {
+            model_stocks_1.Stocks.belongsTo(model_cooperatives_1.Cooperatives, { foreignKey: "id_cooperative" });
+            model_stocks_1.Stocks.belongsToMany(model_produits_1.Produits, { through: model_hasproducts_1.Hasproducts, }); // as: 'produits'
+            model_stocks_1.Stocks.findOne({
+                where: {
+                    id: idstock
+                },
+                include: [
+                    {
+                        model: model_produits_1.Produits,
+                        // as: 'produits',
+                        required: true,
+                        attributes: ['id', 'produit']
+                    },
+                    {
+                        model: model_cooperatives_1.Cooperatives,
+                        required: true,
+                        attributes: ['id', 'coordonnees_gps', 'phone', 'num_enregistrement', 'email', 'sigle', 'cooperative', 'description']
+                    }
+                ]
+            })
+                .then((stck) => __awaiter(void 0, void 0, void 0, function* () {
+                if (stck instanceof model_stocks_1.Stocks) {
+                    const __mouvements = [];
+                    const { __tbl_ecom_cooperative, __tbl_ecom_produits, date_expiration, date_production, createdby, description, id_cooperative, transaction, createdAt, id, updatedAt } = stck.toJSON();
+                    for (let index = 0; index < __tbl_ecom_produits.length; index++) {
+                        const { id: asproduct, __tbl_ecom_hasproducts } = __tbl_ecom_produits[index];
+                        const { id: ashasproduct, id_membre, qte, prix_unitaire, prix_plus_commission, currency } = __tbl_ecom_hasproducts;
+                        // ============================================
+                        model_commandes_1.Commandes.belongsTo(model_produits_1.Produits, { foreignKey: "id_produit" });
+                        model_commandes_1.Commandes.belongsTo(model_typelivraison_1.Typelivraisons, { foreignKey: "type_livraison" });
+                        const cmmds = yield model_commandes_1.Commandes.findAll({
+                            include: [
+                                {
+                                    model: model_produits_1.Produits,
+                                    required: false,
+                                },
+                                {
+                                    model: model_typelivraison_1.Typelivraisons,
+                                    required: false,
+                                }
+                            ],
+                            where: {
+                                id_produit: ashasproduct
+                            }
+                        });
+                        __mouvements.push(Object.assign(Object.assign({}, __tbl_ecom_produits), { mouvements: Object.assign({}, __tbl_ecom_hasproducts) }));
+                    }
+                    return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, Object.assign(Object.assign({}, stck.toJSON()), { mouvements: __mouvements }));
+                }
+                else {
+                    (0, console_1.log)(stck);
+                    return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, stck);
+                }
+            }))
+                .catch(er => {
+                (0, console_1.log)(er);
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, er);
+            });
+        }
+        catch (error) {
+            (0, console_1.log)(error);
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
+        }
+    }),
     in: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { id_ccoperative, items, description, date_production, date_expiration } = req.body;
         const { currentuser } = req;
@@ -54,8 +129,8 @@ exports.__controllerStocks = {
                     if (configs instanceof model_configs_1.Configs) {
                         const { taux_change, commission_price } = configs.toJSON();
                         for (let index = 0; index < array.length; index++) {
-                            const { id_produit, qte, prix_unitaire, currency, date_production: asdate_production, id_membre } = array[index];
-                            if (!id_produit || !qte || !prix_unitaire || !currency || !asdate_production) { // || !id_membre
+                            const { id_produit, qte, prix_unitaire, currency, date_production: asdate_production, id_member, qte_critique } = array[index];
+                            if (!id_produit || !qte || !prix_unitaire || !currency || !asdate_production || !id_member) { // || !id_membre
                                 nottreated.push(array[index]);
                             }
                             else {
@@ -69,9 +144,6 @@ exports.__controllerStocks = {
                                     if (prd instanceof model_produits_1.Produits) {
                                         const { id, produit, id_unity, id_category, id_souscategory, image, tva } = prd.toJSON();
                                         const { id: asstockid } = stock.toJSON();
-                                        console.log('====================================');
-                                        console.log("TVA", tva, prd.toJSON());
-                                        console.log('====================================');
                                         if (produit && id_category && id_unity) {
                                             const [item, created] = yield model_hasproducts_1.Hasproducts.findOrCreate({
                                                 where: {
@@ -82,6 +154,7 @@ exports.__controllerStocks = {
                                                     prix_plus_commission: prix_unitaire + (prix_unitaire * parseFloat(commission_price)) + (prix_unitaire * parseFloat(tva)),
                                                     currency,
                                                     tva,
+                                                    qte_critique: qte_critique || 0,
                                                     prix_unitaire,
                                                     date_production: asdate_production,
                                                     TblEcomCategoryId: id_category,
@@ -90,16 +163,38 @@ exports.__controllerStocks = {
                                                     TblEcomStockId: asstockid || 0,
                                                     TblEcomUnitesmesureId: id_unity,
                                                     qte,
-                                                    id_membre: 0
+                                                    id_membre: [id_member || 0]
                                                 },
                                                 transaction
                                             });
                                             if (created) {
+                                                model_histories_1.Historiquesmembersstocks.create({
+                                                    TblEcomUserId: id_member,
+                                                    qte,
+                                                    date_production: asdate_production,
+                                                    TblEcomCategoryId: id_category,
+                                                    TblEcomCooperativeId: id_ccoperative,
+                                                    TblEcomProduitId: id_produit,
+                                                    TblEcomStockId: asstockid || 0,
+                                                    TblEcomUnitesmesureId: id_unity,
+                                                }, {});
                                                 treated.push(array[index]);
                                             }
                                             else {
-                                                const { qte: asqte } = item.toJSON();
+                                                const { qte: asqte, id_membre: asids } = item === null || item === void 0 ? void 0 : item.toJSON();
+                                                model_histories_1.Historiquesmembersstocks.create({
+                                                    TblEcomUserId: id_member,
+                                                    qte,
+                                                    date_production: asdate_production,
+                                                    TblEcomCategoryId: id_category,
+                                                    TblEcomCooperativeId: id_ccoperative,
+                                                    TblEcomProduitId: id_produit,
+                                                    TblEcomStockId: asstockid || 0,
+                                                    TblEcomUnitesmesureId: id_unity,
+                                                }, {});
+                                                const __ = !Array.isArray(asids) ? [asids] : asids;
                                                 item.update({
+                                                    id_membre: [...(0, helper_all_1.supprimerDoublons)({ tableau: [...__] })],
                                                     qte: qte + asqte
                                                 });
                                                 treated.push(Object.assign(Object.assign({}, array[index]), { produit }));
@@ -117,9 +212,9 @@ exports.__controllerStocks = {
                                     nottreated.push(array[index]);
                                     // log(error)
                                     console.log('====================================');
-                                    console.log(id_produit, prix_unitaire, commission_price);
+                                    console.log(id_produit, prix_unitaire, commission_price, " ============> ", id_member);
                                     console.log('====================================');
-                                    (0, console_1.log)("Error on treatement on object => ", id_produit, configs);
+                                    (0, console_1.log)("Error on treatement on object => ", id_produit, configs, error);
                                 }
                             }
                         }
@@ -129,7 +224,6 @@ exports.__controllerStocks = {
                         }
                         else {
                             transaction.rollback();
-                            // log(nottreated, treated)
                             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Conflict, "this request must have at least Configurations params for the price !, the table of product is empty");
                         }
                     }

@@ -3,6 +3,7 @@ export interface globalInterface {
     createdAt?: Date | string;
     updatedAt?: Date | string;
     deletedAt?: Date | string;
+    createdBy?: number | string;
 }
 
 export interface IUsers extends globalInterface {
@@ -70,7 +71,8 @@ export interface IHasmember extends globalInterface {
 }
 
 export interface IHasproducts extends globalInterface {
-    id_membre: number,
+    id_membre?: number[],
+    qte_critique?: number,
     prix_unitaire: number,
     prix_plus_commission: number,
     currency: string,
@@ -83,6 +85,28 @@ export interface IHasproducts extends globalInterface {
     // TblEcomUserId: number,
     TblEcomCooperativeId: number
     TblEcomStockId: number
+}
+
+export interface IHistoriesstock extends globalInterface {
+    // id_membres: number[],
+    // qte_critique?: number,
+    // prix_unitaire: number,
+    // prix_plus_commission: number,
+    // currency: string,
+    // tva: number,
+    date_production: string,
+    qte: number,
+    TblEcomProduitId: number,
+    TblEcomCategoryId: number,
+    TblEcomUnitesmesureId: number,
+    TblEcomUserId: number,
+    TblEcomStockId: number,
+    TblEcomCooperativeId: number
+}
+
+export interface IMembershasrechargedstock extends globalInterface {
+    TblEcomUserId: number,
+    qte: number,
 }
 
 export interface IProvinces {
@@ -147,6 +171,7 @@ export interface ICategorie extends globalInterface {
 }
 export interface IPayement extends globalInterface {
     realref?: string,
+    customer_phone: string,
     reference?: string,
     phone: string,
     amount: number,

@@ -38,9 +38,15 @@ if (!APP_FLEXPAYRETROCOMMISIONNE || !APP_NAME || !API_SMS_ENDPOINT)
     throw new Error;
 let tempfolder = 'as_assets';
 exports.Services = {
+    accomplishePayement: ({}) => __awaiter(void 0, void 0, void 0, function* () {
+    }),
     calcAmountBeforePaiement: ({ amount }) => {
         const comm = parseFloat(APP_FLEXPAYRETROCOMMISIONNE) || 0;
         return (amount - (amount * (comm / 100)));
+    },
+    reCalcAmountBeforePaiement: ({ amount }) => {
+        const comm = parseFloat(APP_FLEXPAYRETROCOMMISIONNE) || 0;
+        return (amount + (amount * (comm / 100)));
     },
     converterDevise: ({ amount, currency }) => __awaiter(void 0, void 0, void 0, function* () {
         const configs = yield model_configs_1.Configs.findAll({

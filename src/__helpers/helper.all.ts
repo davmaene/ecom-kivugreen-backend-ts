@@ -42,7 +42,7 @@ export const imageTypes = [
     // { fileType: "EPS", mimeType: "image/eps" }
 ];
 
-const documentTypes = [
+export const documentTypes = [
     { fileType: "PDF", mimeType: "application/pdf" },
     { fileType: "DOCX", mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" },
     { fileType: "DOC", mimeType: "application/msword" },
@@ -145,3 +145,8 @@ export const groupArrayElementByColumn = ({ arr, columnName, convertColumn }: { 
     });
     return Object.fromEntries(groups);
 };
+
+export const supprimerDoublons = ({ tableau }: { tableau: number[] }) => {
+    const tableauUnique = tableau.filter((element, index) => tableau.indexOf(element) === index);
+    return tableauUnique;
+}

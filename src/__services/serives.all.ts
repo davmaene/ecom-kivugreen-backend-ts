@@ -26,9 +26,16 @@ if (!APP_FLEXPAYRETROCOMMISIONNE || !APP_NAME || !API_SMS_ENDPOINT) throw new Er
 let tempfolder: string = 'as_assets'
 
 export const Services = {
+    accomplishePayement: async ({ }) => {
+
+    },
     calcAmountBeforePaiement: ({ amount }: { amount: number }) => {
         const comm: number = parseFloat(APP_FLEXPAYRETROCOMMISIONNE) || 0
         return (amount - (amount * (comm / 100)));
+    },
+    reCalcAmountBeforePaiement: ({ amount }: { amount: number }) => {
+        const comm: number = parseFloat(APP_FLEXPAYRETROCOMMISIONNE) || 0
+        return (amount + (amount * (comm / 100)));
     },
     converterDevise: async ({ amount, currency }: { currency: string, amount: number }) => {
         const configs = await Configs.findAll({

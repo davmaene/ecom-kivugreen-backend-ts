@@ -15,6 +15,7 @@ exports.Paiements = connecte_1.connect.define('__tbl_ecom_payements', {
         defaultValue: 0, // 0: Paiment initié 1: Paiement effectue' avec succes 2: Paiement echoué
         allowNull: true
     },
+    customer_phone: sequelize_1.DataTypes.STRING,
     realref: sequelize_1.DataTypes.STRING,
     reference: sequelize_1.DataTypes.STRING,
     phone: sequelize_1.DataTypes.STRING,

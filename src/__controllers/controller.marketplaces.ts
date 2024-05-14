@@ -141,12 +141,13 @@ export const __controllerMarketplace = {
                         currency: currency_payement || "CDF",
                         phone: payament_phone || phone,
                         createdby: __id,
-                        reference: transaction
+                        reference: transaction,
+                        customer_phone: phone
                     })
                         .then(({ code, data, message }) => {
                             if (code === 200) {
                                 tr_.commit()
-                                Scheduler.checkPayement({ munites: 1 })
+                                Scheduler.checkPayement({ munites: 1, secondes: 30 })
                                 return Responder(res, HttpStatusCode.Ok, { prix_totale: somme.reduce((p, c) => p + c), currency: "CDF", c_treated, c_nottreated })
                             } else {
                                 tr_.rollback()

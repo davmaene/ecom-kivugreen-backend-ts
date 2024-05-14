@@ -16,6 +16,7 @@ export const Paiements = connect.define<Payement>('__tbl_ecom_payements', {
         defaultValue: 0, // 0: Paiment initié 1: Paiement effectue' avec succes 2: Paiement echoué
         allowNull: true
     },
+    customer_phone: DataTypes.STRING,
     realref: DataTypes.STRING,
     reference: DataTypes.STRING,
     phone: DataTypes.STRING,

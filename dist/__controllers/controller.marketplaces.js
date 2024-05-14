@@ -152,12 +152,13 @@ exports.__controllerMarketplace = {
                         currency: currency_payement || "CDF",
                         phone: payament_phone || phone,
                         createdby: __id,
-                        reference: transaction
+                        reference: transaction,
+                        customer_phone: phone
                     })
                         .then(({ code, data, message }) => {
                         if (code === 200) {
                             tr_.commit();
-                            services_scheduler_1.Scheduler.checkPayement({ munites: 1 });
+                            services_scheduler_1.Scheduler.checkPayement({ munites: 1, secondes: 30 });
                             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { prix_totale: somme.reduce((p, c) => p + c), currency: "CDF", c_treated, c_nottreated });
                         }
                         else {
