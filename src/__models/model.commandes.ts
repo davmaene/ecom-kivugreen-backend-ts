@@ -40,6 +40,11 @@ export const Commandes = connect.define<Commande>('__tbl_ecom_commandes', {
     is_pending: DataTypes.INTEGER,
     state: DataTypes.INTEGER, // 0: non paye' | 1: Annuler | 2: Encours de livr | 3: Possibilite liv 4: livree'
     createdby: DataTypes.INTEGER,
+    updatedby: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+        allowNull: true
+    },
     shipped_to: {
         type: DataTypes.STRING,
         allowNull: false,

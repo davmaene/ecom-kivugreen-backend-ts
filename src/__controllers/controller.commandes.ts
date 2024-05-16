@@ -45,8 +45,8 @@ export const __controllerCommandes = {
         }
     },
     listcommandebycooperative: async (req: Request, res: Response) => {
-        const { currentuser } = req as any;
         const { idcooperative: idtransaction } = req.params
+        const { currentuser } = req as any;
         const { __id, roles, uuid } = currentuser;
         try {
             Commandes.belongsTo(Produits, { foreignKey: "id_produit" })
@@ -282,6 +282,52 @@ export const __controllerCommandes = {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     },
+    listbystateanddeliver: async (req: Request, res: Response) => {
+        const { status } = req.params;
+        const { currentuser } = req as any;
+        const { __id, roles, uuid } = currentuser;
+        if (!status) return Responder(res, HttpStatusCode.NotAcceptable, "this request must have at least status in the request !")
+        log("=================> ", __id, status)
+        try {
+            Commandes.belongsTo(Produits, { foreignKey: "id_produit" })
+            Commandes.belongsTo(Typelivraisons, { foreignKey: "type_livraison" })
+            Commandes.belongsTo(Unites, { foreignKey: "id_unity" })
+            Commandes.belongsTo(Users, { foreignKey: "createdby" })
+            Commandes.findAll({
+                include: [
+                    {
+                        model: Produits,
+                        required: true,
+                    },
+                    {
+                        model: Typelivraisons,
+                        required: true,
+                    },
+                    {
+                        model: Unites,
+                        required: true,
+                    },
+                    {
+                        model: Users,
+                        required: true,
+                    }
+                ],
+                where: {
+                    updatedby: __id,
+                    state: parseInt(status)
+                }
+            })
+                .then(commandes => {
+                    const groupes = groupedDataByColumn({ column: "transaction", data: commandes })
+                    return Responder(res, HttpStatusCode.Ok, { count: commandes.length, rows: commandes, groupes })
+                })
+                .catch(err => {
+                    return Responder(res, HttpStatusCode.InternalServerError, err)
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
     validate: async (req: Request, res: Response) => {
         const { idcommande } = req.params;
         if (!idcommande) return Responder(res, HttpStatusCode.NotAcceptable, "this request must have at least idcommande in the request !")
@@ -311,6 +357,8 @@ export const __controllerCommandes = {
     },
     changestate: async (req: Request, res: Response) => {
         const { idcommande: transaction } = req.params;
+        const { currentuser } = req as any;
+        const { __id, roles, uuid } = currentuser;
         if (!transaction) return Responder(res, HttpStatusCode.NotAcceptable, "this request must have at least idcommande in the request !")
         try {
             Commandes.belongsTo(Produits, { foreignKey: "id_produit" })
@@ -334,7 +382,8 @@ export const __controllerCommandes = {
                 .then(commandes => {
                     if (commandes && commandes.length > 0) {
                         Commandes.update({
-                            state: 2
+                            state: 2,
+                            updatedby: __id
                         }, {
                             where: {
                                 transaction
