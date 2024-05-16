@@ -6,7 +6,7 @@ import { Cooperatives } from "../__models/model.cooperatives";
 import { Credits } from "../__models/model.credits";
 import { Request, Response } from "express";
 import { capitalizeWords } from "../__helpers/helper.all";
-import { now } from "../__helpers/helper.moment";
+import { date, now } from "../__helpers/helper.moment";
 
 export const __controllersCredits = {
     list: async (req: Request, res: Response) => {
@@ -65,17 +65,19 @@ export const __controllersCredits = {
     },
     add: async (req: Request, res: Response,) => {
         const { id_cooperative, id_member, montant, currency, motif, periode_remboursement } = req.body;
-        if (!id_cooperative || !id_member || !montant || !currency || !motif || !periode_remboursement) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !id_cooperative || !id_member || !montant || !currency || !motif || !periode_remboursement")
+        if (!id_cooperative || !montant || !currency || !motif || !periode_remboursement) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !id_cooperative  || !montant || !currency || !motif || !periode_remboursement")
+        const _ = date()
+        log(_)
         try {
             Credits.create({
                 id_cooperative: parseInt(id_cooperative),
                 montant: parseFloat(montant),
                 currency: String(currency).toUpperCase(),
                 motif: capitalizeWords({ text: motif }),
-                id_user: id_member,
+                id_user: id_member || null,
                 periode_remboursement: parseInt(periode_remboursement),
                 status: 0,
-                createdat: now({ options: {} })
+                createdat: _ as any
             })
                 .then(crd => {
                     if (crd instanceof Credits) return Responder(res, HttpStatusCode.Ok, crd)
