@@ -5,6 +5,8 @@ import { Users } from "../__models";
 import { Cooperatives } from "../__models/model.cooperatives";
 import { Credits } from "../__models/model.credits";
 import { Request, Response } from "express";
+import { capitalizeWords } from "../__helpers/helper.all";
+import { now } from "../__helpers/helper.moment";
 
 export const __controllersCredits = {
     list: async (req: Request, res: Response) => {
@@ -62,9 +64,18 @@ export const __controllersCredits = {
         }
     },
     add: async (req: Request, res: Response,) => {
+        const { id_cooperative, id_member, montant, currency, motif, periode_remboursement } = req.body;
+        if (!id_cooperative || !id_member || !montant || !currency || !motif || !periode_remboursement) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !id_cooperative || !id_member || !montant || !currency || !motif || !periode_remboursement")
         try {
             Credits.create({
-                ...req.body
+                id_cooperative: parseInt(id_cooperative),
+                montant: parseFloat(montant),
+                currency: String(currency).toUpperCase(),
+                motif: capitalizeWords({ text: motif }),
+                id_user: id_member,
+                periode_remboursement: parseInt(periode_remboursement),
+                status: 0,
+                createdat: now({ options: {} })
             })
                 .then(crd => {
                     if (crd instanceof Credits) return Responder(res, HttpStatusCode.Ok, crd)
@@ -78,7 +89,7 @@ export const __controllersCredits = {
     update: async (req: Request, res: Response,) => {
         const { idcredit } = req.params
         if (!idcredit) return Responder(res, HttpStatusCode.NoContent, "This request must have at least idcredit")
-        if(Object.keys(req.body).length <= 0) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least somes keys in body !")
+        if (Object.keys(req.body).length <= 0) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least somes keys in body !")
         try {
             Credits.update({
                 ...req.body
@@ -106,8 +117,8 @@ export const __controllersCredits = {
                 }
             })
                 .then(crd => {
-                    if(crd !== 0) return Responder(res, HttpStatusCode.Ok, `Item with id:::${idcredit} was successfuly deleted !`)
-                   else return Responder(res, HttpStatusCode.NotFound, `Item with id:::${idcredit} not found !`)
+                    if (crd !== 0) return Responder(res, HttpStatusCode.Ok, `Item with id:::${idcredit} was successfuly deleted !`)
+                    else return Responder(res, HttpStatusCode.NotFound, `Item with id:::${idcredit} not found !`)
                 })
                 .catch(er => Responder(res, HttpStatusCode.InternalServerError, er))
         } catch (error) {
