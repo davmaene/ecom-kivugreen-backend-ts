@@ -186,7 +186,8 @@ export const __controllerCommandes = {
                 where: {}
             })
                 .then(commandes => {
-                    return Responder(res, HttpStatusCode.Ok, { count: commandes.length, rows: commandes })
+                    const groupes = groupedDataByColumn({ column: "transaction", data: commandes })
+                    return Responder(res, HttpStatusCode.Ok, { count: commandes.length, rows: commandes, groupes })
                 })
                 .catch(err => {
                     return Responder(res, HttpStatusCode.InternalServerError, err)
@@ -228,7 +229,8 @@ export const __controllerCommandes = {
                 }
             })
                 .then(commandes => {
-                    return Responder(res, HttpStatusCode.Ok, { count: commandes.length, rows: commandes })
+                    const groupes = groupedDataByColumn({ column: "transaction", data: commandes })
+                    return Responder(res, HttpStatusCode.Ok, { count: commandes.length, rows: commandes, groupes })
                 })
                 .catch(err => {
                     log(err)
@@ -270,7 +272,8 @@ export const __controllerCommandes = {
                 }
             })
                 .then(commandes => {
-                    return Responder(res, HttpStatusCode.Ok, { count: commandes.length, rows: commandes })
+                    const groupes = groupedDataByColumn({ column: "transaction", data: commandes })
+                    return Responder(res, HttpStatusCode.Ok, { count: commandes.length, rows: commandes, groupes })
                 })
                 .catch(err => {
                     return Responder(res, HttpStatusCode.InternalServerError, err)

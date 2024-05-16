@@ -5,6 +5,7 @@ import * as dotenv from 'dotenv'
 import { HttpStatusCode } from "../__enums/enum.httpsstatuscode";
 import { Responder } from "../__helpers/helper.responseserver";
 import * as fs from 'fs';
+import http from 'http';
 import * as path from 'path';
 import morgan from 'morgan';
 import fileUpload from 'express-fileupload'
@@ -12,13 +13,16 @@ import { accessValidator } from "../__middlewares/middleware.accessvalidator";
 import { routes } from "../__routes/index";
 import { ServiceImage } from '../__services/services.images';
 import { log } from 'console';
+import { Server, Socket } from 'socket.io';
 
 dotenv.config();
 
 const { APP_NAME, APP_PORT, APP_VERSION } = process.env;
 
 const app = express();
+const server = http.createServer(app);
 const PORT = APP_PORT || 8012;
+const io = new Server(server)
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -39,21 +43,10 @@ const ___logAccess = fs.createWriteStream(path.join(__dirname, 'access.log'), { 
 app.use(morgan("combined", { stream: ___logAccess }));
 
 app.get('/', (req: Request, res: Response, next: NextFunction) => {
-    ServiceImage.onRemoveBGFromImage({
-        inputs: {
-            directory: '/',
-            filename: 'image-bAWMArU5VYl15KFjDSK6nvz.jpg',
-            fullpath: "src/__assets/as_images/image-bAWMArU5VYl15KFjDSK6nvz.jpg",
-            saveas: 'as_images'
-        },
-        callBack: (err: any, done: any) => {
-            log(done, err)
-        }
-    })
     return Responder(res, HttpStatusCode.Ok, { ...HttpStatusMessages })
-})
+});
 
-app.use('/api', accessValidator, routes) //
+app.use('/api', accessValidator, routes); //
 
 app.use("/__assets", routes);
 
@@ -66,6 +59,21 @@ app.use((req: Request, res: Response, next: NextFunction) => {
         method,
         body
     })
+});
+
+io.on('connection', (socket: Socket) => {
+    console.log('Nouvelle connexion:', socket.id);
+    // Gérer les messages des clients
+    socket.on('message', (data: any) => {
+        console.log('Message reçu:', data);
+        // Envoyer le message à tous les clients sauf l'émetteur
+        socket.broadcast.emit('message', data);
+    });
+
+    // Gérer la déconnexion des clients
+    socket.on('disconnect', () => {
+        console.log('Déconnexion:', socket.id);
+    });
 });
 
 app.listen(PORT, () => {
