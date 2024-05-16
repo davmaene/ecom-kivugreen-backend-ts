@@ -7,6 +7,8 @@ import { Credits } from "../__models/model.credits";
 import { Request, Response } from "express";
 import { capitalizeWords } from "../__helpers/helper.all";
 import { date, now } from "../__helpers/helper.moment";
+import { Services } from "../__services/serives.all";
+import { fillphone } from "../__helpers/helper.fillphone";
 
 export const __controllersCredits = {
     list: async (req: Request, res: Response) => {
@@ -67,7 +69,6 @@ export const __controllersCredits = {
         const { id_cooperative, id_member, montant, currency, motif, periode_remboursement } = req.body;
         if (!id_cooperative || !montant || !currency || !motif || !periode_remboursement) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !id_cooperative  || !montant || !currency || !motif || !periode_remboursement")
         const _ = date()
-        log(_)
         try {
             Credits.create({
                 id_cooperative: parseInt(id_cooperative),
@@ -79,9 +80,27 @@ export const __controllersCredits = {
                 status: 0,
                 createdat: _ as any
             })
-                .then(crd => {
-                    if (crd instanceof Credits) return Responder(res, HttpStatusCode.Ok, crd)
-                    else return Responder(res, HttpStatusCode.Conflict, crd)
+                .then(async crd => {
+                    if (crd instanceof Credits) {
+                        if (id_member) {
+                            const m = await Users.findOne({
+                                where: {
+                                    id: id_member
+                                }
+                            })
+                            if (m instanceof Users) {
+                                const { nom, postnom, prenom, phone, email } = m?.toJSON() as any
+                                Services.onSendSMS({
+                                    content: `Bonjour cher membre ${nom} ${postnom} nous avons reçu votre requête de démande de crédit pour un montant de ${montant}${currency}, une suite favorable vous sera envoyé après traitement de votre dossier`,
+                                    is_flash: false,
+                                    to: fillphone({ phone })
+                                })
+                                .then(_ => {})
+                                .catch(_ => {})
+                            }
+                        }
+                        return Responder(res, HttpStatusCode.Ok, crd)
+                    } else return Responder(res, HttpStatusCode.Conflict, crd)
                 })
                 .catch(er => Responder(res, HttpStatusCode.InternalServerError, er))
         } catch (error) {
