@@ -94,9 +94,9 @@ export const __controllerStocks = {
         }
     },
     in: async (req: Request, res: Response) => {
-        const { id_ccoperative, items, description, date_production, date_expiration } = req.body;
+        const { id_cooperative, items, description, date_production, date_expiration } = req.body;
         const { currentuser } = req as any;
-        if (!id_ccoperative || !items) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !id_ccoperative || !items")
+        if (!id_cooperative || !items) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !id_cooperative || !items")
         if (!Array.isArray(items) || Array.from(items).length === 0) return Responder(res, HttpStatusCode.NotAcceptable, "Items must be a type of Array")
         const array: any[] = Array.from(items);
         const { __id, roles, uuid, phone } = currentuser;
@@ -106,13 +106,17 @@ export const __controllerStocks = {
             }
         })
 
+        console.log('====================================');
+        console.log(array);
+        console.log('====================================');
+
         try {
             const transaction = await connect.transaction()
             Stocks.create({
                 date_expiration,
                 date_production,
                 createdby: __id,
-                id_cooperative: id_ccoperative,
+                id_cooperative: id_cooperative,
                 transaction: randomLongNumber({ length: 15 }),
                 description
             }, { transaction })
@@ -141,7 +145,7 @@ export const __controllerStocks = {
                                                 const [item, created] = await Hasproducts.findOrCreate({
                                                     where: {
                                                         TblEcomProduitId: id_produit,
-                                                        TblEcomCooperativeId: id_ccoperative
+                                                        TblEcomCooperativeId: id_cooperative
                                                     },
                                                     defaults: {
                                                         prix_plus_commission: prix_unitaire + (prix_unitaire * parseFloat(commission_price)) + (prix_unitaire * parseFloat(tva)),
@@ -151,7 +155,7 @@ export const __controllerStocks = {
                                                         prix_unitaire,
                                                         date_production: asdate_production,
                                                         TblEcomCategoryId: id_category,
-                                                        TblEcomCooperativeId: id_ccoperative,
+                                                        TblEcomCooperativeId: id_cooperative,
                                                         TblEcomProduitId: id_produit,
                                                         TblEcomStockId: asstockid || 0,
                                                         TblEcomUnitesmesureId: id_unity,
@@ -166,7 +170,7 @@ export const __controllerStocks = {
                                                         qte,
                                                         date_production: asdate_production,
                                                         TblEcomCategoryId: id_category,
-                                                        TblEcomCooperativeId: id_ccoperative,
+                                                        TblEcomCooperativeId: id_cooperative,
                                                         TblEcomProduitId: id_produit,
                                                         TblEcomStockId: asstockid || 0,
                                                         TblEcomUnitesmesureId: id_unity,
@@ -180,7 +184,7 @@ export const __controllerStocks = {
                                                         qte,
                                                         date_production: asdate_production,
                                                         TblEcomCategoryId: id_category,
-                                                        TblEcomCooperativeId: id_ccoperative,
+                                                        TblEcomCooperativeId: id_cooperative,
                                                         TblEcomProduitId: id_produit,
                                                         TblEcomStockId: asstockid || 0,
                                                         TblEcomUnitesmesureId: id_unity,

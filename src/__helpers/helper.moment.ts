@@ -7,6 +7,8 @@ export const now = ({ options }: { options: any }) => {
     return moment().format("LTS, L")
 };
 
+export const date = () => new Date()
+
 export const nowPlusDays = ({ options: { days } }: { options: { days: number } }) => {
     return moment().add(days, 'days').format("LTS, L")
 };

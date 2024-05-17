@@ -210,7 +210,8 @@ export interface ICommande extends globalInterface {
     is_pending: number,
     state: number,
     createdby: number,
-    shipped_to: string
+    shipped_to: string,
+    updatedby?: number
 }
 
 export interface IExtras extends globalInterface {
