@@ -85,7 +85,8 @@ exports.__controllerPayements = {
                 currency,
                 phone,
                 createdby: 0,
-                reference: (0, helper_random_1.randomLongNumber)({ length: 13 })
+                reference: (0, helper_random_1.randomLongNumber)({ length: 13 }),
+                customer_phone: phone
             })
                 .then(pay => {
                 const { code, data, message } = pay;
