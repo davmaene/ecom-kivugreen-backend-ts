@@ -106,10 +106,6 @@ export const __controllerStocks = {
             }
         })
 
-        console.log('====================================');
-        console.log(array);
-        console.log('====================================');
-
         try {
             const transaction = await connect.transaction()
             Stocks.create({

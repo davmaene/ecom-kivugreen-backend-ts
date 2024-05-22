@@ -416,6 +416,8 @@ export const __controllerUsers = {
                 }
             })
             const pwd = await hashPWD({ plaintext: password })
+            log(password, pwd)
+
             if (user instanceof Users) {
                 const { id, email, phone: asphone, nom } = user.toJSON()
                 const extras = await Extras.findOne({
@@ -1473,6 +1475,7 @@ export const __controllerUsers = {
         const { iduser } = req.params
         if (!iduser) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least iduser as param !")
         if (Object.keys(req.body).length <= 0) return Responder(res, HttpStatusCode.NotAcceptable, "The should not be empty")
+        if (req.body.hasOwnProperty("password")) delete req.body.password;
         try {
             Users.update({
                 ...req.body
