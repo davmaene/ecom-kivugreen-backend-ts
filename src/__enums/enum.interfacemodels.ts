@@ -103,7 +103,6 @@ export interface IHistoriesstock extends globalInterface {
     TblEcomStockId: number,
     TblEcomCooperativeId: number
 }
-
 export interface IMembershasrechargedstock extends globalInterface {
     TblEcomUserId: number,
     qte: number,
