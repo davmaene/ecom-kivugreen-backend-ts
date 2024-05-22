@@ -33,17 +33,19 @@ const dotenv = __importStar(require("dotenv"));
 const enum_httpsstatuscode_1 = require("../__enums/enum.httpsstatuscode");
 const helper_responseserver_1 = require("../__helpers/helper.responseserver");
 const fs = __importStar(require("fs"));
+const http_1 = __importDefault(require("http"));
 const path = __importStar(require("path"));
 const morgan_1 = __importDefault(require("morgan"));
 const express_fileupload_1 = __importDefault(require("express-fileupload"));
 const middleware_accessvalidator_1 = require("../__middlewares/middleware.accessvalidator");
 const index_1 = require("../__routes/index");
-const services_images_1 = require("../__services/services.images");
-const console_1 = require("console");
+const socket_io_1 = require("socket.io");
 dotenv.config();
 const { APP_NAME, APP_PORT, APP_VERSION } = process.env;
 const app = (0, express_1.default)();
+const server = http_1.default.createServer(app);
 const PORT = APP_PORT || 8012;
+const io = new socket_io_1.Server(server);
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use((0, cors_1.default)());
@@ -58,17 +60,6 @@ app.use((req, res, next) => {
 const ___logAccess = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
 app.use((0, morgan_1.default)("combined", { stream: ___logAccess }));
 app.get('/', (req, res, next) => {
-    services_images_1.ServiceImage.onRemoveBGFromImage({
-        inputs: {
-            directory: '/',
-            filename: 'image-bAWMArU5VYl15KFjDSK6nvz.jpg',
-            fullpath: "src/__assets/as_images/image-bAWMArU5VYl15KFjDSK6nvz.jpg",
-            saveas: 'as_images'
-        },
-        callBack: (err, done) => {
-            (0, console_1.log)(done, err);
-        }
-    });
     return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, Object.assign({}, enum_httpsmessage_1.HttpStatusMessages));
 });
 app.use('/api', middleware_accessvalidator_1.accessValidator, index_1.routes); //
@@ -80,6 +71,19 @@ app.use((req, res, next) => {
         url,
         method,
         body
+    });
+});
+io.on('connection', (socket) => {
+    console.log('Nouvelle connexion:', socket.id);
+    // Gérer les messages des clients
+    socket.on('message', (data) => {
+        console.log('Message reçu:', data);
+        // Envoyer le message à tous les clients sauf l'émetteur
+        socket.broadcast.emit('message', data);
+    });
+    // Gérer la déconnexion des clients
+    socket.on('disconnect', () => {
+        console.log('Déconnexion:', socket.id);
     });
 });
 app.listen(PORT, () => {

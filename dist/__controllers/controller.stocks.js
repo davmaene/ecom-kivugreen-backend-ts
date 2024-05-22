@@ -99,10 +99,10 @@ exports.__controllerStocks = {
         }
     }),
     in: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        const { id_ccoperative, items, description, date_production, date_expiration } = req.body;
+        const { id_cooperative, items, description, date_production, date_expiration } = req.body;
         const { currentuser } = req;
-        if (!id_ccoperative || !items)
-            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "This request must have at least !id_ccoperative || !items");
+        if (!id_cooperative || !items)
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "This request must have at least !id_cooperative || !items");
         if (!Array.isArray(items) || Array.from(items).length === 0)
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "Items must be a type of Array");
         const array = Array.from(items);
@@ -112,13 +112,16 @@ exports.__controllerStocks = {
                 id: 1
             }
         });
+        console.log('====================================');
+        console.log(array);
+        console.log('====================================');
         try {
             const transaction = yield connecte_1.connect.transaction();
             model_stocks_1.Stocks.create({
                 date_expiration,
                 date_production,
                 createdby: __id,
-                id_cooperative: id_ccoperative,
+                id_cooperative: id_cooperative,
                 transaction: (0, helper_random_1.randomLongNumber)({ length: 15 }),
                 description
             }, { transaction })
@@ -148,7 +151,7 @@ exports.__controllerStocks = {
                                             const [item, created] = yield model_hasproducts_1.Hasproducts.findOrCreate({
                                                 where: {
                                                     TblEcomProduitId: id_produit,
-                                                    TblEcomCooperativeId: id_ccoperative
+                                                    TblEcomCooperativeId: id_cooperative
                                                 },
                                                 defaults: {
                                                     prix_plus_commission: prix_unitaire + (prix_unitaire * parseFloat(commission_price)) + (prix_unitaire * parseFloat(tva)),
@@ -158,7 +161,7 @@ exports.__controllerStocks = {
                                                     prix_unitaire,
                                                     date_production: asdate_production,
                                                     TblEcomCategoryId: id_category,
-                                                    TblEcomCooperativeId: id_ccoperative,
+                                                    TblEcomCooperativeId: id_cooperative,
                                                     TblEcomProduitId: id_produit,
                                                     TblEcomStockId: asstockid || 0,
                                                     TblEcomUnitesmesureId: id_unity,
@@ -173,7 +176,7 @@ exports.__controllerStocks = {
                                                     qte,
                                                     date_production: asdate_production,
                                                     TblEcomCategoryId: id_category,
-                                                    TblEcomCooperativeId: id_ccoperative,
+                                                    TblEcomCooperativeId: id_cooperative,
                                                     TblEcomProduitId: id_produit,
                                                     TblEcomStockId: asstockid || 0,
                                                     TblEcomUnitesmesureId: id_unity,
@@ -187,7 +190,7 @@ exports.__controllerStocks = {
                                                     qte,
                                                     date_production: asdate_production,
                                                     TblEcomCategoryId: id_category,
-                                                    TblEcomCooperativeId: id_ccoperative,
+                                                    TblEcomCooperativeId: id_cooperative,
                                                     TblEcomProduitId: id_produit,
                                                     TblEcomStockId: asstockid || 0,
                                                     TblEcomUnitesmesureId: id_unity,

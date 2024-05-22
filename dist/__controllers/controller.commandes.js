@@ -55,8 +55,8 @@ exports.__controllerCommandes = {
         }
     }),
     listcommandebycooperative: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        const { currentuser } = req;
         const { idcooperative: idtransaction } = req.params;
+        const { currentuser } = req;
         const { __id, roles, uuid } = currentuser;
         try {
             model_commandes_1.Commandes.belongsTo(model_produits_1.Produits, { foreignKey: "id_produit" });
@@ -197,7 +197,8 @@ exports.__controllerCommandes = {
                 where: {}
             })
                 .then(commandes => {
-                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: commandes.length, rows: commandes });
+                const groupes = (0, helper_all_1.groupedDataByColumn)({ column: "transaction", data: commandes });
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: commandes.length, rows: commandes, groupes });
             })
                 .catch(err => {
                 return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, err);
@@ -239,7 +240,8 @@ exports.__controllerCommandes = {
                 }
             })
                 .then(commandes => {
-                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: commandes.length, rows: commandes });
+                const groupes = (0, helper_all_1.groupedDataByColumn)({ column: "transaction", data: commandes });
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: commandes.length, rows: commandes, groupes });
             })
                 .catch(err => {
                 (0, console_1.log)(err);
@@ -283,7 +285,56 @@ exports.__controllerCommandes = {
                 }
             })
                 .then(commandes => {
-                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: commandes.length, rows: commandes });
+                const groupes = (0, helper_all_1.groupedDataByColumn)({ column: "transaction", data: commandes });
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: commandes.length, rows: commandes, groupes });
+            })
+                .catch(err => {
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, err);
+            });
+        }
+        catch (error) {
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
+        }
+    }),
+    listbystateanddeliver: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        const { status } = req.params;
+        const { currentuser } = req;
+        const { __id, roles, uuid } = currentuser;
+        if (!status)
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "this request must have at least status in the request !");
+        (0, console_1.log)("=================> ", __id, status);
+        try {
+            model_commandes_1.Commandes.belongsTo(model_produits_1.Produits, { foreignKey: "id_produit" });
+            model_commandes_1.Commandes.belongsTo(model_typelivraison_1.Typelivraisons, { foreignKey: "type_livraison" });
+            model_commandes_1.Commandes.belongsTo(model_unitemesures_1.Unites, { foreignKey: "id_unity" });
+            model_commandes_1.Commandes.belongsTo(model_users_1.Users, { foreignKey: "createdby" });
+            model_commandes_1.Commandes.findAll({
+                include: [
+                    {
+                        model: model_produits_1.Produits,
+                        required: true,
+                    },
+                    {
+                        model: model_typelivraison_1.Typelivraisons,
+                        required: true,
+                    },
+                    {
+                        model: model_unitemesures_1.Unites,
+                        required: true,
+                    },
+                    {
+                        model: model_users_1.Users,
+                        required: true,
+                    }
+                ],
+                where: {
+                    updatedby: __id,
+                    state: parseInt(status)
+                }
+            })
+                .then(commandes => {
+                const groupes = (0, helper_all_1.groupedDataByColumn)({ column: "transaction", data: commandes });
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: commandes.length, rows: commandes, groupes });
             })
                 .catch(err => {
                 return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, err);
@@ -324,6 +375,8 @@ exports.__controllerCommandes = {
     }),
     changestate: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { idcommande: transaction } = req.params;
+        const { currentuser } = req;
+        const { __id, roles, uuid } = currentuser;
         if (!transaction)
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "this request must have at least idcommande in the request !");
         try {
@@ -348,7 +401,8 @@ exports.__controllerCommandes = {
                 .then(commandes => {
                 if (commandes && commandes.length > 0) {
                     model_commandes_1.Commandes.update({
-                        state: 2
+                        state: 2,
+                        updatedby: __id
                     }, {
                         where: {
                             transaction
