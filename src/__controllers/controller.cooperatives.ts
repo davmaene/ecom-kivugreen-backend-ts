@@ -288,28 +288,35 @@ export const __controllerCooperatives = {
         if (Object.keys(req.body).length <= 0) return Responder(res, HttpStatusCode.NotAcceptable, "The body should not be empty !");
         const { id_territoire, id_province, coordonnees_gps, adresse, phone, email, num_enregistrement, isformel, sigle, cooperative, id_adjoint, id_responsable, description, id_category } = req.body as any
         try {
-            Cooperatives.update({
-                id_territoire,
-                id_province,
-                coordonnees_gps,
-                adresse,
-                phone,
-                email,
-                num_enregistrement,
-                isformel,
-                sigle,
-                cooperative,
-                id_adjoint,
-                id_responsable,
-                description,
-                id_category
-            }, {
+            Cooperatives.findOne({
                 where: {
-                    id: parseInt(idcooperative)
+                    id: idcooperative
                 }
             })
-                .then(U => Responder(res, HttpStatusCode.Ok, U))
-                .catch(Err => Responder(res, HttpStatusCode.InternalServerError, Err))
+                .then(coop => {
+                    if (coop instanceof Cooperatives) {
+                        coop.update({
+                            id_territoire,
+                            id_province,
+                            coordonnees_gps,
+                            adresse,
+                            phone,
+                            email,
+                            num_enregistrement,
+                            isformel,
+                            sigle,
+                            cooperative,
+                            id_adjoint,
+                            id_responsable,
+                            description,
+                            id_category
+                        })
+                        .then(U => Responder(res, HttpStatusCode.Ok, U))
+                        .catch(Err => Responder(res, HttpStatusCode.InternalServerError, Err))
+                    } else {
+                        return Responder(res, 404, coop)
+                    }
+                })
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
