@@ -194,6 +194,14 @@ export interface INewsletter extends globalInterface {
     description?: string,
 }
 
+export interface IValidatorcodeondelivery extends globalInterface {
+    id_transaction: string,
+    description?: string,
+    id_customer?: number,
+    id_livreur?: number,
+    code_livraison: string
+}
+
 export interface ICommande extends globalInterface {
     transaction: string,
     id_produit: number,

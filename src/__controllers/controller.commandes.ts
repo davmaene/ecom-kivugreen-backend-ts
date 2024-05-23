@@ -9,6 +9,8 @@ import { log } from "console";
 import { Unites } from "../__models/model.unitemesures";
 import { Users } from "../__models/model.users";
 import { groupedDataByColumn } from "../__helpers/helper.all";
+import { Codelivraisons } from "../__models/model.codelivraison";
+import { randomLongNumber } from "../__helpers/helper.random";
 
 export const __controllerCommandes = {
 
@@ -328,9 +330,39 @@ export const __controllerCommandes = {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     },
+    beforevalidation: async (req: Request, res: Response, next: NextFunction) => {
+        const { id_transaction, id_livreur, id_customer } = req.body
+        if (!id_transaction || !id_livreur) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !code_livraison || !id_transaction || !id_livreur")
+        try {
+            const code_livraison = randomLongNumber({ length: 6 })
+            Codelivraisons.create({
+                code_livraison,
+                id_transaction,
+                description: JSON.stringify(req.body),
+                id_customer,
+                id_livreur
+            })
+                .then(cd => {
+                    if (cd instanceof Codelivraisons) {
+
+                    } else {
+                        return Responder(res, HttpStatusCode.NotAcceptable, cd)
+                    }
+                })
+                .catch(err => {
+                    return Responder(res, HttpStatusCode.InternalServerError, err)
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
     validate: async (req: Request, res: Response) => {
         const { idcommande } = req.params;
         if (!idcommande) return Responder(res, HttpStatusCode.NotAcceptable, "this request must have at least idcommande in the request !")
+        const { id_transaction, id_livreur } = req.body;
+        console.log('====================================');
+        console.log(id_transaction, id_livreur);
+        console.log('====================================');
         return Responder(res, HttpStatusCode.Ok, "This --- endpoint is under construction ---- 😃")
         try {
             Commandes.belongsTo(Produits, { foreignKey: "id_produit" })
