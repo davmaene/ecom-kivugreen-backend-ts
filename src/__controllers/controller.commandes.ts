@@ -11,6 +11,7 @@ import { Users } from "../__models/model.users";
 import { groupedDataByColumn } from "../__helpers/helper.all";
 import { Codelivraisons } from "../__models/model.codelivraison";
 import { randomLongNumber } from "../__helpers/helper.random";
+import { Services } from "../__services/serives.all";
 
 export const __controllerCommandes = {
 
@@ -335,54 +336,86 @@ export const __controllerCommandes = {
         if (!id_transaction || !id_livreur) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !code_livraison || !id_transaction || !id_livreur")
         try {
             const code_livraison = randomLongNumber({ length: 6 })
-            Codelivraisons.create({
-                code_livraison,
-                id_transaction,
-                description: JSON.stringify(req.body),
-                id_customer,
-                id_livreur
-            })
-                .then(cd => {
-                    if (cd instanceof Codelivraisons) {
-
-                    } else {
-                        return Responder(res, HttpStatusCode.NotAcceptable, cd)
+            const customer = await Users.findOne({ where: { id: id_customer } })
+            if (customer instanceof Users) {
+                const { phone, nom, postnom, email } = customer.toJSON() as any
+                Codelivraisons.findOrCreate({
+                    defaults: {
+                        code_livraison,
+                        id_transaction,
+                        description: JSON.stringify(req.body),
+                        id_customer,
+                        id_livreur
+                    },
+                    where: {
+                        id_transaction
                     }
                 })
-                .catch(err => {
-                    return Responder(res, HttpStatusCode.InternalServerError, err)
-                })
+                    .then(([cd, isnew]) => {
+                        if (cd instanceof Codelivraisons) {
+                            if (!isnew) {
+                                cd.update({
+                                    code_livraison
+                                })
+                            }
+                            Services.onSendSMS({
+                                to: phone,
+                                is_flash: false,
+                                content: `KG-${code_livraison} \nBonjour ${nom} ceci est votre de confirmation de livraison, ne le partagez qu'avec votre livreur !`
+                            })
+                                .then(_ => { })
+                                .catch(_ => { })
+                            return Responder(res, HttpStatusCode.Ok, cd)
+                        } else {
+                            return Responder(res, HttpStatusCode.NotAcceptable, cd)
+                        }
+                    })
+                    .catch(err => {
+                        return Responder(res, HttpStatusCode.InternalServerError, err)
+                    })
+            } else {
+
+            }
+
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     },
     validate: async (req: Request, res: Response) => {
         const { idcommande } = req.params;
+        
         if (!idcommande) return Responder(res, HttpStatusCode.NotAcceptable, "this request must have at least idcommande in the request !")
-        const { id_transaction, id_livreur } = req.body;
-        console.log('====================================');
-        console.log(id_transaction, id_livreur);
-        console.log('====================================');
-        return Responder(res, HttpStatusCode.Ok, "This --- endpoint is under construction ---- 😃")
+        const { id_transaction, id_livreur, code_livraison, id_customer } = req.body;
+        if (!id_transaction || !id_livreur || !code_livraison) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !id_transaction || !id_livreur || !code_livraison")
+            
+            const customer = await Users.findOne({ where: { id: id_customer } })
+            
+            const cmd = await Commandes.findOne({
+            where: {
+                transaction: (id_transaction),
+                state: 2
+            }
+        })
         try {
-            Commandes.belongsTo(Produits, { foreignKey: "id_produit" })
-            Commandes.findAll({
-                include: [
-                    {
-                        model: Produits,
-                        required: false,
+            if (cmd instanceof Commandes && customer instanceof Users) {
+                Codelivraisons.findOne({
+                    where: {
+                        id_transaction,
                     }
-                ],
-                where: {
-                    state: parseInt(status)
-                }
-            })
-                .then(commandes => {
-                    return Responder(res, HttpStatusCode.Ok, { count: commandes.length, rows: commandes })
                 })
-                .catch(err => {
-                    return Responder(res, HttpStatusCode.InternalServerError, err)
-                })
+                    .then(cd => {
+                        if (cd instanceof Codelivraisons) {
+                            
+                        } else {
+                            return Responder(res, HttpStatusCode.BadRequest, cd)
+                        }
+                    })
+                    .catch(err => {
+                        return Responder(res, HttpStatusCode.InternalServerError, err)
+                    })
+            } else {
+                return Responder(res, HttpStatusCode.NotFound, cmd)
+            }
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
