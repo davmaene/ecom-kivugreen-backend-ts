@@ -374,16 +374,16 @@ export const __controllerCommandes = {
                         return Responder(res, HttpStatusCode.InternalServerError, err)
                     })
             } else {
-
+                return Responder(res, HttpStatusCode.InternalServerError, "This request must have at least ::Customer")
             }
-
         } catch (error) {
+            log(error, id_customer, id_livreur, id_transaction)
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     },
     validate: async (req: Request, res: Response) => {
         const { idcommande } = req.params;
-        
+
         if (!idcommande) return Responder(res, HttpStatusCode.NotAcceptable, "this request must have at least idcommande in the request !")
         const { id_transaction, id_livreur, code_livraison, id_customer } = req.body;
         if (!id_transaction || !id_livreur || !code_livraison) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !id_transaction || !id_livreur || !code_livraison")
