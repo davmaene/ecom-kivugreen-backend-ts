@@ -121,7 +121,7 @@ export const __controllerMarketplace = {
                             }, { transaction: tr_ })
                             if (cmmd instanceof Commandes) {
                                 Services.onSendSMS({
-                                    is_flash: true,
+                                    is_flash: false,
                                     to: fillphone({ phone }),
                                     content: `Bonjour ${nom} nous avons reçu votre commande de (${qte}${unity}) de ${produit}, veuillez acceptez le paiement sur votre téléphone, montant à payer ${converted_price}${converted_currency}, transID: ${transaction}`
                                 })
