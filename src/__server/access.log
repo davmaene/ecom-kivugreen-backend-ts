@@ -35,3 +35,4 @@
 ::ffff:192.168.1.122 - - [24/May/2024:08:50:00 +0000] "PUT /api/commandes/commande/beforevalidation/2424513999149 HTTP/1.1" 200 302 "-" "okhttp/4.9.2"
 ::ffff:192.168.1.122 - - [24/May/2024:08:50:35 +0000] "PUT /api/commandes/commande/beforevalidation/2424513999149 HTTP/1.1" 200 302 "-" "okhttp/4.9.2"
 ::ffff:192.168.1.122 - - [24/May/2024:08:50:56 +0000] "PUT /api/commandes/commande/beforevalidation/2424513999149 HTTP/1.1" 200 302 "-" "okhttp/4.9.2"
+::ffff:127.0.0.1 - - [29/May/2024:09:04:11 +0000] "POST /api/users/user/auth HTTP/1.1" 200 2449 "-" "PostmanRuntime/7.37.3"
