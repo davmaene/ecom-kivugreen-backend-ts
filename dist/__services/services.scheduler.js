@@ -76,12 +76,11 @@ exports.Scheduler = {
                                             _s.update({
                                                 status: 1 // ie. paiement effectuer avec succes
                                             });
-                                            __treated.push(_p.toJSON());
                                             model_commandes_1.Commandes.update({
                                                 state: 3
                                             }, {
                                                 where: {
-                                                    transaction: idtransaction
+                                                    transaction: realref
                                                 }
                                             })
                                                 .then(__ => {
@@ -89,7 +88,7 @@ exports.Scheduler = {
                                                 serives_all_1.Services.onSendSMS({
                                                     is_flash: false,
                                                     to: (0, helper_fillphone_1.fillphone)({ phone: customer_phone || phone }),
-                                                    content: `Félicitations votre paiement de ${amount}${currency} a été reçu avec succès !ID:${idtransaction}`
+                                                    content: `Félicitations votre paiement de ${amount}${currency} a été reçu avec succès !ID:${realref}`
                                                 })
                                                     .then(_ => { })
                                                     .catch(_ => { });
@@ -105,6 +104,7 @@ exports.Scheduler = {
                                                     .catch(_ => { });
                                                 // return reject({ code: 500, message: "An error occured when trying to resolve payement !", data: data })
                                             });
+                                            __treated.push(_p.toJSON());
                                             // return cb(undefined, {
                                             //     code: 200,
                                             //     message: 'We can not process with the request right now',

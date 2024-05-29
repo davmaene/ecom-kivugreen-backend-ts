@@ -28,6 +28,7 @@ exports.Commandes = connecte_1.connect.define('__tbl_ecom_commandes', {
         allowNull: false
     },
     transaction: sequelize_1.DataTypes.STRING,
+    real_transaction: sequelize_1.DataTypes.STRING,
     id_produit: sequelize_1.DataTypes.INTEGER,
     qte: sequelize_1.DataTypes.INTEGER,
     prix_total: sequelize_1.DataTypes.FLOAT,

@@ -130,7 +130,7 @@ exports.__controllerMarketplace = {
                             }, { transaction: tr_ });
                             if (cmmd instanceof model_commandes_1.Commandes) {
                                 serives_all_1.Services.onSendSMS({
-                                    is_flash: true,
+                                    is_flash: false,
                                     to: (0, helper_fillphone_1.fillphone)({ phone }),
                                     content: `Bonjour ${nom} nous avons reçu votre commande de (${qte}${unity}) de ${produit}, veuillez acceptez le paiement sur votre téléphone, montant à payer ${converted_price}${converted_currency}, transID: ${transaction}`
                                 })
@@ -158,7 +158,7 @@ exports.__controllerMarketplace = {
                         .then(({ code, data, message }) => {
                         if (code === 200) {
                             tr_.commit();
-                            services_scheduler_1.Scheduler.checkPayement({ munites: 1, secondes: 30 });
+                            services_scheduler_1.Scheduler.checkPayement({ munites: 2, secondes: 30 });
                             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { prix_totale: somme.reduce((p, c) => p + c), currency: "CDF", c_treated, c_nottreated });
                         }
                         else {
