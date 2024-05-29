@@ -29,6 +29,7 @@ export const Commandes = connect.define<Commande>('__tbl_ecom_commandes', {
         allowNull: false
     },
     transaction: DataTypes.STRING,
+    real_transaction: DataTypes.STRING,
     id_produit: DataTypes.INTEGER,
     qte: DataTypes.INTEGER,
     prix_total: DataTypes.FLOAT,
