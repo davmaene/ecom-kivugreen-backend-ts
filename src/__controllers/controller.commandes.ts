@@ -23,6 +23,9 @@ export const __controllerCommandes = {
             Commandes.belongsTo(Produits, { foreignKey: "id_produit" })
             Commandes.belongsTo(Typelivraisons, { foreignKey: "type_livraison" })
             Commandes.findAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 include: [
                     {
                         model: Produits,
@@ -58,6 +61,9 @@ export const __controllerCommandes = {
             Commandes.belongsTo(Users, { foreignKey: "createdby" })
 
             Commandes.findAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 include: [
                     {
                         model: Produits,
@@ -103,6 +109,9 @@ export const __controllerCommandes = {
             Commandes.belongsTo(Users, { foreignKey: "createdby" })
 
             Commandes.findAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 include: [
                     {
                         model: Produits,
@@ -143,6 +152,9 @@ export const __controllerCommandes = {
         const { __id, roles, uuid } = currentuser;
         try {
             Commandes.findAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 attributes: [
                     [Sequelize.fn('LEFT', Sequelize.col('transaction'), 30), 'transaction'],
                 ],
@@ -168,6 +180,9 @@ export const __controllerCommandes = {
             Commandes.belongsTo(Unites, { foreignKey: "id_unity" })
             Commandes.belongsTo(Users, { foreignKey: "createdby" })
             Commandes.findAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 include: [
                     {
                         model: Produits,
@@ -209,6 +224,9 @@ export const __controllerCommandes = {
             Commandes.belongsTo(Unites, { foreignKey: "id_unity" })
             Commandes.belongsTo(Users, { foreignKey: "createdby" })
             Commandes.findAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 include: [
                     {
                         model: Produits,
@@ -252,6 +270,9 @@ export const __controllerCommandes = {
             Commandes.belongsTo(Unites, { foreignKey: "id_unity" })
             Commandes.belongsTo(Users, { foreignKey: "createdby" })
             Commandes.findAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 include: [
                     {
                         model: Produits,
@@ -297,6 +318,9 @@ export const __controllerCommandes = {
             Commandes.belongsTo(Unites, { foreignKey: "id_unity" })
             Commandes.belongsTo(Users, { foreignKey: "createdby" })
             Commandes.findAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 include: [
                     {
                         model: Produits,
@@ -387,10 +411,10 @@ export const __controllerCommandes = {
         if (!idcommande) return Responder(res, HttpStatusCode.NotAcceptable, "this request must have at least idcommande in the request !")
         const { id_transaction, id_livreur, code_livraison, id_customer } = req.body;
         if (!id_transaction || !id_livreur || !code_livraison) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !id_transaction || !id_livreur || !code_livraison")
-            
-            const customer = await Users.findOne({ where: { id: id_customer } })
-            
-            const cmd = await Commandes.findOne({
+
+        const customer = await Users.findOne({ where: { id: id_customer } })
+
+        const cmd = await Commandes.findOne({
             where: {
                 transaction: (id_transaction),
                 state: 2
@@ -405,7 +429,7 @@ export const __controllerCommandes = {
                 })
                     .then(cd => {
                         if (cd instanceof Codelivraisons) {
-                            
+
                         } else {
                             return Responder(res, HttpStatusCode.BadRequest, cd)
                         }
