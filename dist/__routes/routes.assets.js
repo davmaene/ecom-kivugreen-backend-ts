@@ -9,3 +9,4 @@ const controller_assets_1 = require("../__controllers/controller.assets");
 exports.__routesAssets = express_1.default.Router();
 exports.__routesAssets.get("/as_avatar/:ressources", controller_assets_1.__controlerAssets.getressoursesavatar);
 exports.__routesAssets.get("/as_assets/:ressources", controller_assets_1.__controlerAssets.getanyressourses);
+exports.__routesAssets.get("/as_docs/:ressources", controller_assets_1.__controlerAssets.getanydocs);

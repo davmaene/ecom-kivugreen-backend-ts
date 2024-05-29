@@ -51,6 +51,23 @@ exports.__controlerAssets = {
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
         }
     }),
+    getanydocs: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+        const { ressources } = req.params;
+        const folder = "as_docs";
+        try {
+            return res
+                .status(200)
+                .sendFile(path_1.default.resolve(`src/__assets/${folder}/${ressources}`), (error) => {
+                if (error) {
+                    console.log(`no ressource found with the name : ${ressources}`);
+                    return res.sendFile(path_1.default.resolve(`src/__assets/${folder}/defaultproduit.jpg`));
+                }
+            });
+        }
+        catch (error) {
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
+        }
+    }),
     getanyressourses: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         const { ressources } = req.params;
         const folder = "as_assets";

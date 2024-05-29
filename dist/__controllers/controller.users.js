@@ -1481,6 +1481,8 @@ exports.__controllerUsers = {
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "The should not be empty");
         if (req.body.hasOwnProperty("password"))
             delete req.body.password;
+        if (req.body.hasOwnProperty("phone"))
+            req.body.phone = (0, helper_fillphone_1.fillphone)({ phone: req.body.phone });
         try {
             model_users_1.Users.update(Object.assign({}, req.body), {
                 where: {

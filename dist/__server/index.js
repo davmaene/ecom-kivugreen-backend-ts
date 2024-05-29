@@ -39,13 +39,21 @@ const morgan_1 = __importDefault(require("morgan"));
 const express_fileupload_1 = __importDefault(require("express-fileupload"));
 const middleware_accessvalidator_1 = require("../__middlewares/middleware.accessvalidator");
 const index_1 = require("../__routes/index");
+const console_1 = require("console");
 const socket_io_1 = require("socket.io");
 dotenv.config();
 const { APP_NAME, APP_PORT, APP_VERSION } = process.env;
 const app = (0, express_1.default)();
 const server = http_1.default.createServer(app);
 const PORT = APP_PORT || 8012;
-const io = new socket_io_1.Server(server);
+const io = new socket_io_1.Server(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"],
+        // allowedHeaders: ["x-ecommerce-kgreen-api"],
+        // credentials: true
+    }
+});
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use((0, cors_1.default)());
@@ -59,12 +67,27 @@ app.use((req, res, next) => {
 });
 const ___logAccess = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
 app.use((0, morgan_1.default)("combined", { stream: ___logAccess }));
+io.on('connection', (socket) => {
+    console.log('A user connected', socket.id);
+    io.emit('pairingdone', socket.id);
+    socket.on('scanned', (data) => {
+        (0, console_1.log)(data);
+    });
+    socket.on('message', (msg) => {
+        console.log('Received message:', msg);
+        socket.send('Message received');
+    });
+    socket.on('disconnect', () => {
+        console.log('A user disconnected');
+    });
+});
 app.get('/', (req, res, next) => {
     return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, Object.assign({}, enum_httpsmessage_1.HttpStatusMessages));
 });
 app.use('/api', middleware_accessvalidator_1.accessValidator, index_1.routes); //
 app.use("/__assets", index_1.routes);
 app.use("/assets", index_1.routes);
+app.use("/src", index_1.routes);
 app.use((req, res, next) => {
     const { url, method, body } = req;
     return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotFound, {
@@ -73,19 +96,6 @@ app.use((req, res, next) => {
         body
     });
 });
-io.on('connection', (socket) => {
-    console.log('Nouvelle connexion:', socket.id);
-    // Gérer les messages des clients
-    socket.on('message', (data) => {
-        console.log('Message reçu:', data);
-        // Envoyer le message à tous les clients sauf l'émetteur
-        socket.broadcast.emit('message', data);
-    });
-    // Gérer la déconnexion des clients
-    socket.on('disconnect', () => {
-        console.log('Déconnexion:', socket.id);
-    });
-});
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`< ========== > ${APP_NAME} TEST APP ON ${APP_PORT} < ========== >`);
 });

@@ -20,6 +20,9 @@ const console_1 = require("console");
 const model_unitemesures_1 = require("../__models/model.unitemesures");
 const model_users_1 = require("../__models/model.users");
 const helper_all_1 = require("../__helpers/helper.all");
+const model_codelivraison_1 = require("../__models/model.codelivraison");
+const helper_random_1 = require("../__helpers/helper.random");
+const serives_all_1 = require("../__services/serives.all");
 exports.__controllerCommandes = {
     listcommandebytransaction: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { currentuser } = req;
@@ -29,6 +32,9 @@ exports.__controllerCommandes = {
             model_commandes_1.Commandes.belongsTo(model_produits_1.Produits, { foreignKey: "id_produit" });
             model_commandes_1.Commandes.belongsTo(model_typelivraison_1.Typelivraisons, { foreignKey: "type_livraison" });
             model_commandes_1.Commandes.findAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 include: [
                     {
                         model: model_produits_1.Produits,
@@ -64,6 +70,9 @@ exports.__controllerCommandes = {
             model_commandes_1.Commandes.belongsTo(model_unitemesures_1.Unites, { foreignKey: "id_unity" });
             model_commandes_1.Commandes.belongsTo(model_users_1.Users, { foreignKey: "createdby" });
             model_commandes_1.Commandes.findAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 include: [
                     {
                         model: model_produits_1.Produits,
@@ -109,6 +118,9 @@ exports.__controllerCommandes = {
             model_commandes_1.Commandes.belongsTo(model_unitemesures_1.Unites, { foreignKey: "id_unity" });
             model_commandes_1.Commandes.belongsTo(model_users_1.Users, { foreignKey: "createdby" });
             model_commandes_1.Commandes.findAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 include: [
                     {
                         model: model_produits_1.Produits,
@@ -150,6 +162,9 @@ exports.__controllerCommandes = {
         const { __id, roles, uuid } = currentuser;
         try {
             model_commandes_1.Commandes.findAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 attributes: [
                     [sequelize_1.Sequelize.fn('LEFT', sequelize_1.Sequelize.col('transaction'), 30), 'transaction'],
                 ],
@@ -176,6 +191,9 @@ exports.__controllerCommandes = {
             model_commandes_1.Commandes.belongsTo(model_unitemesures_1.Unites, { foreignKey: "id_unity" });
             model_commandes_1.Commandes.belongsTo(model_users_1.Users, { foreignKey: "createdby" });
             model_commandes_1.Commandes.findAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 include: [
                     {
                         model: model_produits_1.Produits,
@@ -217,6 +235,9 @@ exports.__controllerCommandes = {
             model_commandes_1.Commandes.belongsTo(model_unitemesures_1.Unites, { foreignKey: "id_unity" });
             model_commandes_1.Commandes.belongsTo(model_users_1.Users, { foreignKey: "createdby" });
             model_commandes_1.Commandes.findAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 include: [
                     {
                         model: model_produits_1.Produits,
@@ -262,6 +283,9 @@ exports.__controllerCommandes = {
             model_commandes_1.Commandes.belongsTo(model_unitemesures_1.Unites, { foreignKey: "id_unity" });
             model_commandes_1.Commandes.belongsTo(model_users_1.Users, { foreignKey: "createdby" });
             model_commandes_1.Commandes.findAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 include: [
                     {
                         model: model_produits_1.Produits,
@@ -309,6 +333,9 @@ exports.__controllerCommandes = {
             model_commandes_1.Commandes.belongsTo(model_unitemesures_1.Unites, { foreignKey: "id_unity" });
             model_commandes_1.Commandes.belongsTo(model_users_1.Users, { foreignKey: "createdby" });
             model_commandes_1.Commandes.findAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 include: [
                     {
                         model: model_produits_1.Produits,
@@ -344,30 +371,95 @@ exports.__controllerCommandes = {
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
         }
     }),
+    beforevalidation: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+        const { id_transaction, id_livreur, id_customer } = req.body;
+        if (!id_transaction || !id_livreur)
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "This request must have at least !code_livraison || !id_transaction || !id_livreur");
+        try {
+            const code_livraison = (0, helper_random_1.randomLongNumber)({ length: 6 });
+            const customer = yield model_users_1.Users.findOne({ where: { id: id_customer } });
+            if (customer instanceof model_users_1.Users) {
+                const { phone, nom, postnom, email } = customer.toJSON();
+                model_codelivraison_1.Codelivraisons.findOrCreate({
+                    defaults: {
+                        code_livraison,
+                        id_transaction,
+                        description: JSON.stringify(req.body),
+                        id_customer,
+                        id_livreur
+                    },
+                    where: {
+                        id_transaction
+                    }
+                })
+                    .then(([cd, isnew]) => {
+                    if (cd instanceof model_codelivraison_1.Codelivraisons) {
+                        if (!isnew) {
+                            cd.update({
+                                code_livraison
+                            });
+                        }
+                        serives_all_1.Services.onSendSMS({
+                            to: phone,
+                            is_flash: false,
+                            content: `KG-${code_livraison} \nBonjour ${nom} ceci est votre de confirmation de livraison, ne le partagez qu'avec votre livreur !`
+                        })
+                            .then(_ => { })
+                            .catch(_ => { });
+                        return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, cd);
+                    }
+                    else {
+                        return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, cd);
+                    }
+                })
+                    .catch(err => {
+                    return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, err);
+                });
+            }
+            else {
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, "This request must have at least ::Customer");
+            }
+        }
+        catch (error) {
+            (0, console_1.log)(error, id_customer, id_livreur, id_transaction);
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
+        }
+    }),
     validate: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { idcommande } = req.params;
         if (!idcommande)
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "this request must have at least idcommande in the request !");
-        return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, "This --- endpoint is under construction ---- 😃");
+        const { id_transaction, id_livreur, code_livraison, id_customer } = req.body;
+        if (!id_transaction || !id_livreur || !code_livraison)
+            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "This request must have at least !id_transaction || !id_livreur || !code_livraison");
+        const customer = yield model_users_1.Users.findOne({ where: { id: id_customer } });
+        const cmd = yield model_commandes_1.Commandes.findOne({
+            where: {
+                transaction: (id_transaction),
+                state: 2
+            }
+        });
         try {
-            model_commandes_1.Commandes.belongsTo(model_produits_1.Produits, { foreignKey: "id_produit" });
-            model_commandes_1.Commandes.findAll({
-                include: [
-                    {
-                        model: model_produits_1.Produits,
-                        required: false,
+            if (cmd instanceof model_commandes_1.Commandes && customer instanceof model_users_1.Users) {
+                model_codelivraison_1.Codelivraisons.findOne({
+                    where: {
+                        id_transaction,
                     }
-                ],
-                where: {
-                    state: parseInt(status)
-                }
-            })
-                .then(commandes => {
-                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, { count: commandes.length, rows: commandes });
-            })
-                .catch(err => {
-                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, err);
-            });
+                })
+                    .then(cd => {
+                    if (cd instanceof model_codelivraison_1.Codelivraisons) {
+                    }
+                    else {
+                        return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.BadRequest, cd);
+                    }
+                })
+                    .catch(err => {
+                    return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, err);
+                });
+            }
+            else {
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotFound, cmd);
+            }
         }
         catch (error) {
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);

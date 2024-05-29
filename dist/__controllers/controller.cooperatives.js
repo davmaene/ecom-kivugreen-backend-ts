@@ -308,28 +308,36 @@ exports.__controllerCooperatives = {
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "The body should not be empty !");
         const { id_territoire, id_province, coordonnees_gps, adresse, phone, email, num_enregistrement, isformel, sigle, cooperative, id_adjoint, id_responsable, description, id_category } = req.body;
         try {
-            model_cooperatives_1.Cooperatives.update({
-                id_territoire,
-                id_province,
-                coordonnees_gps,
-                adresse,
-                phone,
-                email,
-                num_enregistrement,
-                isformel,
-                sigle,
-                cooperative,
-                id_adjoint,
-                id_responsable,
-                description,
-                id_category
-            }, {
+            model_cooperatives_1.Cooperatives.findOne({
                 where: {
-                    id: parseInt(idcooperative)
+                    id: idcooperative
                 }
             })
-                .then(U => (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, U))
-                .catch(Err => (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, Err));
+                .then(coop => {
+                if (coop instanceof model_cooperatives_1.Cooperatives) {
+                    coop.update({
+                        id_territoire,
+                        id_province,
+                        coordonnees_gps,
+                        adresse,
+                        phone,
+                        email,
+                        num_enregistrement,
+                        isformel,
+                        sigle,
+                        cooperative,
+                        id_adjoint,
+                        id_responsable,
+                        description,
+                        id_category
+                    })
+                        .then(U => (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, U))
+                        .catch(Err => (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, Err));
+                }
+                else {
+                    return (0, helper_responseserver_1.Responder)(res, 404, coop);
+                }
+            });
         }
         catch (error) {
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
