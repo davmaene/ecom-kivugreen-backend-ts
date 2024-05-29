@@ -429,7 +429,10 @@ export const __controllerCommandes = {
                 })
                     .then(cd => {
                         if (cd instanceof Codelivraisons) {
-
+                            cmd.update({
+                                state: 4// ie. done
+                            })
+                            return Responder(res, HttpStatusCode.Ok, { ...cmd, ...customer })
                         } else {
                             return Responder(res, HttpStatusCode.BadRequest, cd)
                         }
