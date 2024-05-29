@@ -37,6 +37,22 @@ export const __controlerAssets = {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     },
+    getanydocs: async (req: Request, res: Response, next: NextFunction) => {
+        const { ressources } = req.params;
+        const folder = "as_docs";
+        try {
+            return res
+                .status(200)
+                .sendFile(path.resolve(`src/__assets/${folder}/${ressources}`), (error) => {
+                    if (error) {
+                        console.log(`no ressource found with the name : ${ressources}`);
+                        return res.sendFile(path.resolve(`src/__assets/${folder}/defaultproduit.jpg`));
+                    }
+                });
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
     getanyressourses: async (req: Request, res: Response, next: NextFunction) => {
         const { ressources } = req.params;
         const folder = "as_assets";

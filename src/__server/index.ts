@@ -1,5 +1,5 @@
 import { HttpStatusMessages } from './../__enums/enum.httpsmessage';
-import express, { NextFunction, Request, Response } from "express";
+import express, { NextFunction, Request, Response, Application } from "express";
 import cors from "cors";
 import * as dotenv from 'dotenv'
 import { HttpStatusCode } from "../__enums/enum.httpsstatuscode";
@@ -19,10 +19,17 @@ dotenv.config();
 
 const { APP_NAME, APP_PORT, APP_VERSION } = process.env;
 
-const app = express();
+const app: Application = express();
 const server = http.createServer(app);
 const PORT = APP_PORT || 8012;
-const io = new Server(server)
+const io = new Server(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"],
+        // allowedHeaders: ["x-ecommerce-kgreen-api"],
+        // credentials: true
+    }
+})
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -42,6 +49,24 @@ const ___logAccess = fs.createWriteStream(path.join(__dirname, 'access.log'), { 
 
 app.use(morgan("combined", { stream: ___logAccess }));
 
+io.on('connection', (socket: Socket) => {
+    console.log('A user connected', socket.id);
+    io.emit('pairingdone', socket.id);
+
+    socket.on('scanned', (data) => {
+        log(data)
+    })
+
+    socket.on('message', (msg) => {
+        console.log('Received message:', msg);
+        socket.send('Message received');
+    });
+
+    socket.on('disconnect', () => {
+        console.log('A user disconnected');
+    });
+});
+
 app.get('/', (req: Request, res: Response, next: NextFunction) => {
     return Responder(res, HttpStatusCode.Ok, { ...HttpStatusMessages })
 });
@@ -52,6 +77,8 @@ app.use("/__assets", routes);
 
 app.use("/assets", routes);
 
+app.use("/src", routes);
+
 app.use((req: Request, res: Response, next: NextFunction) => {
     const { url, method, body } = req
     return Responder(res, HttpStatusCode.NotFound, {
@@ -61,22 +88,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     })
 });
 
-io.on('connection', (socket: Socket) => {
-    console.log('Nouvelle connexion:', socket.id);
-    // Gérer les messages des clients
-    socket.on('message', (data: any) => {
-        console.log('Message reçu:', data);
-        // Envoyer le message à tous les clients sauf l'émetteur
-        socket.broadcast.emit('message', data);
-    });
-
-    // Gérer la déconnexion des clients
-    socket.on('disconnect', () => {
-        console.log('Déconnexion:', socket.id);
-    });
-});
-
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`< ========== > ${APP_NAME} TEST APP ON ${APP_PORT} < ========== >`);
 });
 

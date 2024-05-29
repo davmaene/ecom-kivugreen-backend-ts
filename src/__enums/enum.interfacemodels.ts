@@ -103,7 +103,6 @@ export interface IHistoriesstock extends globalInterface {
     TblEcomStockId: number,
     TblEcomCooperativeId: number
 }
-
 export interface IMembershasrechargedstock extends globalInterface {
     TblEcomUserId: number,
     qte: number,
@@ -193,6 +192,14 @@ export interface ITypelivraison extends globalInterface {
 export interface INewsletter extends globalInterface {
     email: string,
     description?: string,
+}
+
+export interface IValidatorcodeondelivery extends globalInterface {
+    id_transaction: string,
+    description?: string,
+    id_customer?: number,
+    id_livreur?: number,
+    code_livraison: string
 }
 
 export interface ICommande extends globalInterface {

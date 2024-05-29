@@ -1476,6 +1476,7 @@ export const __controllerUsers = {
         if (!iduser) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least iduser as param !")
         if (Object.keys(req.body).length <= 0) return Responder(res, HttpStatusCode.NotAcceptable, "The should not be empty")
         if (req.body.hasOwnProperty("password")) delete req.body.password;
+        if(req.body.hasOwnProperty("phone")) req.body.phone = fillphone({ phone: req.body.phone as string })
         try {
             Users.update({
                 ...req.body
