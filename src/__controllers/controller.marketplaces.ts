@@ -121,7 +121,7 @@ export const __controllerMarketplace = {
                             }, { transaction: tr_ })
                             if (cmmd instanceof Commandes) {
                                 Services.onSendSMS({
-                                    is_flash: true,
+                                    is_flash: false,
                                     to: fillphone({ phone }),
                                     content: `Bonjour ${nom} nous avons reçu votre commande de (${qte}${unity}) de ${produit}, veuillez acceptez le paiement sur votre téléphone, montant à payer ${converted_price}${converted_currency}, transID: ${transaction}`
                                 })
@@ -147,7 +147,7 @@ export const __controllerMarketplace = {
                         .then(({ code, data, message }) => {
                             if (code === 200) {
                                 tr_.commit()
-                                Scheduler.checkPayement({ munites: 1, secondes: 30 })
+                                Scheduler.checkPayement({ munites: 2, secondes: 30 })
                                 return Responder(res, HttpStatusCode.Ok, { prix_totale: somme.reduce((p, c) => p + c), currency: "CDF", c_treated, c_nottreated })
                             } else {
                                 tr_.rollback()
