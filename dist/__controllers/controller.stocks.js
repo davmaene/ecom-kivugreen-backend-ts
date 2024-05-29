@@ -112,9 +112,6 @@ exports.__controllerStocks = {
                 id: 1
             }
         });
-        console.log('====================================');
-        console.log(array);
-        console.log('====================================');
         try {
             const transaction = yield connecte_1.connect.transaction();
             model_stocks_1.Stocks.create({

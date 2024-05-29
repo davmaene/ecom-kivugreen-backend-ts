@@ -426,6 +426,7 @@ exports.__controllerUsers = {
                 }
             });
             const pwd = yield (0, helper_passwords_1.hashPWD)({ plaintext: password });
+            (0, console_1.log)(password, pwd);
             if (user instanceof model_users_1.Users) {
                 const { id, email, phone: asphone, nom } = user.toJSON();
                 const extras = yield model_extras_1.Extras.findOne({
@@ -1478,6 +1479,8 @@ exports.__controllerUsers = {
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "This request must have at least iduser as param !");
         if (Object.keys(req.body).length <= 0)
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "The should not be empty");
+        if (req.body.hasOwnProperty("password"))
+            delete req.body.password;
         try {
             model_users_1.Users.update(Object.assign({}, req.body), {
                 where: {
