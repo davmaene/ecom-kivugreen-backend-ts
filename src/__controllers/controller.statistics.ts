@@ -103,5 +103,8 @@ export const __controlerStatistics = {
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
+    },
+    historique: async (req: Request, res: Response, next: NextFunction) => {
+
     }
 }
