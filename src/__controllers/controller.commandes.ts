@@ -405,7 +405,7 @@ export const __controllerCommandes = {
                             return Responder(res, HttpStatusCode.InternalServerError, err)
                         })
                 } else {
-                    return Responder(res, HttpStatusCode.NotFound, "This request must have at least ::Customer")
+                    return Responder(res, HttpStatusCode.NotFound, "This request must have at least ::Commandes")
                 }
             } else {
                 return Responder(res, HttpStatusCode.NotFound, "This request must have at least ::Customer")
