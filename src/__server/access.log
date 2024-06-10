@@ -1,0 +1,3 @@
+::ffff:192.168.1.111 - - [10/Jun/2024:09:03:59 +0000] "GET /api/cooperatives/cooperative/2 HTTP/1.1" 409 401 "-" "okhttp/4.9.2"
+::ffff:192.168.1.111 - - [10/Jun/2024:09:04:17 +0000] "GET /api/commandes/list/bycooperative/2 HTTP/1.1" 500 419 "-" "okhttp/4.9.2"
+::ffff:192.168.1.111 - - [10/Jun/2024:09:04:23 +0000] "GET /api/commandes/list/bycooperative/2 HTTP/1.1" 500 419 "-" "okhttp/4.9.2"
