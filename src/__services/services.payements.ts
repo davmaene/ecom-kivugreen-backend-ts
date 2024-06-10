@@ -197,6 +197,8 @@ export const Payements = {
                                     })
                             }
                             p.update({ status: 2 })
+                                .then(__ => { })
+                                .catch(__ => { })
                             Services.onSendSMS({
                                 is_flash: false,
                                 to: fillphone({ phone: customer_phone || phone }),

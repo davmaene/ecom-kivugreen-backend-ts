@@ -1,4 +1,0 @@
-::ffff:127.0.0.1 - - [10/Jun/2024:08:04:44 +0000] "POST /api/marketplace/command HTTP/1.1" 200 449 "-" "PostmanRuntime/7.37.3"
-::ffff:127.0.0.1 - - [10/Jun/2024:08:05:09 +0000] "POST /api/marketplace/command HTTP/1.1" 200 449 "-" "PostmanRuntime/7.37.3"
-::ffff:127.0.0.1 - - [10/Jun/2024:08:07:51 +0000] "POST /api/marketplace/command HTTP/1.1" 200 448 "-" "PostmanRuntime/7.37.3"
-::ffff:127.0.0.1 - - [10/Jun/2024:08:09:22 +0000] "POST /api/marketplace/command HTTP/1.1" 200 446 "-" "PostmanRuntime/7.37.3"
