@@ -113,7 +113,7 @@ export const Payements = {
                                 Services.onSendSMS({
                                     is_flash: false,
                                     to: fillphone({ phone: _opphone }),
-                                    content: `Désolé une erreur vient de se produire lors du paiement veuillez réessayer plus tard !`
+                                    content: `Désolé une erreur vient de se produire lors du paiement veuillez réessayer un peu plus tard !`
                                 })
                                     .then(_ => { })
                                     .catch(_ => { })
@@ -177,35 +177,36 @@ export const Payements = {
                     console.log('====================================');
                     // console.log("Message from transacrion is ==> ", message, transaction, "The value of the state is ===> ", status);
                     if (asstatus === '0' || asstatus === 0) {
-                        if (aspstatus === 0) {
-                            Commandes.update({
-                                state: 3
-                            }, {
-                                where: {
-                                    transaction: idtransaction
-                                }
+                        if (1) {
+                            const cmds = await Commandes.findAll({ where: { transaction: idtransaction } })
+                            for (let index = 0; index < cmds.length; index++) {
+                                const cmd = cmds[index];
+                                cmd.update({
+                                    state: 3
+                                })
+                                    .then(__ => { })
+                                    .catch(err => {
+                                        Services.onSendSMS({
+                                            is_flash: false,
+                                            to: fillphone({ phone: customer_phone || phone }),
+                                            content: `Désolé votre paiement de ${amount}${currency} est en cours de traietement ID:${realref}`
+                                        })
+                                            .then(_ => { })
+                                            .catch(_ => { })
+                                        return reject({ code: 500, message: "An error occured when trying to resolve payement !", data: data })
+                                    })
+                            }
+                            p.update({ status: 2 })
+                                .then(__ => { })
+                                .catch(__ => { })
+                            Services.onSendSMS({
+                                is_flash: false,
+                                to: fillphone({ phone: customer_phone || phone }),
+                                content: `Félicitations votre paiement de ${amount}${currency} a été reçu avec succès ID:${realref}`
                             })
-                                .then(__ => {
-                                    p.update({ status: 2 })
-                                    Services.onSendSMS({
-                                        is_flash: false,
-                                        to: fillphone({ phone: customer_phone || phone }),
-                                        content: `Félicitations votre paiement de ${amount}${currency} a été reçu avec succès !ID:${idtransaction}`
-                                    })
-                                        .then(_ => { })
-                                        .catch(_ => { })
-                                    return resolve({ code: 200, message: "Transaction done resolved !", data: data })
-                                })
-                                .catch(err => {
-                                    Services.onSendSMS({
-                                        is_flash: false,
-                                        to: fillphone({ phone: customer_phone || phone }),
-                                        content: `Désolé votre paiement de ${amount}${currency} est en cours de traietement !ID:${idtransaction}`
-                                    })
-                                        .then(_ => { })
-                                        .catch(_ => { })
-                                    return reject({ code: 500, message: "An error occured when trying to resolve payement !", data: data })
-                                })
+                                .then(_ => { })
+                                .catch(_ => { })
+                            return resolve({ code: 200, message: "Transaction done resolved !", data: data })
                         } else {
                             Services.onSendSMS({
                                 is_flash: false,
