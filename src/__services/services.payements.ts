@@ -113,7 +113,7 @@ export const Payements = {
                                 Services.onSendSMS({
                                     is_flash: false,
                                     to: fillphone({ phone: _opphone }),
-                                    content: `Désolé une erreur vient de se produire lors du paiement veuillez réessayer plus tard !`
+                                    content: `Désolé une erreur vient de se produire lors du paiement veuillez réessayer un peu plus tard !`
                                 })
                                     .then(_ => { })
                                     .catch(_ => { })
@@ -177,7 +177,7 @@ export const Payements = {
                     console.log('====================================');
                     // console.log("Message from transacrion is ==> ", message, transaction, "The value of the state is ===> ", status);
                     if (asstatus === '0' || asstatus === 0) {
-                        if (aspstatus === 0) {
+                        if (1) {
                             Commandes.update({
                                 state: 3
                             }, {
