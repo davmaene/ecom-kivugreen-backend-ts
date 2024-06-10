@@ -12,6 +12,9 @@ import { groupedDataByColumn } from "../__helpers/helper.all";
 import { Codelivraisons } from "../__models/model.codelivraison";
 import { randomLongNumber } from "../__helpers/helper.random";
 import { Services } from "../__services/serives.all";
+import dotenv from 'dotenv';
+
+dotenv.config()
 
 export const __controllerCommandes = {
 
@@ -358,47 +361,54 @@ export const __controllerCommandes = {
     beforevalidation: async (req: Request, res: Response, next: NextFunction) => {
         const { id_transaction, id_livreur, id_customer } = req.body
         if (!id_transaction || !id_livreur) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !code_livraison || !id_transaction || !id_livreur")
+        log(req.body)
         try {
             const code_livraison = randomLongNumber({ length: 6 })
             const customer = await Users.findOne({ where: { id: id_customer } })
+            const commandes = await Commandes.findAll({ where: { transaction: id_transaction, state: 2 } })
             if (customer instanceof Users) {
-                const { phone, nom, postnom, email } = customer.toJSON() as any
-                Codelivraisons.findOrCreate({
-                    defaults: {
-                        code_livraison,
-                        id_transaction,
-                        description: JSON.stringify(req.body),
-                        id_customer,
-                        id_livreur
-                    },
-                    where: {
-                        id_transaction
-                    }
-                })
-                    .then(([cd, isnew]) => {
-                        if (cd instanceof Codelivraisons) {
-                            if (!isnew) {
-                                cd.update({
-                                    code_livraison
-                                })
-                            }
-                            Services.onSendSMS({
-                                to: phone,
-                                is_flash: false,
-                                content: `KG-${code_livraison} \nBonjour ${nom} ceci est votre de confirmation de livraison, ne le partagez qu'avec votre livreur !`
-                            })
-                                .then(_ => { })
-                                .catch(_ => { })
-                            return Responder(res, HttpStatusCode.Ok, cd)
-                        } else {
-                            return Responder(res, HttpStatusCode.NotAcceptable, cd)
+                if (commandes.length > 0) {
+                    const { phone, nom, postnom, email } = customer.toJSON() as any
+                    log(commandes.length)
+                    Codelivraisons.findOrCreate({
+                        defaults: {
+                            code_livraison,
+                            id_transaction,
+                            description: JSON.stringify(req.body),
+                            id_customer,
+                            id_livreur
+                        },
+                        where: {
+                            id_transaction
                         }
                     })
-                    .catch(err => {
-                        return Responder(res, HttpStatusCode.InternalServerError, err)
-                    })
+                        .then(([cd, isnew]) => {
+                            if (cd instanceof Codelivraisons) {
+                                if (!isnew) {
+                                    cd.update({
+                                        code_livraison
+                                    })
+                                }
+                                Services.onSendSMS({
+                                    to: phone,
+                                    is_flash: false,
+                                    content: `KG-${code_livraison} \nBonjour ${nom} ceci est votre de confirmation de livraison, ne le partagez qu'avec votre livreur !`
+                                })
+                                    .then(_ => { })
+                                    .catch(_ => { })
+                                return Responder(res, HttpStatusCode.Ok, cd)
+                            } else {
+                                return Responder(res, HttpStatusCode.NotAcceptable, cd)
+                            }
+                        })
+                        .catch(err => {
+                            return Responder(res, HttpStatusCode.InternalServerError, err)
+                        })
+                } else {
+                    return Responder(res, HttpStatusCode.NotFound, "This request must have at least ::Customer")
+                }
             } else {
-                return Responder(res, HttpStatusCode.InternalServerError, "This request must have at least ::Customer")
+                return Responder(res, HttpStatusCode.NotFound, "This request must have at least ::Customer")
             }
         } catch (error) {
             log(error, id_customer, id_livreur, id_transaction)
@@ -408,20 +418,23 @@ export const __controllerCommandes = {
     validate: async (req: Request, res: Response) => {
         const { idcommande } = req.params;
 
+        log(req.body)
+
         if (!idcommande) return Responder(res, HttpStatusCode.NotAcceptable, "this request must have at least idcommande in the request !")
         const { id_transaction, id_livreur, code_livraison, id_customer } = req.body;
-        if (!id_transaction || !id_livreur || !code_livraison) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !id_transaction || !id_livreur || !code_livraison")
+        if (!id_transaction || !id_livreur || !code_livraison || !id_customer) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !id_transaction || !id_livreur || !code_livraison")
 
         const customer = await Users.findOne({ where: { id: id_customer } })
 
-        const cmd = await Commandes.findOne({
+        const cmd = await Commandes.findAll({
             where: {
                 transaction: (id_transaction),
                 state: 2
             }
         })
         try {
-            if (cmd instanceof Commandes && customer instanceof Users) {
+            if (cmd.length > 0 && customer instanceof Users) {
+                const { phone, nom, postnom, prenom, email } = customer.toJSON();
                 Codelivraisons.findOne({
                     where: {
                         id_transaction,
@@ -429,9 +442,19 @@ export const __controllerCommandes = {
                 })
                     .then(cd => {
                         if (cd instanceof Codelivraisons) {
-                            cmd.update({
-                                state: 4// ie. done
+                            for (let index = 0; index < cmd.length; index++) {
+                                const cm = cmd[index];
+                                cm.update({
+                                    state: 4// ie. done
+                                })
+                            }
+                            Services.onSendSMS({
+                                to: phone,
+                                is_flash: false,
+                                content: `Bonjour ${nom}, votre commande ${id_transaction} a été validé, merci pour votre confiance `
                             })
+                                .then(_ => { })
+                                .catch(_ => { })
                             return Responder(res, HttpStatusCode.Ok, { ...cmd, ...customer })
                         } else {
                             return Responder(res, HttpStatusCode.BadRequest, cd)

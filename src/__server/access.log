@@ -1,0 +1,7 @@
+::ffff:192.168.1.111 - - [10/Jun/2024:01:24:24 +0000] "PUT /api/commandes/commande/validate/5444573022898 HTTP/1.1" 406 132 "-" "okhttp/4.9.2"
+::ffff:192.168.1.111 - - [10/Jun/2024:01:25:02 +0000] "PUT /api/commandes/commande/validate/5444573022898 HTTP/1.1" 406 132 "-" "okhttp/4.9.2"
+::ffff:192.168.1.111 - - [10/Jun/2024:01:29:11 +0000] "PUT /api/commandes/commande/beforevalidation/5444573022898 HTTP/1.1" 200 302 "-" "okhttp/4.9.2"
+::ffff:192.168.1.111 - - [10/Jun/2024:01:29:41 +0000] "PUT /api/commandes/commande/validate/5444573022898 HTTP/1.1" 200 1415 "-" "okhttp/4.9.2"
+::ffff:192.168.1.111 - - [10/Jun/2024:01:41:32 +0000] "PUT /api/commandes/commande/beforevalidation/5444573022898 HTTP/1.1" 200 302 "-" "okhttp/4.9.2"
+::ffff:192.168.1.111 - - [10/Jun/2024:01:42:23 +0000] "PUT /api/commandes/commande/beforevalidation/5444573022898 HTTP/1.1" 200 302 "-" "okhttp/4.9.2"
+::ffff:192.168.1.111 - - [10/Jun/2024:01:43:05 +0000] "PUT /api/commandes/commande/beforevalidation/5444573022898 HTTP/1.1" 200 302 "-" "okhttp/4.9.2"
