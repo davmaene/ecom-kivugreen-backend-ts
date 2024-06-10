@@ -156,7 +156,7 @@ export const __controllerStocks = {
                                                         TblEcomStockId: asstockid || 0,
                                                         TblEcomUnitesmesureId: id_unity,
                                                         qte,
-                                                        id_membre: [id_member || 0]
+                                                        id_membre: id_member
                                                     },
                                                     transaction
                                                 })
