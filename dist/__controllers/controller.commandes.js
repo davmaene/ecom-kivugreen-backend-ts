@@ -448,6 +448,10 @@ exports.__controllerCommandes = {
                 })
                     .then(cd => {
                     if (cd instanceof model_codelivraison_1.Codelivraisons) {
+                        cmd.update({
+                            state: 4 // ie. done
+                        });
+                        return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, Object.assign(Object.assign({}, cmd), customer));
                     }
                     else {
                         return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.BadRequest, cd);
