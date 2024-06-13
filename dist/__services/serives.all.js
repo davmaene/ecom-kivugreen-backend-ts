@@ -121,7 +121,7 @@ exports.Services = {
                         Authorization: `Bearer ${API_SMS_TOKEN}`
                     }
                 });
-                (0, console_1.log)("Message was sent to ==> ", to, "Content ==> ", content, "is_flash ==> ", is_flash);
+                (0, console_1.log)("Message was sent to ==> ", payload['phone'], "Content ==> ", payload['message'], "is_flash ==> ", is_flash);
                 if (status === 200 || status === 201)
                     return resolve({ code: status, message: "Message was succefuly sent ", data: data });
                 else

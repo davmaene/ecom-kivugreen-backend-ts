@@ -98,5 +98,7 @@ exports.__controlerStatistics = {
         catch (error) {
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, error);
         }
+    }),
+    historique: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     })
 };

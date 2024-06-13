@@ -25,8 +25,8 @@ exports.Hasproducts = connecte_1.connect.define('__tbl_ecom_hasproducts', {
         defaultValue: 0
     },
     id_membre: {
-        type: sequelize_1.DataTypes.JSON,
-        defaultValue: [0],
+        type: sequelize_1.DataTypes.INTEGER,
+        defaultValue: 0,
         allowNull: true
     },
     date_production: sequelize_1.DataTypes.STRING,

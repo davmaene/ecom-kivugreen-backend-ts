@@ -8,6 +8,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.__controllerCommandes = void 0;
 const model_commandes_1 = require("../__models/model.commandes");
@@ -23,6 +26,8 @@ const helper_all_1 = require("../__helpers/helper.all");
 const model_codelivraison_1 = require("../__models/model.codelivraison");
 const helper_random_1 = require("../__helpers/helper.random");
 const serives_all_1 = require("../__services/serives.all");
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 exports.__controllerCommandes = {
     listcommandebytransaction: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { currentuser } = req;
@@ -375,49 +380,57 @@ exports.__controllerCommandes = {
         const { id_transaction, id_livreur, id_customer } = req.body;
         if (!id_transaction || !id_livreur)
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "This request must have at least !code_livraison || !id_transaction || !id_livreur");
+        (0, console_1.log)(req.body);
         try {
             const code_livraison = (0, helper_random_1.randomLongNumber)({ length: 6 });
             const customer = yield model_users_1.Users.findOne({ where: { id: id_customer } });
+            const commandes = yield model_commandes_1.Commandes.findAll({ where: { transaction: id_transaction, state: 2 } });
             if (customer instanceof model_users_1.Users) {
-                const { phone, nom, postnom, email } = customer.toJSON();
-                model_codelivraison_1.Codelivraisons.findOrCreate({
-                    defaults: {
-                        code_livraison,
-                        id_transaction,
-                        description: JSON.stringify(req.body),
-                        id_customer,
-                        id_livreur
-                    },
-                    where: {
-                        id_transaction
-                    }
-                })
-                    .then(([cd, isnew]) => {
-                    if (cd instanceof model_codelivraison_1.Codelivraisons) {
-                        if (!isnew) {
-                            cd.update({
-                                code_livraison
-                            });
+                if (commandes.length > 0) {
+                    const { phone, nom, postnom, email } = customer.toJSON();
+                    (0, console_1.log)(commandes.length);
+                    model_codelivraison_1.Codelivraisons.findOrCreate({
+                        defaults: {
+                            code_livraison,
+                            id_transaction,
+                            description: JSON.stringify(req.body),
+                            id_customer,
+                            id_livreur
+                        },
+                        where: {
+                            id_transaction
                         }
-                        serives_all_1.Services.onSendSMS({
-                            to: phone,
-                            is_flash: false,
-                            content: `KG-${code_livraison} \nBonjour ${nom} ceci est votre de confirmation de livraison, ne le partagez qu'avec votre livreur !`
-                        })
-                            .then(_ => { })
-                            .catch(_ => { });
-                        return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, cd);
-                    }
-                    else {
-                        return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, cd);
-                    }
-                })
-                    .catch(err => {
-                    return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, err);
-                });
+                    })
+                        .then(([cd, isnew]) => {
+                        if (cd instanceof model_codelivraison_1.Codelivraisons) {
+                            if (!isnew) {
+                                cd.update({
+                                    code_livraison
+                                });
+                            }
+                            serives_all_1.Services.onSendSMS({
+                                to: phone,
+                                is_flash: false,
+                                content: `KG-${code_livraison} \nBonjour ${nom} ceci est votre de confirmation de livraison, ne le partagez qu'avec votre livreur !`
+                            })
+                                .then(_ => { })
+                                .catch(_ => { });
+                            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, cd);
+                        }
+                        else {
+                            return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, cd);
+                        }
+                    })
+                        .catch(err => {
+                        return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, err);
+                    });
+                }
+                else {
+                    return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotFound, "This request must have at least ::Commandes");
+                }
             }
             else {
-                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.InternalServerError, "This request must have at least ::Customer");
+                return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotFound, "This request must have at least ::Customer");
             }
         }
         catch (error) {
@@ -427,20 +440,22 @@ exports.__controllerCommandes = {
     }),
     validate: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { idcommande } = req.params;
+        (0, console_1.log)(req.body);
         if (!idcommande)
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "this request must have at least idcommande in the request !");
         const { id_transaction, id_livreur, code_livraison, id_customer } = req.body;
-        if (!id_transaction || !id_livreur || !code_livraison)
+        if (!id_transaction || !id_livreur || !code_livraison || !id_customer)
             return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.NotAcceptable, "This request must have at least !id_transaction || !id_livreur || !code_livraison");
         const customer = yield model_users_1.Users.findOne({ where: { id: id_customer } });
-        const cmd = yield model_commandes_1.Commandes.findOne({
+        const cmd = yield model_commandes_1.Commandes.findAll({
             where: {
                 transaction: (id_transaction),
                 state: 2
             }
         });
         try {
-            if (cmd instanceof model_commandes_1.Commandes && customer instanceof model_users_1.Users) {
+            if (cmd.length > 0 && customer instanceof model_users_1.Users) {
+                const { phone, nom, postnom, prenom, email } = customer.toJSON();
                 model_codelivraison_1.Codelivraisons.findOne({
                     where: {
                         id_transaction,
@@ -448,9 +463,19 @@ exports.__controllerCommandes = {
                 })
                     .then(cd => {
                     if (cd instanceof model_codelivraison_1.Codelivraisons) {
-                        cmd.update({
-                            state: 4 // ie. done
-                        });
+                        for (let index = 0; index < cmd.length; index++) {
+                            const cm = cmd[index];
+                            cm.update({
+                                state: 4 // ie. done
+                            });
+                        }
+                        serives_all_1.Services.onSendSMS({
+                            to: phone,
+                            is_flash: false,
+                            content: `Bonjour ${nom}, votre commande ${id_transaction} a été validé, merci pour votre confiance `
+                        })
+                            .then(_ => { })
+                            .catch(_ => { });
                         return (0, helper_responseserver_1.Responder)(res, enum_httpsstatuscode_1.HttpStatusCode.Ok, Object.assign(Object.assign({}, cmd), customer));
                     }
                     else {
