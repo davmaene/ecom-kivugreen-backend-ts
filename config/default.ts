@@ -10,19 +10,19 @@
 //   "timeZone": "Etc/GMT+2",
 // };
 
-// // // ### Remote 
+// // // #### Online configurations BD for production #####
 export default {
   "port": 3306,
-  "host": "176.223.133.127",
-  "dbName": "ecomv2",
-  "username": "Remote",
-  "password": "@Remote__2024",
+  "host": "localhost",
+  "dbName": "EcomProd",
+  "username": "user_ecomProd",
+  "password": "rLZ4jY6cdvJDA8n0",
   "dialect": "mysql",
   "logging": false,
   "timeZone": "Etc/GMT+2",
 };
 
-// // // #### Online configurations BD #####
+// // // #### Online configurations BD for test  #####
 // export default {
 //   "port": 3306,
 //   "host": "localhost",
@@ -33,3 +33,16 @@ export default {
 //   "logging": false,
 //   "timeZone": "Etc/GMT+2",
 // };
+
+// // // ### Remote 
+// export default {
+//   "port": 3306,
+//   "host": "176.223.133.127",
+//   "dbName": "ecomv2",
+//   "username": "Remote",
+//   "password": "@Remote__2024",
+//   "dialect": "mysql",
+//   "logging": false,
+//   "timeZone": "Etc/GMT+2",
+// };
+
