@@ -1476,17 +1476,25 @@ export const __controllerUsers = {
         if (!iduser) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least iduser as param !")
         if (Object.keys(req.body).length <= 0) return Responder(res, HttpStatusCode.NotAcceptable, "The should not be empty")
         if (req.body.hasOwnProperty("password")) delete req.body.password;
-        if(req.body.hasOwnProperty("phone")) req.body.phone = fillphone({ phone: req.body.phone as string })
+        if (req.body.hasOwnProperty("phone")) req.body.phone = fillphone({ phone: req.body.phone as string })
+        const _ = req.body as any;
+        delete _['password'];
+        delete _['avatar'];
         try {
-            Users.update({
-                ...req.body
-            }, {
+            Users.findOne({
                 where: {
                     id: parseInt(iduser)
                 }
             })
                 .then(U => {
-                    return Responder(res, HttpStatusCode.Ok, U)
+                    if (U instanceof Users) {
+                        U.update({
+                            ..._
+                        })
+                        return Responder(res, HttpStatusCode.Ok, U)
+                    }else{
+                        return Responder(res, HttpStatusCode.NotFound, U)
+                    }
                 })
                 .catch(err => Responder(res, HttpStatusCode.InternalServerError, err))
         } catch (error) {
