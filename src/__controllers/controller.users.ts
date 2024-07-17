@@ -1492,7 +1492,7 @@ export const __controllerUsers = {
                             ..._
                         })
                         return Responder(res, HttpStatusCode.Ok, U)
-                    }else{
+                    } else {
                         return Responder(res, HttpStatusCode.NotFound, U)
                     }
                 })
@@ -1560,6 +1560,50 @@ export const __controllerUsers = {
                 // transaction.rollback()
                 return Responder(res, HttpStatusCode.NotFound, `The user with id ${iduser} not found in the table user !`)
             }
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    updateavatar: async (req: Request, res: Response, next: NextFunction) => {
+        const { avatar } = req.files as any
+        const { currentuser } = req as any;
+        const { __id, roles, uuid } = currentuser;
+        if (!avatar) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least avatar as file")
+
+        // if(user !instanceof Users) return Responder(res, HttpStatusCode.NotFound, "This request must have at least user")
+        try {
+            Users.findOne({
+                where: {
+                    id: __id
+                }
+            })
+                .then(user => {
+                    if (user instanceof Users) {
+                        Services.uploadfile({
+                            inputs: {
+                                file: req,
+                                saveas: "as_avatar",
+                                type: "avatar"
+                            }
+                        })
+                            .then(({ code, data, message }) => {
+                                if (code === 200) {
+                                    const { filename, fullpath } = data
+                                    user.update({
+                                        avatar: fullpath,
+                                    })
+                                    // log(filename, fullpath)
+                                    return Responder(res, HttpStatusCode.Ok, user)
+                                } else {
+                                    return Responder(res, HttpStatusCode.BadRequest, data)
+                                }
+                            })
+                            .catch(err => Responder(res, HttpStatusCode.InternalServerError, err))
+                    }else{
+                        return Responder(res, HttpStatusCode.NotAcceptable, user)
+                    }
+                })
+
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
