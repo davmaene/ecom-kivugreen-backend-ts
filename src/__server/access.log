@@ -18,3 +18,5 @@
 ::ffff:127.0.0.1 - - [17/Jul/2024:11:14:51 +0000] "PUT /api/souscategorie/souscategorie/1 HTTP/1.1" 404 216 "-" "PostmanRuntime/7.39.0"
 ::ffff:127.0.0.1 - - [17/Jul/2024:11:15:03 +0000] "PUT /api/souscategories/souscategorie/1 HTTP/1.1" 200 185 "-" "PostmanRuntime/7.39.0"
 ::ffff:127.0.0.1 - - [17/Jul/2024:11:15:47 +0000] "DELETE /api/souscategories/souscategorie/2 HTTP/1.1" 404 62 "-" "PostmanRuntime/7.39.0"
+::ffff:127.0.0.1 - - [17/Jul/2024:11:32:27 +0000] "PUT /api/roles/role/1 HTTP/1.1" 404 98 "-" "PostmanRuntime/7.39.0"
+::ffff:127.0.0.1 - - [17/Jul/2024:11:32:43 +0000] "GET /api/roles/list HTTP/1.1" 200 970 "-" "PostmanRuntime/7.39.0"
