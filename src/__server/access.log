@@ -1,7 +1,0 @@
-::ffff:127.0.0.1 - - [17/Jul/2024:12:15:25 +0000] "GET /src/__assets/as_docs/file-qVtOdUxh8kMZ0XnvdICWfSX.pdf HTTP/1.1" 404 135 "-" "PostmanRuntime/7.39.0"
-::ffff:127.0.0.1 - - [17/Jul/2024:12:16:49 +0000] "GET /api/cooperatives/list HTTP/1.1" 200 1967 "-" "PostmanRuntime/7.39.0"
-::ffff:127.0.0.1 - - [17/Jul/2024:12:17:32 +0000] "GET /api/cooperatives/list HTTP/1.1" 200 1967 "-" "PostmanRuntime/7.39.0"
-::ffff:127.0.0.1 - - [17/Jul/2024:12:17:35 +0000] "GET /src/__assets/as_docs/file-qVtOdUxh8kMZ0XnvdICWfSX.pdf HTTP/1.1" 404 135 "-" "PostmanRuntime/7.39.0"
-::ffff:127.0.0.1 - - [17/Jul/2024:12:18:12 +0000] "GET /__assets/as_assets/logo-LlbupOsU0BwxVAldUpMY7ZW.jpg HTTP/1.1" 200 2787082 "-" "PostmanRuntime/7.39.0"
-::ffff:127.0.0.1 - - [17/Jul/2024:12:18:39 +0000] "GET /src/__assets/as_docs/file-qVtOdUxh8kMZ0XnvdICWfSX.pdf HTTP/1.1" 404 135 "-" "PostmanRuntime/7.39.0"
-::ffff:127.0.0.1 - - [17/Jul/2024:12:24:31 +0000] "GET /src/__assets/as_docs/file-qVtOdUxh8kMZ0XnvdICWfSX.pdf HTTP/1.1" 404 135 "-" "PostmanRuntime/7.39.0"
