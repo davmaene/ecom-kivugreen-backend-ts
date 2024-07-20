@@ -292,8 +292,12 @@ export const __controllerUsers = {
                         return Responder(res, HttpStatusCode.Forbidden, "Phone | Email or Password incorrect !")
                     }
                 })
-                .catch(err => Responder(res, HttpStatusCode.Conflict, err))
+                .catch(err => {
+                    log(err)
+                    return Responder(res, HttpStatusCode.Conflict, err)
+                })
         } catch (error) {
+            log(error)
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     },
@@ -1599,7 +1603,7 @@ export const __controllerUsers = {
                                 }
                             })
                             .catch(err => Responder(res, HttpStatusCode.InternalServerError, err))
-                    }else{
+                    } else {
                         return Responder(res, HttpStatusCode.NotAcceptable, user)
                     }
                 })

@@ -1,4 +1,4 @@
-// // // #### on Line configuration
+// // // #### offline configuration
 // export default {
 //   "port": 3306,
 //   "host": "localhost",
