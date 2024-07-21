@@ -23,26 +23,26 @@
 // };
 
 // // // #### Online configurations BD for test  ######
-export default {
-  "port": 3306,
-  "host": "localhost",
-  "dbName": "ecomv2",
-  "username": "ecomv2user",
-  "password": "2L!Gyro]ubFUgJJ]",
-  "dialect": "mysql",
-  "logging": false,
-  "timeZone": "Etc/GMT+2",
-};
-
-// // // ### Remote 
 // export default {
 //   "port": 3306,
-//   "host": "176.223.133.127",
+//   "host": "localhost",
 //   "dbName": "ecomv2",
-//   "username": "Remote",
-//   "password": "@Remote__2024",
+//   "username": "ecomv2user",
+//   "password": "2L!Gyro]ubFUgJJ]",
 //   "dialect": "mysql",
 //   "logging": false,
 //   "timeZone": "Etc/GMT+2",
 // };
+
+// // // ### Remote 
+export default {
+  "port": 3306,
+  "host": "176.223.133.127",
+  "dbName": "ecomv2",
+  "username": "Remote",
+  "password": "@Remote__2024",
+  "dialect": "mysql",
+  "logging": false,
+  "timeZone": "Etc/GMT+2",
+};
 

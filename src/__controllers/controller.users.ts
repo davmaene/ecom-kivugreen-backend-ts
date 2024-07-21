@@ -204,95 +204,98 @@ export const __controllerUsers = {
 
             const filledPhone = fillphone({ phone });
 
-            if (!(filledPhone) || String(filledPhone).length <= 0) {
-                return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least Invalid phone value: NaN");
-            }
+            log("FilledPhone ==> ", filledPhone, "Phone ===> ", phone );
+            return false;
 
-            const user = await Users.findOne({
-                where: {
-                    [Op.or]: [
-                        { email: phone },
-                        { phone: filledPhone }
-                    ]
-                },
-                include: [
-                    {
-                        model: Roles,
-                        required: true,
-                        attributes: ['id', 'role']
-                    },
-                    {
-                        model: Provinces,
-                        required: false,
-                        attributes: ['id', 'province']
-                    },
-                    {
-                        model: Territoires,
-                        required: false,
-                        attributes: ['id', 'territoire']
-                    },
-                    {
-                        model: Villages,
-                        required: false,
-                        attributes: ['id', 'village']
-                    }
-                ]
-            });
+            // if (!(filledPhone) || String(filledPhone).length <= 0) {
+            //     return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least Invalid phone value: NaN");
+            // }
 
-            if (user instanceof Users) {
-                const { password: aspassword, isvalidated, __tbl_ecom_roles } = user.toJSON() as any;
-                const roles = Array.from(__tbl_ecom_roles).map((role: any) => role['id']);
+            // const user = await Users.findOne({
+            //     where: {
+            //         [Op.or]: [
+            //             { email: phone },
+            //             { phone: filledPhone }
+            //         ]
+            //     },
+            //     include: [
+            //         {
+            //             model: Roles,
+            //             required: true,
+            //             attributes: ['id', 'role']
+            //         },
+            //         {
+            //             model: Provinces,
+            //             required: false,
+            //             attributes: ['id', 'province']
+            //         },
+            //         {
+            //             model: Territoires,
+            //             required: false,
+            //             attributes: ['id', 'territoire']
+            //         },
+            //         {
+            //             model: Villages,
+            //             required: false,
+            //             attributes: ['id', 'village']
+            //         }
+            //     ]
+            // });
 
-                comparePWD({
-                    hashedtext: aspassword || '',
-                    plaintext: password
-                })
-                    .then(matched => {
-                        if (isvalidated === 1 && matched) {
-                            if (roles.some(r => role.includes(r))) {
-                                Middleware.onSignin({
-                                    expiresIn: APP_EXIPRES_IN_ADMIN || '45m',
-                                    data: {
-                                        phone: user.phone,
-                                        uuid: user.uuid,
-                                        __id: user.id,
-                                        roles
-                                    }
-                                },
-                                    (reject: string, token: string) => {
-                                        if (token) {
-                                            if (user !== null) {
-                                                if (user.hasOwnProperty('isvalidated')) {
-                                                    delete user.isvalidated;
-                                                }
-                                                if (user.hasOwnProperty('password')) {
-                                                    delete user.password;
-                                                }
-                                            }
-                                            transaction.commit();
-                                            return Responder(res, HttpStatusCode.Ok, { token, user });
-                                        } else {
-                                            transaction.rollback();
-                                            return Responder(res, HttpStatusCode.Forbidden, "Your refresh token already expired! You must login to get a new one!");
-                                        }
-                                    });
-                            } else {
-                                transaction.rollback();
-                                return Responder(res, HttpStatusCode.Unauthorized, "You don't have right access, please contact the system admin!");
-                            }
-                        } else {
-                            transaction.rollback();
-                            return Responder(res, HttpStatusCode.NotAcceptable, "Account not validated!");
-                        }
-                    })
-                    .catch(err => {
-                        transaction.rollback();
-                        return Responder(res, HttpStatusCode.Forbidden, "Phone | Email or Password incorrect!");
-                    })
-            } else {
-                transaction.rollback();
-                return Responder(res, HttpStatusCode.Forbidden, "Phone | Email or Password incorrect!");
-            }
+            // if (user instanceof Users) {
+            //     const { password: aspassword, isvalidated, __tbl_ecom_roles } = user.toJSON() as any;
+            //     const roles = Array.from(__tbl_ecom_roles).map((role: any) => role['id']);
+
+            //     comparePWD({
+            //         hashedtext: aspassword || '',
+            //         plaintext: password
+            //     })
+            //         .then(matched => {
+            //             if (isvalidated === 1 && matched) {
+            //                 if (roles.some(r => role.includes(r))) {
+            //                     Middleware.onSignin({
+            //                         expiresIn: APP_EXIPRES_IN_ADMIN || '45m',
+            //                         data: {
+            //                             phone: user.phone,
+            //                             uuid: user.uuid,
+            //                             __id: user.id,
+            //                             roles: role
+            //                         }
+            //                     },
+            //                         (reject: string, token: string) => {
+            //                             if (token) {
+            //                                 if (user !== null) {
+            //                                     if (user.hasOwnProperty('isvalidated')) {
+            //                                         delete user.isvalidated;
+            //                                     }
+            //                                     if (user.hasOwnProperty('password')) {
+            //                                         delete user.password;
+            //                                     }
+            //                                 }
+            //                                 transaction.commit();
+            //                                 return Responder(res, HttpStatusCode.Ok, { token, user });
+            //                             } else {
+            //                                 transaction.rollback();
+            //                                 return Responder(res, HttpStatusCode.Forbidden, "Your refresh token already expired! You must login to get a new one!");
+            //                             }
+            //                         });
+            //                 } else {
+            //                     transaction.rollback();
+            //                     return Responder(res, HttpStatusCode.Unauthorized, "You don't have right access, please contact the system admin!");
+            //                 }
+            //             } else {
+            //                 transaction.rollback();
+            //                 return Responder(res, HttpStatusCode.NotAcceptable, "Account not validated!");
+            //             }
+            //         })
+            //         .catch(err => {
+            //             transaction.rollback();
+            //             return Responder(res, HttpStatusCode.Forbidden, "Phone | Email or Password incorrect!");
+            //         })
+            // } else {
+            //     transaction.rollback();
+            //     return Responder(res, HttpStatusCode.Forbidden, "Phone | Email or Password incorrect!");
+            // }
         } catch (error: any) {
             log("Message d'erreur ==> ", error)
             return Responder(res, HttpStatusCode.InternalServerError, error);
@@ -633,7 +636,7 @@ export const __controllerUsers = {
                                                     phone: user && user['phone'],
                                                     uuid: user && user['uuid'],
                                                     __id: user && user['id'],
-                                                    roles
+                                                    roles: role
                                                 }
                                             },
                                                 async (reject: string, token: string) => {
