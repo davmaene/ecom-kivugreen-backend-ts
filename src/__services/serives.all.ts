@@ -41,9 +41,6 @@ export const Services = {
         const configs = await Configs.findAll({
             order: [['id', 'DESC']],
             limit: 1
-            // where: {
-            //     id: 1
-            // }
         })
         if (configs.length > 0) {
             const { id, taux_change, commission_price } = configs[0]

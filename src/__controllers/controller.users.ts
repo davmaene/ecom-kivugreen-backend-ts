@@ -181,121 +181,109 @@ export const __controllerUsers = {
         }
     },
     signin: async (req: Request, res: Response, next: NextFunction) => {
-        const { phone, password } = req.body;
-        const role = [1, 3, 2, 4, 5]// allowed roles to connect 
-        if (!phone || !password) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !phone || !password")
 
-        try {
+        log(req.body)
+        
+        // const { phone, password } = req.body;
+        // const allowedRoles = [1, 3, 2, 4, 5]; // allowed roles to connect 
 
-            const transaction = await connect.transaction();
+        // if (!phone || !password) {
+        //     return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !phone || !password");
+        // }
 
-            Users.belongsToMany(Roles, { through: Hasroles });
-            Roles.belongsToMany(Users, { through: Hasroles });
+        // const transaction = await connect.transaction();
+        // try {
+        //     const filledPhone = fillphone({ phone });
 
-            Provinces.hasOne(Users, { foreignKey: "id" });
-            Users.belongsTo(Provinces, { foreignKey: "idprovince" });
+        //     console.log("Phone:", phone);
+        //     console.log("Filled Phone:", filledPhone);
 
-            Territoires.hasOne(Users, { foreignKey: "id" });
-            Users.belongsTo(Territoires, { foreignKey: "idterritoire" });
+        //     if (!filledPhone || String(filledPhone).length <= 0 || isNaN(Number(filledPhone))) {
+        //         return Responder(res, HttpStatusCode.NotAcceptable, "Invalid phone value: NaN");
+        //     }
 
-            Villages.hasOne(Users, { foreignKey: "id" });
-            Users.belongsTo(Villages, { foreignKey: "idvillage" });
+        //     const user = await Users.findOne({
+        //         where: {
+        //             [Op.or]: [
+        //                 { email: phone },
+        //                 { phone: filledPhone }
+        //             ]
+        //         },
+        //         include: [
+        //             {
+        //                 model: Roles,
+        //                 required: true,
+        //                 attributes: ['id', 'role']
+        //             },
+        //             {
+        //                 model: Provinces,
+        //                 required: false,
+        //                 attributes: ['id', 'province']
+        //             },
+        //             {
+        //                 model: Territoires,
+        //                 required: false,
+        //                 attributes: ['id', 'territoire']
+        //             },
+        //             {
+        //                 model: Villages,
+        //                 required: false,
+        //                 attributes: ['id', 'village']
+        //             }
+        //         ]
+        //     });
 
-            Users.findOne({
-                where: {
-                    [Op.or]: [
-                        { email: phone },
-                        { phone: fillphone({ phone }) }
-                    ]
-                },
-                include: [
-                    {
-                        model: Roles,
-                        required: true,
-                        attributes: ['id', 'role']
-                    },
-                    {
-                        model: Provinces,
-                        required: false,
-                        attributes: ['id', 'province']
-                    },
-                    {
-                        model: Territoires,
-                        required: false,
-                        attributes: ['id', 'territoire']
-                    },
-                    {
-                        model: Villages,
-                        required: false,
-                        attributes: ['id', 'village']
-                    }
-                ]
-            })
-                .then(user => {
-                    if (user instanceof Users) {
-                        const { password: aspassword, isvalidated, __tbl_ecom_roles } = user.toJSON() as any;
-                        const roles = Array.from(__tbl_ecom_roles).map((role: any) => role['id']);
-                        comparePWD({
-                            hashedtext: aspassword || '',
-                            plaintext: password
-                        })
-                            .then(verified => {
-                                if (verified) {
-                                    if (isvalidated === 1) {
-                                        if (Array.from(roles).some(r => role.includes(r))) {
-                                            Middleware.onSignin({
-                                                expiresIn: APP_EXIPRES_IN_ADMIN || '45m',
-                                                data: {
-                                                    phone: user && user['phone'],
-                                                    uuid: user && user['uuid'],
-                                                    __id: user && user['id'],
-                                                    roles
-                                                }
-                                            },
-                                                (reject: string, token: string) => {
-                                                    if (token) {
-                                                        // user = formatUserModel({ model: user })
-                                                        if (user !== null) {
-                                                            if (user.hasOwnProperty('isvalidated')) {
-                                                                delete user['isvalidated']
-                                                            }
-                                                            if (user.hasOwnProperty('password')) {
-                                                                delete user['password']
-                                                            }
-                                                        }
-                                                        transaction.commit()
-                                                        return Responder(res, HttpStatusCode.Ok, { token, user })
-                                                    } else {
-                                                        transaction.rollback()
-                                                        return Responder(res, HttpStatusCode.Forbidden, "Your refresh token already expired ! you must login to get a new one !")
-                                                    }
-                                                })
-                                        } else {
-                                            transaction.rollback()
-                                            return Responder(res, HttpStatusCode.Unauthorized, "You dont have right access please contact admin system !")
-                                        }
-                                    } else {
-                                        transaction.rollback()
-                                        return Responder(res, HttpStatusCode.NotAcceptable, "Account not validated !")
-                                    }
-                                } else {
-                                    transaction.rollback()
-                                    return Responder(res, HttpStatusCode.Forbidden, "Phone | Email or Password incorrect !")
-                                }
-                            })
-                            .catch(err => {
-                                transaction.rollback()
-                                return Responder(res, HttpStatusCode.Forbidden, "Phone | Email or Password incorrect !")
-                            })
-                    } else {
-                        transaction.rollback()
-                        return Responder(res, HttpStatusCode.Forbidden, "Phone | Email or Password incorrect !")
-                    }
-                })
-                .catch(err => Responder(res, HttpStatusCode.Conflict, err))
-        } catch (error) {
-            return Responder(res, HttpStatusCode.InternalServerError, error)
-        }
+        //     if (!user) {
+        //         await transaction.rollback();
+        //         return Responder(res, HttpStatusCode.Forbidden, "Phone | Email or Password incorrect!");
+        //     }
+
+        //     const { password: hashedPassword, isvalidated, __tbl_ecom_roles } = user.toJSON() as any;
+        //     const roles = __tbl_ecom_roles.map((role: any) => role['id']);
+
+        //     const passwordMatch = await comparePWD({ hashedtext: hashedPassword || '', plaintext: password });
+
+        //     if (!passwordMatch) {
+        //         await transaction.rollback();
+        //         return Responder(res, HttpStatusCode.Forbidden, "Phone | Email or Password incorrect!");
+        //     }
+
+        //     if (isvalidated !== 1) {
+        //         await transaction.rollback();
+        //         return Responder(res, HttpStatusCode.NotAcceptable, "Account not validated!");
+        //     }
+
+        //     if (!roles.some((r: any) => allowedRoles.includes(r))) {
+        //         await transaction.rollback();
+        //         return Responder(res, HttpStatusCode.Unauthorized, "You don't have right access, please contact the system admin!");
+        //     }
+
+        //     Middleware.onSignin({
+        //         expiresIn: APP_EXIPRES_IN_ADMIN || '45m',
+        //         data: {
+        //             phone: user.phone,
+        //             uuid: user.uuid,
+        //             __id: user.id,
+        //             roles
+        //         }
+        //     }, async (reject: string, token: string) => {
+        //         if (!token) {
+        //             await transaction.rollback();
+        //             return Responder(res, HttpStatusCode.Forbidden, "Your refresh token already expired! You must login to get a new one!");
+        //         }
+
+        //         if (user.hasOwnProperty('isvalidated')) delete user.isvalidated;
+        //         if (user.hasOwnProperty('password')) delete user.password;
+
+        //         await transaction.commit();
+        //         return Responder(res, HttpStatusCode.Ok, { token, user });
+        //     });
+
+        // } catch (error: any) {
+        //     await transaction.rollback();
+        //     console.error("Message d'erreur ==> ", error);
+        //     return Responder(res, HttpStatusCode.InternalServerError, error.message);
+        // }
     },
     resetpassword: async (req: Request, res: Response, next: NextFunction) => {
         const { phone } = req.body
@@ -632,7 +620,7 @@ export const __controllerUsers = {
                                                     phone: user && user['phone'],
                                                     uuid: user && user['uuid'],
                                                     __id: user && user['id'],
-                                                    roles
+                                                    roles: role
                                                 }
                                             },
                                                 async (reject: string, token: string) => {
@@ -1476,17 +1464,25 @@ export const __controllerUsers = {
         if (!iduser) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least iduser as param !")
         if (Object.keys(req.body).length <= 0) return Responder(res, HttpStatusCode.NotAcceptable, "The should not be empty")
         if (req.body.hasOwnProperty("password")) delete req.body.password;
-        if(req.body.hasOwnProperty("phone")) req.body.phone = fillphone({ phone: req.body.phone as string })
+        if (req.body.hasOwnProperty("phone")) req.body.phone = fillphone({ phone: req.body.phone as string })
+        const _ = req.body as any;
+        delete _['password'];
+        delete _['avatar'];
         try {
-            Users.update({
-                ...req.body
-            }, {
+            Users.findOne({
                 where: {
                     id: parseInt(iduser)
                 }
             })
                 .then(U => {
-                    return Responder(res, HttpStatusCode.Ok, U)
+                    if (U instanceof Users) {
+                        U.update({
+                            ..._
+                        })
+                        return Responder(res, HttpStatusCode.Ok, U)
+                    } else {
+                        return Responder(res, HttpStatusCode.NotFound, U)
+                    }
                 })
                 .catch(err => Responder(res, HttpStatusCode.InternalServerError, err))
         } catch (error) {
@@ -1552,6 +1548,50 @@ export const __controllerUsers = {
                 // transaction.rollback()
                 return Responder(res, HttpStatusCode.NotFound, `The user with id ${iduser} not found in the table user !`)
             }
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    updateavatar: async (req: Request, res: Response, next: NextFunction) => {
+        const { avatar } = req.files as any
+        const { currentuser } = req as any;
+        const { __id, roles, uuid } = currentuser;
+        if (!avatar) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least avatar as file")
+
+        // if(user !instanceof Users) return Responder(res, HttpStatusCode.NotFound, "This request must have at least user")
+        try {
+            Users.findOne({
+                where: {
+                    id: __id
+                }
+            })
+                .then(user => {
+                    if (user instanceof Users) {
+                        Services.uploadfile({
+                            inputs: {
+                                file: req,
+                                saveas: "as_avatar",
+                                type: "avatar"
+                            }
+                        })
+                            .then(({ code, data, message }) => {
+                                if (code === 200) {
+                                    const { filename, fullpath } = data
+                                    user.update({
+                                        avatar: fullpath,
+                                    })
+                                    // log(filename, fullpath)
+                                    return Responder(res, HttpStatusCode.Ok, user)
+                                } else {
+                                    return Responder(res, HttpStatusCode.BadRequest, data)
+                                }
+                            })
+                            .catch(err => Responder(res, HttpStatusCode.InternalServerError, err))
+                    } else {
+                        return Responder(res, HttpStatusCode.NotAcceptable, user)
+                    }
+                })
+
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }

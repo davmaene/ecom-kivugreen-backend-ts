@@ -22,6 +22,7 @@ const { APP_NAME, APP_PORT, APP_VERSION } = process.env;
 const app: Application = express();
 const server = http.createServer(app);
 const PORT = APP_PORT || 8012;
+const ___logAccess = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
 const io = new Server(server, {
     cors: {
         origin: "*",
@@ -42,10 +43,18 @@ app.use(fileUpload({
 app.use((req: Request, res: Response, next: NextFunction) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+    const { url, method, body, query, params, ip, ips } = req
+    // log({
+    //     url,
+    //     method,
+    //     body,
+    //     query,
+    //     params,
+    //     ip,
+    //     ips
+    // })
     next();
 });
-
-const ___logAccess = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
 
 app.use(morgan("combined", { stream: ___logAccess }));
 
@@ -70,14 +79,10 @@ io.on('connection', (socket: Socket) => {
 app.get('/', (req: Request, res: Response, next: NextFunction) => {
     return Responder(res, HttpStatusCode.Ok, { ...HttpStatusMessages })
 });
-
-app.use('/api', accessValidator, routes); //
-
 app.use("/__assets", routes);
-
 app.use("/assets", routes);
-
 app.use("/src", routes);
+app.use('/api', accessValidator, routes); //
 
 app.use((req: Request, res: Response, next: NextFunction) => {
     const { url, method, body } = req

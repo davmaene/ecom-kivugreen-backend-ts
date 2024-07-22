@@ -34,7 +34,6 @@ export const Cooperatives = connect.define<Coopec>('__tbl_ecom_cooperatives', {
     id_responsable: DataTypes.INTEGER,
     description: DataTypes.STRING,
     id_category: DataTypes.INTEGER
-
 }, {
     paranoid: true,
     timestamps: false,

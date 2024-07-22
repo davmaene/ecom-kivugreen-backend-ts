@@ -122,6 +122,7 @@ export const __controllerCooperatives = {
             payload['id_responsable'] = parseInt(payload['id_responsable'])
             payload['id_adjoint'] = parseInt(payload['id_adjoint'])
             payload['id_territoire'] = parseInt(payload['id_territoire'])
+            payload['id_province'] = parseInt(payload['id_province'])
 
             if (!logo) return Responder(res, HttpStatusCode.NotAcceptable, "Please provide the cooperative's logo as image file");
             const { mimetype } = req['files']['logo'] as any

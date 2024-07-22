@@ -24,8 +24,8 @@ export const __controllerRoles = {
     },
     addtouser: async (req: Request, res: Response, next: NextFunction) => {
         const { id_roles, id_user } = req.body;
-        if(!id_roles || !id_user) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !id_roles || !id_user")
-        if(!Array.isArray(id_roles)) return Responder(res, HttpStatusCode.NotAcceptable, "id_roles must be a type of array !")
+        if (!id_roles || !id_user) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !id_roles || !id_user")
+        if (!Array.isArray(id_roles)) return Responder(res, HttpStatusCode.NotAcceptable, "id_roles must be a type of array !")
         try {
             Services.addRoleToUser({
                 inputs: {
@@ -57,6 +57,56 @@ export const __controllerRoles = {
                     if (ro instanceof Roles) return Responder(res, HttpStatusCode.Ok, ro)
                     else return Responder(res, HttpStatusCode.Conflict, ro)
                 })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    update: async (req: Request, res: Response) => {
+        const { id } = req.params as any
+        const { role, description } = req.body;
+        if (!id) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least id")
+        if (Object.keys(req.body).length <= 0) return Responder(res, HttpStatusCode.NotAcceptable, "the body should not be empty!")
+        try {
+            Roles.findOne({
+                where: {
+                    id
+                }
+            })
+                .then(cat => {
+                    if (cat instanceof Roles) {
+                        cat.update({
+                            role,
+                            description
+                        })
+                            .then(_ => Responder(res, HttpStatusCode.Ok, cat))
+                            .catch(__ => Responder(res, HttpStatusCode.NotFound, "Item not found"))
+                    } else {
+                        return Responder(res, HttpStatusCode.NotFound, "Item not found")
+                    }
+                })
+                .catch(Err => Responder(res, HttpStatusCode.NotAcceptable, Err))
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    delete: async (req: Request, res: Response,) => {
+        const { id } = req.params as any
+        if (!id) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least id")
+        try {
+            Roles.findOne({
+                where: {
+                    id
+                }
+            })
+                .then(cat => {
+                    if (cat instanceof Roles) {
+                        cat.destroy()
+                            .then(_ => Responder(res, HttpStatusCode.Ok, `Item with id:::${id} was successfuly deleted `))
+                    } else {
+                        return Responder(res, HttpStatusCode.NotFound, "Item not found")
+                    }
+                })
+                .catch(Err => Responder(res, HttpStatusCode.NotAcceptable, Err))
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }

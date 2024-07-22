@@ -4,6 +4,7 @@ import express from 'express'
 
 export const __routesUsers = express.Router()
 
+__routesUsers.put("/user/avatar", __controllerUsers.updateavatar)
 __routesUsers.put("/user/resetpassword", __controllerUsers.resetpassword)
 __routesUsers.post("/user/authentification", __controllerUsers.otp)
 __routesUsers.put("/user/recoverypassword", __controllerUsers.recoverypassword)

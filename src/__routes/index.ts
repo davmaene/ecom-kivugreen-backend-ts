@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import { __routesUsers } from "./routes.users";
 import { __routesRoles } from "./routes.roles";
 import { __routesServices } from "./routes.services";
@@ -22,6 +22,7 @@ import { __routesCategcoope } from "./routes.categcooperatives";
 import { __routesMembers } from "./routes.memebers";
 import { __routesPayements } from "./routes.payements";
 import { __routesStatistiques } from "./routes.statistiques";
+import { log } from "console";
 
 export const routes = express.Router();
 

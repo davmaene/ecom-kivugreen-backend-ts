@@ -41,5 +41,56 @@ export const __controllerUnities = {
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
+    },
+    update: async (req: Request, res: Response) => {
+        const { id } = req.params as any
+        const { unity, description, equival_kgs } = req.body;
+        if (!id) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least id")
+        if (Object.keys(req.body).length <= 0) return Responder(res, HttpStatusCode.NotAcceptable, "the body should not be empty!")
+        try {
+            Unites.findOne({
+                where: {
+                    id
+                }
+            })
+                .then(cat => {
+                    if (cat instanceof Unites) {
+                        cat.update({
+                            unity,
+                            description,
+                            equival_kgs
+                        })
+                            .then(_ => Responder(res, HttpStatusCode.Ok, cat))
+                            .catch(__ => Responder(res, HttpStatusCode.NotFound, "Item not found"))
+                    } else {
+                        return Responder(res, HttpStatusCode.NotFound, "Item not found")
+                    }
+                })
+                .catch(Err => Responder(res, HttpStatusCode.NotAcceptable, Err))
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    delete: async (req: Request, res: Response,) => {
+        const { id } = req.params as any
+        if (!id) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least id")
+        try {
+            Unites.findOne({
+                where: {
+                    id
+                }
+            })
+                .then(cat => {
+                    if (cat instanceof Unites) {
+                        cat.destroy()
+                            .then(_ => Responder(res, HttpStatusCode.Ok, `Item with id:::${id} was successfuly deleted `))
+                    } else {
+                        return Responder(res, HttpStatusCode.NotFound, "Item not found")
+                    }
+                })
+                .catch(Err => Responder(res, HttpStatusCode.NotAcceptable, Err))
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
     }
 }
