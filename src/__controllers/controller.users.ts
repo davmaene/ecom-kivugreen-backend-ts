@@ -182,8 +182,8 @@ export const __controllerUsers = {
     },
     signin: async (req: Request, res: Response, next: NextFunction) => {
 
-        log(req.body)
-        
+        log("The body for this request is ==> ", req.body)
+
         const { phone, password } = req.body;
         const allowedRoles = [1, 3, 2, 4, 5]; // allowed roles to connect 
 
@@ -201,6 +201,18 @@ export const __controllerUsers = {
             if (!filledPhone || String(filledPhone).length <= 0 || isNaN(Number(filledPhone))) {
                 return Responder(res, HttpStatusCode.NotAcceptable, "Invalid phone value: NaN");
             }
+
+            Users.belongsToMany(Roles, { through: Hasroles });
+            Roles.belongsToMany(Users, { through: Hasroles });
+
+            Provinces.hasOne(Users, { foreignKey: "id" });
+            Users.belongsTo(Provinces, { foreignKey: "idprovince" });
+
+            Territoires.hasOne(Users, { foreignKey: "id" });
+            Users.belongsTo(Territoires, { foreignKey: "idterritoire" });
+
+            Villages.hasOne(Users, { foreignKey: "id" });
+            Users.belongsTo(Villages, { foreignKey: "idvillage" });
 
             const user = await Users.findOne({
                 where: {
