@@ -1090,7 +1090,7 @@ export const __controllerUsers = {
             Users.findOne({
                 where: {
                     [Op.or]: [
-                        { id: parseInt(iduser) },
+                        { id: (iduser) },
                         { uuid: iduser }
                     ]
                 },

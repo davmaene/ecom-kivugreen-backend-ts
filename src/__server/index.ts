@@ -53,8 +53,8 @@ app.use((req: Request, res: Response, next: NextFunction) => {
         ip,
         ips
     })
-    // next();
-    return Responder(res, HttpStatusCode.Ok, req.body)
+    next();
+    // return Responder(res, HttpStatusCode.Ok, req.body)
 });
 
 app.use(morgan("combined", { stream: ___logAccess }));
