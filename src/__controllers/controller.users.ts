@@ -184,106 +184,106 @@ export const __controllerUsers = {
 
         log(req.body)
         
-        // const { phone, password } = req.body;
-        // const allowedRoles = [1, 3, 2, 4, 5]; // allowed roles to connect 
+        const { phone, password } = req.body;
+        const allowedRoles = [1, 3, 2, 4, 5]; // allowed roles to connect 
 
-        // if (!phone || !password) {
-        //     return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !phone || !password");
-        // }
+        if (!phone || !password) {
+            return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !phone || !password");
+        }
 
-        // const transaction = await connect.transaction();
-        // try {
-        //     const filledPhone = fillphone({ phone });
+        const transaction = await connect.transaction();
+        try {
+            const filledPhone = fillphone({ phone });
 
-        //     console.log("Phone:", phone);
-        //     console.log("Filled Phone:", filledPhone);
+            console.log("Phone:", phone);
+            console.log("Filled Phone:", filledPhone);
 
-        //     if (!filledPhone || String(filledPhone).length <= 0 || isNaN(Number(filledPhone))) {
-        //         return Responder(res, HttpStatusCode.NotAcceptable, "Invalid phone value: NaN");
-        //     }
+            if (!filledPhone || String(filledPhone).length <= 0 || isNaN(Number(filledPhone))) {
+                return Responder(res, HttpStatusCode.NotAcceptable, "Invalid phone value: NaN");
+            }
 
-        //     const user = await Users.findOne({
-        //         where: {
-        //             [Op.or]: [
-        //                 { email: phone },
-        //                 { phone: filledPhone }
-        //             ]
-        //         },
-        //         include: [
-        //             {
-        //                 model: Roles,
-        //                 required: true,
-        //                 attributes: ['id', 'role']
-        //             },
-        //             {
-        //                 model: Provinces,
-        //                 required: false,
-        //                 attributes: ['id', 'province']
-        //             },
-        //             {
-        //                 model: Territoires,
-        //                 required: false,
-        //                 attributes: ['id', 'territoire']
-        //             },
-        //             {
-        //                 model: Villages,
-        //                 required: false,
-        //                 attributes: ['id', 'village']
-        //             }
-        //         ]
-        //     });
+            const user = await Users.findOne({
+                where: {
+                    [Op.or]: [
+                        { email: phone },
+                        { phone: filledPhone }
+                    ]
+                },
+                include: [
+                    {
+                        model: Roles,
+                        required: true,
+                        attributes: ['id', 'role']
+                    },
+                    {
+                        model: Provinces,
+                        required: false,
+                        attributes: ['id', 'province']
+                    },
+                    {
+                        model: Territoires,
+                        required: false,
+                        attributes: ['id', 'territoire']
+                    },
+                    {
+                        model: Villages,
+                        required: false,
+                        attributes: ['id', 'village']
+                    }
+                ]
+            });
 
-        //     if (!user) {
-        //         await transaction.rollback();
-        //         return Responder(res, HttpStatusCode.Forbidden, "Phone | Email or Password incorrect!");
-        //     }
+            if (!user) {
+                await transaction.rollback();
+                return Responder(res, HttpStatusCode.Forbidden, "Phone | Email or Password incorrect!");
+            }
 
-        //     const { password: hashedPassword, isvalidated, __tbl_ecom_roles } = user.toJSON() as any;
-        //     const roles = __tbl_ecom_roles.map((role: any) => role['id']);
+            const { password: hashedPassword, isvalidated, __tbl_ecom_roles } = user.toJSON() as any;
+            const roles = __tbl_ecom_roles.map((role: any) => role['id']);
 
-        //     const passwordMatch = await comparePWD({ hashedtext: hashedPassword || '', plaintext: password });
+            const passwordMatch = await comparePWD({ hashedtext: hashedPassword || '', plaintext: password });
 
-        //     if (!passwordMatch) {
-        //         await transaction.rollback();
-        //         return Responder(res, HttpStatusCode.Forbidden, "Phone | Email or Password incorrect!");
-        //     }
+            if (!passwordMatch) {
+                await transaction.rollback();
+                return Responder(res, HttpStatusCode.Forbidden, "Phone | Email or Password incorrect!");
+            }
 
-        //     if (isvalidated !== 1) {
-        //         await transaction.rollback();
-        //         return Responder(res, HttpStatusCode.NotAcceptable, "Account not validated!");
-        //     }
+            if (isvalidated !== 1) {
+                await transaction.rollback();
+                return Responder(res, HttpStatusCode.NotAcceptable, "Account not validated!");
+            }
 
-        //     if (!roles.some((r: any) => allowedRoles.includes(r))) {
-        //         await transaction.rollback();
-        //         return Responder(res, HttpStatusCode.Unauthorized, "You don't have right access, please contact the system admin!");
-        //     }
+            if (!roles.some((r: any) => allowedRoles.includes(r))) {
+                await transaction.rollback();
+                return Responder(res, HttpStatusCode.Unauthorized, "You don't have right access, please contact the system admin!");
+            }
 
-        //     Middleware.onSignin({
-        //         expiresIn: APP_EXIPRES_IN_ADMIN || '45m',
-        //         data: {
-        //             phone: user.phone,
-        //             uuid: user.uuid,
-        //             __id: user.id,
-        //             roles
-        //         }
-        //     }, async (reject: string, token: string) => {
-        //         if (!token) {
-        //             await transaction.rollback();
-        //             return Responder(res, HttpStatusCode.Forbidden, "Your refresh token already expired! You must login to get a new one!");
-        //         }
+            Middleware.onSignin({
+                expiresIn: APP_EXIPRES_IN_ADMIN || '45m',
+                data: {
+                    phone: user.phone,
+                    uuid: user.uuid,
+                    __id: user.id,
+                    roles
+                }
+            }, async (reject: string, token: string) => {
+                if (!token) {
+                    await transaction.rollback();
+                    return Responder(res, HttpStatusCode.Forbidden, "Your refresh token already expired! You must login to get a new one!");
+                }
 
-        //         if (user.hasOwnProperty('isvalidated')) delete user.isvalidated;
-        //         if (user.hasOwnProperty('password')) delete user.password;
+                if (user.hasOwnProperty('isvalidated')) delete user.isvalidated;
+                if (user.hasOwnProperty('password')) delete user.password;
 
-        //         await transaction.commit();
-        //         return Responder(res, HttpStatusCode.Ok, { token, user });
-        //     });
+                await transaction.commit();
+                return Responder(res, HttpStatusCode.Ok, { token, user });
+            });
 
-        // } catch (error: any) {
-        //     await transaction.rollback();
-        //     console.error("Message d'erreur ==> ", error);
-        //     return Responder(res, HttpStatusCode.InternalServerError, error.message);
-        // }
+        } catch (error: any) {
+            await transaction.rollback();
+            console.error("Message d'erreur ==> ", error);
+            return Responder(res, HttpStatusCode.InternalServerError, error.message);
+        }
     },
     resetpassword: async (req: Request, res: Response, next: NextFunction) => {
         const { phone } = req.body
