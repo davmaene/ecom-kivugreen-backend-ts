@@ -182,7 +182,7 @@ export const __controllerUsers = {
     },
     signin: async (req: Request, res: Response, next: NextFunction) => {
         const { phone, password } = req.body;
-        const role = [1, 3, 2, 4, 5]; // allowed roles to connect 
+        const allowedRoles = [1, 3, 2, 4, 5]; // allowed roles to connect 
 
         if (!phone || !password) {
             return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !phone || !password");
@@ -190,115 +190,96 @@ export const __controllerUsers = {
 
         const transaction = await connect.transaction();
         try {
-            Users.belongsToMany(Roles, { through: Hasroles });
-            Roles.belongsToMany(Users, { through: Hasroles });
-
-            Provinces.hasOne(Users, { foreignKey: "id" });
-            Users.belongsTo(Provinces, { foreignKey: "idprovince" });
-
-            Territoires.hasOne(Users, { foreignKey: "id" });
-            Users.belongsTo(Territoires, { foreignKey: "idterritoire" });
-
-            Villages.hasOne(Users, { foreignKey: "id" });
-            Users.belongsTo(Villages, { foreignKey: "idvillage" });
-
             const filledPhone = fillphone({ phone });
 
-            log("FilledPhone ==> ", filledPhone, "Phone ===> ", phone );
-            return false;
+            console.log("Phone:", phone);
+            console.log("Filled Phone:", filledPhone);
 
-            // if (!(filledPhone) || String(filledPhone).length <= 0) {
-            //     return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least Invalid phone value: NaN");
-            // }
+            if (!filledPhone || String(filledPhone).length <= 0 || isNaN(Number(filledPhone))) {
+                return Responder(res, HttpStatusCode.NotAcceptable, "Invalid phone value: NaN");
+            }
 
-            // const user = await Users.findOne({
-            //     where: {
-            //         [Op.or]: [
-            //             { email: phone },
-            //             { phone: filledPhone }
-            //         ]
-            //     },
-            //     include: [
-            //         {
-            //             model: Roles,
-            //             required: true,
-            //             attributes: ['id', 'role']
-            //         },
-            //         {
-            //             model: Provinces,
-            //             required: false,
-            //             attributes: ['id', 'province']
-            //         },
-            //         {
-            //             model: Territoires,
-            //             required: false,
-            //             attributes: ['id', 'territoire']
-            //         },
-            //         {
-            //             model: Villages,
-            //             required: false,
-            //             attributes: ['id', 'village']
-            //         }
-            //     ]
-            // });
+            const user = await Users.findOne({
+                where: {
+                    [Op.or]: [
+                        { email: phone },
+                        { phone: filledPhone }
+                    ]
+                },
+                include: [
+                    {
+                        model: Roles,
+                        required: true,
+                        attributes: ['id', 'role']
+                    },
+                    {
+                        model: Provinces,
+                        required: false,
+                        attributes: ['id', 'province']
+                    },
+                    {
+                        model: Territoires,
+                        required: false,
+                        attributes: ['id', 'territoire']
+                    },
+                    {
+                        model: Villages,
+                        required: false,
+                        attributes: ['id', 'village']
+                    }
+                ]
+            });
 
-            // if (user instanceof Users) {
-            //     const { password: aspassword, isvalidated, __tbl_ecom_roles } = user.toJSON() as any;
-            //     const roles = Array.from(__tbl_ecom_roles).map((role: any) => role['id']);
+            if (!user) {
+                await transaction.rollback();
+                return Responder(res, HttpStatusCode.Forbidden, "Phone | Email or Password incorrect!");
+            }
 
-            //     comparePWD({
-            //         hashedtext: aspassword || '',
-            //         plaintext: password
-            //     })
-            //         .then(matched => {
-            //             if (isvalidated === 1 && matched) {
-            //                 if (roles.some(r => role.includes(r))) {
-            //                     Middleware.onSignin({
-            //                         expiresIn: APP_EXIPRES_IN_ADMIN || '45m',
-            //                         data: {
-            //                             phone: user.phone,
-            //                             uuid: user.uuid,
-            //                             __id: user.id,
-            //                             roles: role
-            //                         }
-            //                     },
-            //                         (reject: string, token: string) => {
-            //                             if (token) {
-            //                                 if (user !== null) {
-            //                                     if (user.hasOwnProperty('isvalidated')) {
-            //                                         delete user.isvalidated;
-            //                                     }
-            //                                     if (user.hasOwnProperty('password')) {
-            //                                         delete user.password;
-            //                                     }
-            //                                 }
-            //                                 transaction.commit();
-            //                                 return Responder(res, HttpStatusCode.Ok, { token, user });
-            //                             } else {
-            //                                 transaction.rollback();
-            //                                 return Responder(res, HttpStatusCode.Forbidden, "Your refresh token already expired! You must login to get a new one!");
-            //                             }
-            //                         });
-            //                 } else {
-            //                     transaction.rollback();
-            //                     return Responder(res, HttpStatusCode.Unauthorized, "You don't have right access, please contact the system admin!");
-            //                 }
-            //             } else {
-            //                 transaction.rollback();
-            //                 return Responder(res, HttpStatusCode.NotAcceptable, "Account not validated!");
-            //             }
-            //         })
-            //         .catch(err => {
-            //             transaction.rollback();
-            //             return Responder(res, HttpStatusCode.Forbidden, "Phone | Email or Password incorrect!");
-            //         })
-            // } else {
-            //     transaction.rollback();
-            //     return Responder(res, HttpStatusCode.Forbidden, "Phone | Email or Password incorrect!");
-            // }
+            const { password: hashedPassword, isvalidated, __tbl_ecom_roles } = user.toJSON() as any;
+            const roles = __tbl_ecom_roles.map((role: any) => role['id']);
+
+            const passwordMatch = await comparePWD({ hashedtext: hashedPassword || '', plaintext: password });
+
+            if (!passwordMatch) {
+                await transaction.rollback();
+                return Responder(res, HttpStatusCode.Forbidden, "Phone | Email or Password incorrect!");
+            }
+
+            if (isvalidated !== 1) {
+                await transaction.rollback();
+                return Responder(res, HttpStatusCode.NotAcceptable, "Account not validated!");
+            }
+
+            if (!roles.some((r: any) => allowedRoles.includes(r))) {
+                await transaction.rollback();
+                return Responder(res, HttpStatusCode.Unauthorized, "You don't have right access, please contact the system admin!");
+            }
+
+            Middleware.onSignin({
+                expiresIn: APP_EXIPRES_IN_ADMIN || '45m',
+                data: {
+                    phone: user.phone,
+                    uuid: user.uuid,
+                    __id: user.id,
+                    roles
+                }
+            }, async (reject: string, token: string) => {
+                if (!token) {
+                    await transaction.rollback();
+                    return Responder(res, HttpStatusCode.Forbidden, "Your refresh token already expired! You must login to get a new one!");
+                }
+
+                if (user.hasOwnProperty('isvalidated')) delete user.isvalidated;
+                if (user.hasOwnProperty('password')) delete user.password;
+
+                await transaction.commit();
+                return Responder(res, HttpStatusCode.Ok, { token, user });
+            });
+
         } catch (error: any) {
-            log("Message d'erreur ==> ", error)
-            return Responder(res, HttpStatusCode.InternalServerError, error);
+            await transaction.rollback();
+            console.error("Message d'erreur ==> ", error);
+            return Responder(res, HttpStatusCode.InternalServerError, error.message);
         }
     },
     resetpassword: async (req: Request, res: Response, next: NextFunction) => {
