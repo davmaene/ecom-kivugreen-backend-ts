@@ -44,15 +44,15 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
     const { url, method, body, query, params, ip, ips } = req
-    // log({
-    //     url,
-    //     method,
-    //     body,
-    //     query,
-    //     params,
-    //     ip,
-    //     ips
-    // })
+    log({
+        url,
+        method,
+        body,
+        query,
+        params,
+        ip,
+        ips
+    })
     // next();
     return Responder(res, HttpStatusCode.Ok, req.body)
 });
