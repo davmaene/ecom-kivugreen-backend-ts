@@ -297,6 +297,40 @@ export const __controllerUsers = {
             return Responder(res, HttpStatusCode.InternalServerError, error.message);
         }
     },
+    changepassword: async (req: Request, res: Response,) => {
+        const { oldpassword, newpassword } = req.body;
+        const { currentuser } = req as any;
+        const { __id, roles, uuid, phone } = currentuser;
+        if (!oldpassword || !newpassword) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least newpassword and oldpassword")
+        try {
+            Users.findOne({
+                where: {
+                    id: __id
+                }
+            })
+                .then(async user => {
+                    if (user instanceof Users) {
+                        const { password } = user.toJSON()
+                        comparePWD({ hashedtext: password || '', plaintext: oldpassword })
+                            .then(async matched => {
+                                const newpwd = await hashPWD({ plaintext: newpassword })
+                                user.update({
+                                    password: newpwd
+                                })
+                                    .then(_ => Responder(res, HttpStatusCode.Ok, user))
+                                    .catch(_ => Responder(res, HttpStatusCode.NotAcceptable, "The old password did not matched ! "))
+                            })
+                            .catch(err => Responder(res, HttpStatusCode.NotAcceptable, "The old password did not matched ! "))
+
+                    } else {
+                        return Responder(res, HttpStatusCode.NotFound, user)
+                    }
+                })
+                .catch(err => Responder(res, HttpStatusCode.InternalServerError, err))
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
     resetpassword: async (req: Request, res: Response, next: NextFunction) => {
         const { phone } = req.body
         if (!phone) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least ! phone in body ")
