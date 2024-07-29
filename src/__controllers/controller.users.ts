@@ -182,8 +182,6 @@ export const __controllerUsers = {
     },
     signin: async (req: Request, res: Response, next: NextFunction) => {
 
-        log("The body for this request is ==> ", req.body)
-
         const { phone, password } = req.body;
         const allowedRoles = [1, 3, 2, 4, 5]; // allowed roles to connect 
 
@@ -194,9 +192,6 @@ export const __controllerUsers = {
         const transaction = await connect.transaction();
         try {
             const filledPhone = fillphone({ phone });
-
-            console.log("Phone:", phone);
-            console.log("Filled Phone:", filledPhone);
 
             if (!filledPhone || String(filledPhone).length <= 0 || isNaN(Number(filledPhone))) {
                 return Responder(res, HttpStatusCode.NotAcceptable, "Invalid phone value: NaN");
