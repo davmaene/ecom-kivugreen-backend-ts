@@ -1,3 +1,7 @@
 ::ffff:127.0.0.1 - - [29/Jul/2024:08:10:22 +0000] "POST /api/users/user/signin HTTP/1.1" 200 2450 "-" "PostmanRuntime/7.40.0"
 ::ffff:127.0.0.1 - - [29/Jul/2024:08:11:18 +0000] "POST /api/users/user/signin HTTP/1.1" 200 2450 "-" "PostmanRuntime/7.40.0"
 ::ffff:127.0.0.1 - - [06/Aug/2024:19:25:33 +0000] "POST /api/users/user/signup HTTP/1.1" 500 202 "-" "PostmanRuntime/7.40.0"
+::ffff:127.0.0.1 - - [06/Aug/2024:19:33:52 +0000] "POST /api/users/user/signup HTTP/1.1" 406 89 "-" "PostmanRuntime/7.40.0"
+::ffff:127.0.0.1 - - [06/Aug/2024:19:34:08 +0000] "POST /api/users/user/signup HTTP/1.1" 409 114 "-" "PostmanRuntime/7.40.0"
+::ffff:127.0.0.1 - - [06/Aug/2024:20:36:08 +0000] "POST /api/users/user/verify HTTP/1.1" 401 74 "-" "PostmanRuntime/7.40.0"
+::ffff:127.0.0.1 - - [06/Aug/2024:20:39:20 +0000] "POST /api/users/user/verify HTTP/1.1" 404 138 "-" "PostmanRuntime/7.40.0"
