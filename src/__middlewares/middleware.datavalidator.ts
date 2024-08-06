@@ -181,7 +181,7 @@ export const userModelOnResendCode = [
 
 export const userModelOnSignin = [
     body('phone').notEmpty().trim().withMessage("`phone` the value entered for the phone it seems to be not a valide phone number or a valide email !"),
-    body('password').notEmpty().isString().withMessage("`Password` is required !")
+    body('password').optional().isString().withMessage("`Password` is required !")
 ];
 
 export const dataValidator = (req: Request, res: Response, next: NextFunction) => {
