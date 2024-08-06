@@ -9,7 +9,7 @@ if (!APP_SALTLENGTH) throw Error("The variable APP_SALTLENGTH is not defined in 
 
 export const hashPWD = async ({ plaintext }: { plaintext: string }) => {
     return bcrypt.hash(plaintext, parseInt(APP_SALTLENGTH));
-}
+};
 
 export const comparePWD = async ({ plaintext, hashedtext }: { plaintext: string, hashedtext: string }) => {
     return new Promise(async (resolve, reject) => {
@@ -24,4 +24,4 @@ export const comparePWD = async ({ plaintext, hashedtext }: { plaintext: string,
             reject(error)
         }
     })
-}
+};
