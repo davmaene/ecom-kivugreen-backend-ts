@@ -87,6 +87,11 @@ export const renderState = ({ state }: { state: number }): { color: any, name: s
     return states[state] || { color: null, name: null }
 };
 
+export const validatePhoneNumber = ({ phoneNumber }: { phoneNumber: string }) => {
+    const phoneRegex = /^(\+?\d{1,3}[-. ]?)?(\(?\d{3}\)?[-. ]?)?[\d-. ]{7,10}$/;
+    return phoneRegex.test(phoneNumber);
+}
+
 export const checkFileType = ({ mimetype, as = "doc" || "img" }: { mimetype: string, as: string }): { mimetype: string, isKnownType: boolean } | false => {
     if (imageTypes.map(type => type['mimeType']).includes(mimetype) && as === "img") {
         return { isKnownType: true, mimetype };

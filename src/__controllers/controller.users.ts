@@ -1,5 +1,5 @@
 import { connect } from '../__databases/connecte';
-import { fillphone } from '../__helpers/helper.fillphone';
+import { completeCodeCountryToPhoneNumber, fillphone } from '../__helpers/helper.fillphone';
 import { Users } from '../__models/model.users';
 import { Hasroles } from '../__models/model.hasroles';
 import { Provinces } from '../__models/model.provinces';
@@ -13,7 +13,7 @@ import { randomLongNumber } from '../__helpers/helper.random';
 import { Responder } from '../__helpers/helper.responseserver';
 import { HttpStatusCode } from '../__enums/enum.httpsstatuscode';
 import { Middleware } from '../__middlewares/middleware.cookies';
-import { capitalizeWords, formatUserModel } from '../__helpers/helper.all';
+import { capitalizeWords, formatUserModel, validatePhoneNumber } from '../__helpers/helper.all';
 import dotenv from 'dotenv';
 import { log } from 'console';
 import { v4 as uuidv4 } from 'uuid';
@@ -490,6 +490,8 @@ export const __controllerUsers = {
         const { nom, postnom, prenom, email, phone, adresse, idprovince, idterritoire, idvillage, date_naiss, genre, password, avatar } = req.body;
         if (!nom || !postnom || !phone || !password)
             return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least ==> nom & postnom & phone & password")
+        if (!validatePhoneNumber({ phoneNumber: completeCodeCountryToPhoneNumber({ phone, withoutplus: false }) }))
+            return Responder(res, HttpStatusCode.NotAcceptable, "Please provide a valide phone number !")
         const code_ = randomLongNumber({ length: 6 })
         const idroles: number[] = [5]
 
