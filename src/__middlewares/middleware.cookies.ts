@@ -15,6 +15,8 @@ if (!APPAPIKEY || !APPCOOKIESNAME)
 export const exludedRoutes: string[] = [
     "/categories/list",
     "/users/user/verify",
+    "/users/user/resendcode",
+    // "/users/user/changepassword",
     "/users/user/signin",
     "/users/user/signup",
     "/users/user/auth",
