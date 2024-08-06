@@ -110,7 +110,7 @@ export const bankModelValidator = [
     body('adresse').optional().isString().withMessage("`adresse` is required and it can not be empty ! must be string"),
     body('phone').notEmpty().isMobilePhone('fr-CD').trim().withMessage("`phone` the value entered for the phone it seems to be not a valide phone number !"),
     body('email').optional().isEmail().trim().withMessage("`email` the value entered for email it seems to be not a valide email adresse !"),
-]
+];
 
 export const creditModelValidator = [
     body('id_user').optional().isNumeric().custom(async (v, { req }) => {
@@ -124,7 +124,7 @@ export const creditModelValidator = [
     body('currency').notEmpty().isString().isLength({ max: 3, min: 3 }).custom(validateCurrency).isString().withMessage("`currency` is required and it can not be empty ! must be string USD || CDF"),
     body('motif').notEmpty().isString().trim().withMessage("`motif` the value entered for the motif it seems to be not a valide string !"),
     body('periode_remboursement').notEmpty().isNumeric().withMessage("`periode_remboursement` the value entered for periode_remboursement it seems to be not a valide number !"),
-]
+];
 
 export const produitValidator = [
     body('tva').optional().isNumeric().withMessage("Please provide the value of the tva as a number !"),
