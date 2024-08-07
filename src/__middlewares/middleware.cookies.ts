@@ -16,6 +16,7 @@ export const exludedRoutes: string[] = [
     "/categories/list",
     "/users/user/verify",
     "/users/user/resendcode",
+    "/users/user/refreshtoken",
     // "/users/user/changepassword",
     "/users/user/signin",
     "/users/user/signup",
