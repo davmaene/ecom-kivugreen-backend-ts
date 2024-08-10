@@ -536,6 +536,7 @@ export const __controllerUsers = {
                                     const { code } = done;
                                     const { id } = user
                                     if (code === 200) {
+                                        log(err)
 
                                         Extras.create({
                                             id_user: id,
@@ -561,6 +562,7 @@ export const __controllerUsers = {
                                                         })
                                                         .catch(err => {
                                                             transaction.rollback()
+                                                            log(err)
                                                             return Responder(res, HttpStatusCode.InternalServerError, extras)
                                                         })
                                                 } else {
@@ -569,6 +571,7 @@ export const __controllerUsers = {
                                                 }
                                             })
                                             .catch(er => {
+                                                log(er)
                                                 transaction.rollback()
                                                 return Responder(res, HttpStatusCode.InternalServerError, er)
                                             })
@@ -588,9 +591,11 @@ export const __controllerUsers = {
                     transaction.rollback()
                     const { name, errors } = err;
                     const { message } = errors[0];
+                    log(err)
                     return Responder(res, HttpStatusCode.Conflict, { name, error: message })
                 })
         } catch (error) {
+            log(error)
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     },
