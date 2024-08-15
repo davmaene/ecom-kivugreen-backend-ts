@@ -174,6 +174,7 @@ export const __controllerMarketplace = {
         let { page_size, page_number } = req.query as any;
         page_number = page_number ? parseInt(page_number) : 0
         page_size = page_size ? parseInt(page_size) : 100
+
         try {
 
             Hasproducts.belongsTo(Produits) // , { foreignKey: 'TblEcomProduitId' }
