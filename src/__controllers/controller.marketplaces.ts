@@ -170,6 +170,79 @@ export const __controllerMarketplace = {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     },
+    marketplaceoneproductbyid: async (req: Request, res: Response, next: NextFunction) => {
+        const { idproduit } = req.params
+
+        try {
+
+            Hasproducts.belongsTo(Produits) // , { foreignKey: 'TblEcomProduitId' }
+            Hasproducts.belongsTo(Unites) // , { foreignKey: 'TblEcomUnitesmesureId' }
+            Hasproducts.belongsTo(Stocks) // , { foreignKey: 'TblEcomStockId' }
+            Hasproducts.belongsTo(Cooperatives) // , { foreignKey: 'TblEcomCooperativeId' }
+            Hasproducts.belongsTo(Categories)
+
+            Hasproducts.findAll({
+                // attributes: ['id', 'qte', 'currency'],
+                include: [
+                    {
+                        model: Produits,
+                        required: true,
+                        attributes: ['id', 'produit', 'image', 'description', 'id_category']
+                    },
+                    {
+                        model: Categories,
+                        required: false,
+                    },
+                    {
+                        model: Unites,
+                        required: true,
+                        attributes: ['id', 'unity', 'equival_kgs']
+                    },
+                    {
+                        model: Stocks,
+                        required: true,
+                        attributes: ['id', 'transaction']
+                    },
+                    {
+                        model: Cooperatives,
+                        required: true,
+                        attributes: ['id', 'coordonnees_gps', 'phone', 'num_enregistrement', 'cooperative', 'sigle']
+                    }
+                ],
+                where: {
+                    TblEcomProduitId: idproduit
+                    // qte: { [Op.gte]: 0 }
+                }
+            })
+                .then(async (rows) => {
+                    const __ = []
+                    for (let index = 0; index < rows.length; index++) {
+                        const { __tbl_ecom_produit, __tbl_ecom_category } = rows[index] as any;
+                        if (__tbl_ecom_category !== null) __.push((rows[index]).toJSON())
+                        else {
+                            const { id_category } = __tbl_ecom_produit;
+                            const cat = await Categories.findOne({
+                                // raw: true,
+                                where: {
+                                    id: id_category
+                                }
+                            })
+                            __.push({
+                                ...(rows[index]).toJSON(),
+                                __tbl_ecom_category: cat?.toJSON()
+                            })
+                        }
+                    }
+                    return Responder(res, HttpStatusCode.Ok, { count: rows.length, rows: __ })
+                })
+                .catch(err => {
+                    log(err)
+                    return Responder(res, HttpStatusCode.Conflict, err)
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
     marketplace: async (req: Request, res: Response, next: NextFunction) => {
         let { page_size, page_number } = req.query as any;
         page_number = page_number ? parseInt(page_number) : 0
