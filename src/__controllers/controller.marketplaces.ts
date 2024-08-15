@@ -181,8 +181,9 @@ export const __controllerMarketplace = {
             Hasproducts.belongsTo(Cooperatives) // , { foreignKey: 'TblEcomCooperativeId' }
             Hasproducts.belongsTo(Categories)
 
+            log("Product is ===> ", typeof idproduit)
+
             Hasproducts.findAll({
-                // attributes: ['id', 'qte', 'currency'],
                 include: [
                     {
                         model: Produits,
@@ -210,7 +211,7 @@ export const __controllerMarketplace = {
                     }
                 ],
                 where: {
-                    TblEcomProduitId: idproduit
+                    id: parseInt(idproduit)
                     // qte: { [Op.gte]: 0 }
                 }
             })
@@ -233,7 +234,7 @@ export const __controllerMarketplace = {
                             })
                         }
                     }
-                    return Responder(res, HttpStatusCode.Ok, { count: rows.length, rows: __ })
+                    return Responder(res, HttpStatusCode.Ok, __[0])
                 })
                 .catch(err => {
                     log(err)
