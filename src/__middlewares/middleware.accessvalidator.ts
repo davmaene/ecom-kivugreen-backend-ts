@@ -19,6 +19,8 @@ export const accessValidator = (req: Request, res: Response, next: NextFunction)
 
     if (String(url).includes("by/")) return next()
 
+    if (String(url).includes("/marketplace")) return next()
+
     if (headers && url) {
         if (exludedRoutes.indexOf(url) === -1) {
             if ((headers && headers.hasOwnProperty(APP_CONNEXIONTOAPPWEB)) || (headers && headers.hasOwnProperty(APP_CONNEXIONTOAPPMOB))) {
@@ -32,7 +34,7 @@ export const accessValidator = (req: Request, res: Response, next: NextFunction)
                     if (astoken !== null && decoded !== null) {
                         (req as any).currentuser = { ...decoded as any };
                         return next();
-                    }else{
+                    } else {
                         return Responder(res, HttpStatusCode.Unauthorized, "Your Token has expired !")
                     }
                 }
