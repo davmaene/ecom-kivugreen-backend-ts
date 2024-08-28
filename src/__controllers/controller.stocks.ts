@@ -262,8 +262,13 @@ export const __controllerStocks = {
                         const { __tbl_ecom_produits } = rows[index].toJSON() as any;
                         for (let index = 0; index < __tbl_ecom_produits.length; index++) {
                             const { id, produit, __tbl_ecom_hasproducts } = __tbl_ecom_produits[index] as any;
-                            const { TblEcomProduitId, TblEcomCategoryId, TblEcomUnitesmesureId } = __tbl_ecom_hasproducts;
-
+                            const { TblEcomProduitId, TblEcomCategoryId, TblEcomUnitesmesureId, id_membre } = __tbl_ecom_hasproducts;
+                            const member = await Users.findOne({
+                                where: {
+                                    id: id_membre
+                                },
+                                attributes: ['id', 'nom', 'postnom', 'prenom', 'phone']
+                            })
                             const cat = await Categories.findOne({
                                 // raw: true,
                                 where: {
@@ -279,7 +284,8 @@ export const __controllerStocks = {
                             items.push({
                                 ...__tbl_ecom_produits[index],
                                 __tbl_ecom_categories: cat?.toJSON(),
-                                __tbl_ecom_unitesmesures: uni?.toJSON()
+                                __tbl_ecom_unitesmesures: uni?.toJSON(),
+                                __tbl_member: member?.toJSON()
                             })
                         }
                         __.push({
@@ -354,7 +360,7 @@ export const __controllerStocks = {
                                 ...__tbl_ecom_produits[index],
                                 __tbl_ecom_categories: cat?.toJSON(),
                                 __tbl_ecom_unitesmesures: uni?.toJSON(),
-                                member: member?.toJSON()
+                                __tbl_member: member?.toJSON()
                             })
                         }
                         __.push({
@@ -407,8 +413,13 @@ export const __controllerStocks = {
                         const { __tbl_ecom_produits } = rows[index].toJSON() as any;
                         for (let index = 0; index < __tbl_ecom_produits.length; index++) {
                             const { id, produit, __tbl_ecom_hasproducts } = __tbl_ecom_produits[index] as any;
-                            const { TblEcomProduitId, TblEcomCategoryId, TblEcomUnitesmesureId } = __tbl_ecom_hasproducts;
-
+                            const { TblEcomProduitId, TblEcomCategoryId, TblEcomUnitesmesureId, id_membre } = __tbl_ecom_hasproducts;
+                            const member = await Users.findOne({
+                                where: {
+                                    id: id_membre
+                                },
+                                attributes: ['id', 'nom', 'postnom', 'prenom', 'phone']
+                            })
                             const cat = await Categories.findOne({
                                 // raw: true,
                                 where: {
@@ -424,7 +435,8 @@ export const __controllerStocks = {
                             items.push({
                                 ...__tbl_ecom_produits[index],
                                 __tbl_ecom_categories: cat?.toJSON(),
-                                __tbl_ecom_unitesmesures: uni?.toJSON()
+                                __tbl_ecom_unitesmesures: uni?.toJSON(),
+                                __tbl_member: member?.toJSON()
                             })
                         }
                         __.push({
