@@ -5,6 +5,7 @@ export const __routesStocks = express.Router()
 
 __routesStocks.get('/list', __controllerStocks.list)
 __routesStocks.get('/stock/histories/:idstock', __controllerStocks.history)
+__routesStocks.get('/stock/finished/:idstock', __controllerStocks.history)
 __routesStocks.get('/stock/:idcooperative', __controllerStocks.getonebycoopec)
 __routesStocks.get('/stock/byid/:idstock', __controllerStocks.getonebyid)
 __routesStocks.post('/stock/in', __controllerStocks.in)

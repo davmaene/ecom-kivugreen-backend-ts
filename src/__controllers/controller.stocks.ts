@@ -15,6 +15,7 @@ import { Commandes } from '../__models/model.commandes';
 import { Typelivraisons } from '../__models/model.typelivraison';
 import { supprimerDoublons } from '../__helpers/helper.all';
 import { Historiquesmembersstocks } from '../__models/model.histories';
+import { Users } from '../__models/model.users';
 
 export const __controllerStocks = {
     history: async (req: Request, res: Response, next: NextFunction) => {
@@ -94,7 +95,7 @@ export const __controllerStocks = {
         }
     },
     in: async (req: Request, res: Response) => {
-        const { id_cooperative, items, description, date_production, date_expiration } = req.body;
+        const { id_cooperative, items, description, date_production, date_expiration, approv_by } = req.body;
         const { currentuser } = req as any;
         if (!id_cooperative || !items) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !id_cooperative || !items")
         if (!Array.isArray(items) || Array.from(items).length === 0) return Responder(res, HttpStatusCode.NotAcceptable, "Items must be a type of Array")
@@ -305,7 +306,6 @@ export const __controllerStocks = {
                 order: [
                     ['id', 'DESC'],
                 ],
-                // limit: 1,
                 where: {},
                 include: [
                     {
@@ -331,8 +331,13 @@ export const __controllerStocks = {
                         const { __tbl_ecom_produits } = rows[index].toJSON() as any;
                         for (let index = 0; index < __tbl_ecom_produits.length; index++) {
                             const { id, produit, __tbl_ecom_hasproducts } = __tbl_ecom_produits[index] as any;
-                            const { TblEcomProduitId, TblEcomCategoryId, TblEcomUnitesmesureId } = __tbl_ecom_hasproducts;
-
+                            const { TblEcomProduitId, TblEcomCategoryId, TblEcomUnitesmesureId, id_membre } = __tbl_ecom_hasproducts;
+                            const member = await Users.findOne({
+                                where: {
+                                    id: id_membre
+                                },
+                                attributes: ['id', 'nom', 'postnom', 'prenom', 'phone']
+                            })
                             const cat = await Categories.findOne({
                                 // raw: true,
                                 where: {
@@ -348,7 +353,8 @@ export const __controllerStocks = {
                             items.push({
                                 ...__tbl_ecom_produits[index],
                                 __tbl_ecom_categories: cat?.toJSON(),
-                                __tbl_ecom_unitesmesures: uni?.toJSON()
+                                __tbl_ecom_unitesmesures: uni?.toJSON(),
+                                member: member?.toJSON()
                             })
                         }
                         __.push({
