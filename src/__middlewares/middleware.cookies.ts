@@ -21,11 +21,12 @@ export const exludedRoutes: string[] = [
     "/users/user/signin",
     "/users/user/signup",
     "/users/user/auth",
-    "/marketplace/commande",
+    // "/marketplace/commande",
     "/marketplace",
     "/provinces/list",
     "/villages/list",
     "/territoires/list",
+    // "/marketplace/command",
     "/cooperatives/list",
     "/stocks/list",
     "/stocks/stock",
@@ -33,6 +34,19 @@ export const exludedRoutes: string[] = [
     "/services/service/newsletters",
     "/payements/payement/makepayement"
 ];
+
+export const isMarketplaceRoute = ({ route }: { route: string }) => {
+    const regexPatterns = [
+        /^\/marketplace\?page_size=\d+&page_number=\d+$/,
+        /^\/marketplace\/by\/keyword\/[^/]+$/,
+        /^\/marketplace\/by\/cooperative\/\d+$/,
+        /^\/marketplace\/by\/province\/\d+$/,
+        /^\/marketplace\/by\/category\/\d+$/,
+        /^\/marketplace\/product\/\d+$/
+    ];
+
+    return regexPatterns.some(pattern => pattern.test(route));
+}
 
 export const tries = 3;
 

@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import { Request, NextFunction, Response } from 'express'
-import { exludedRoutes, onDecodeJWT, onVerify } from './middleware.cookies';
+import { exludedRoutes, isMarketplaceRoute, onDecodeJWT, onVerify } from './middleware.cookies';
 import { Responder } from '../__helpers/helper.responseserver';
 import { HttpStatusCode } from '../__enums/enum.httpsstatuscode';
 import { log } from 'console';
@@ -19,7 +19,7 @@ export const accessValidator = (req: Request, res: Response, next: NextFunction)
 
     if (String(url).includes("by/")) return next()
 
-    if (String(url).includes("/marketplace")) return next()
+    if (isMarketplaceRoute({ route: url })) return next()
 
     if (headers && url) {
         if (exludedRoutes.indexOf(url) === -1) {
