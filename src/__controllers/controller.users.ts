@@ -22,6 +22,7 @@ import { Extras } from '../__models/model.extras';
 import { Hasmembers } from '../__models/model.hasmembers';
 import { Cooperatives } from '../__models/model.cooperatives';
 import { now } from '../__helpers/helper.moment';
+import { Banks } from '../__models/model.banks';
 
 dotenv.config()
 
@@ -732,7 +733,7 @@ export const __controllerUsers = {
     authbank: async (req: Request, res: Response, next: NextFunction) => {
         const { phone, password } = req.body;
         const role = [6]// allowed roles to connect 
-
+        if (!phone || !password) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least phone and password !")
         try {
 
             const transaction = await connect.transaction();
@@ -749,6 +750,9 @@ export const __controllerUsers = {
             Villages.hasOne(Users, { foreignKey: "id" });
             Users.belongsTo(Villages, { foreignKey: "idvillage" });
 
+            Users.hasOne(Banks, { foreignKey: "id_responsable" });
+            // Users.belongsTo(Banks, { foreignKey: "id_responsable" });
+
             Users.findOne({
                 where: {
                     [Op.or]: [
@@ -757,6 +761,11 @@ export const __controllerUsers = {
                     ]
                 },
                 include: [
+                    {
+                        model: Banks,
+                        required: true,
+                        // attributes: ['id', 'village']
+                    },
                     {
                         model: Roles,
                         required: true,

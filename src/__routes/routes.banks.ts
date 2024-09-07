@@ -1,4 +1,4 @@
-import { bankModelValidator, onValidate } from '../__middlewares/middleware.datavalidator';
+import { bankModelValidator, onValidate, userModelOnSignin } from '../__middlewares/middleware.datavalidator';
 import { __controllerBanks } from '../__controllers/controller.banks'
 import express from 'express'
 

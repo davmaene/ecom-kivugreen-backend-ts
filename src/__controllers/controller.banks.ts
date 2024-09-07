@@ -29,10 +29,14 @@ export const __controllerBanks = {
     },
     add: async (req: Request, res: Response, next: NextFunction) => {
         const { phone } = req.body
+        const { currentuser } = req as any;
+        const { __id, roles, uuid } = currentuser
+
         try {
             Banks.create({
                 ...req.body,
-                phone: fillphone({ phone })
+                phone: fillphone({ phone }),
+                createdby: __id
             })
                 .then(bnk => {
                     if (bnk instanceof Banks) return Responder(res, HttpStatusCode.Ok, bnk)

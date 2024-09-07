@@ -361,7 +361,7 @@ export const __controllerCommandes = {
     beforevalidation: async (req: Request, res: Response, next: NextFunction) => {
         const { id_transaction, id_livreur, id_customer } = req.body
         if (!id_transaction || !id_livreur) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !code_livraison || !id_transaction || !id_livreur")
-        log(req.body)
+        // log(req.body)
         try {
             const code_livraison = randomLongNumber({ length: 6 })
             const customer = await Users.findOne({ where: { id: id_customer } })
@@ -418,7 +418,7 @@ export const __controllerCommandes = {
     validate: async (req: Request, res: Response) => {
         const { idcommande } = req.params;
 
-        log(req.body)
+        // log(req.body)
 
         if (!idcommande) return Responder(res, HttpStatusCode.NotAcceptable, "this request must have at least idcommande in the request !")
         const { id_transaction, id_livreur, code_livraison, id_customer } = req.body;
