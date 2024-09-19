@@ -456,8 +456,11 @@ export const __controllerUsers = {
                     }
                 })
                 if (extras instanceof Extras) {
-                    const { verification } = extras
+                    const { verification } = extras.toJSON()
                     if (String(verification) === String(verification_code)) {
+                        extras.update({
+                            verification: randomLongNumber({ length: 6 })
+                        })
                         user.update({
                             password: pwd
                         })
