@@ -289,7 +289,6 @@ export const __controllerUsers = {
 
         } catch (error: any) {
             await transaction.rollback();
-            console.error("Message d'erreur ==> ", error);
             return Responder(res, HttpStatusCode.InternalServerError, error.message);
         }
     },
@@ -471,7 +470,27 @@ export const __controllerUsers = {
                                     content: `Bonjour ${nom}, votre mot de passe a été mise à jour avec succès !`,
                                 })
                                     .then(suc => {
-                                        return Responder(res, HttpStatusCode.Ok, user.toJSON())
+                                        const { __tbl_ecom_roles } = user.toJSON() as any
+                                        const roles = __tbl_ecom_roles.map((role: any) => role['id']);
+                                        Middleware.onSignin({
+                                            expiresIn: APP_EXIPRES_IN_ADMIN || '45m',
+                                            data: {
+                                                phone: user.phone,
+                                                uuid: user.uuid,
+                                                __id: user.id,
+                                                roles
+                                            }
+                                        }, async (reject: string, token: string) => {
+                                            if (!token) {
+                                                return Responder(res, HttpStatusCode.Forbidden, "Your refresh token already expired! You must login to get a new one!");
+                                            }
+
+                                            if (user.hasOwnProperty('isvalidated')) delete user.isvalidated;
+                                            if (user.hasOwnProperty('password')) delete user.password;
+                                            if (user.hasOwnProperty('__tbl_ecom_roles')) delete user['__tbl_ecom_roles'];
+
+                                            return Responder(res, HttpStatusCode.Ok, { token, user: { ...user.toJSON(), roles } });
+                                        });
                                     })
                                     .catch(err => {
                                         return Responder(res, HttpStatusCode.InternalServerError, extras)

@@ -22,6 +22,7 @@ export interface IUsers extends globalInterface {
     isvalidated?: number;
     uuid?: string,
     password?: string
+    __tbl_ecom_roles?: any;
 }
 
 export interface IRoles extends globalInterface {
