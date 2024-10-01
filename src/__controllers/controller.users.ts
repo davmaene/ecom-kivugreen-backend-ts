@@ -1,3 +1,4 @@
+import { log } from 'console';
 import { connect } from '../__databases/connecte';
 import { completeCodeCountryToPhoneNumber, fillphone } from '../__helpers/helper.fillphone';
 import { Users } from '../__models/model.users';
@@ -15,7 +16,6 @@ import { HttpStatusCode } from '../__enums/enum.httpsstatuscode';
 import { Middleware } from '../__middlewares/middleware.cookies';
 import { capitalizeWords, formatUserModel, validatePhoneNumber } from '../__helpers/helper.all';
 import dotenv from 'dotenv';
-import { log } from 'console';
 import { v4 as uuidv4 } from 'uuid';
 import { Services } from '../__services/serives.all';
 import { Extras } from '../__models/model.extras';
@@ -184,7 +184,8 @@ export const __controllerUsers = {
     signin: async (req: Request, res: Response, next: NextFunction) => {
 
         const { phone, password } = req.body;
-        const allowedRoles = [1, 3, 2, 4, 5]; // allowed roles to connect 
+        let allowedRoles = await Roles.findAll({ where: {}, raw: true });
+        allowedRoles = [...allowedRoles.map(r => r['id']), ...[1, 3, 2, 4, 5] as any];
 
         if (!phone || !password) {
             return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !phone || !password");
@@ -263,7 +264,7 @@ export const __controllerUsers = {
 
             if (!roles.some((r: any) => allowedRoles.includes(r))) {
                 await transaction.rollback();
-                return Responder(res, HttpStatusCode.Unauthorized, "You don't have right access, please contact the system admin!");
+                return Responder(res, HttpStatusCode.Unauthorized, "You don't have right access, please contact the system admin! roles attributions fail");
             }
 
             Middleware.onSignin({
@@ -754,7 +755,9 @@ export const __controllerUsers = {
     },
     authbank: async (req: Request, res: Response, next: NextFunction) => {
         const { phone, password } = req.body;
-        const role = [6]// allowed roles to connect 
+        let role = await Roles.findAll({ where: {}, raw: true });
+        role = [...role.map(r => r['id']), ...[1, 3, 2, 4, 5] as any];
+        // const role = [6]// allowed roles to connect 
         if (!phone || !password) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least phone and password !")
         try {
 
