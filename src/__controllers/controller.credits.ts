@@ -95,8 +95,8 @@ export const __controllersCredits = {
                                     is_flash: false,
                                     to: fillphone({ phone })
                                 })
-                                .then(_ => {})
-                                .catch(_ => {})
+                                    .then(_ => { })
+                                    .catch(_ => { })
                             }
                         }
                         return Responder(res, HttpStatusCode.Ok, crd)
@@ -142,6 +142,34 @@ export const __controllersCredits = {
                     else return Responder(res, HttpStatusCode.NotFound, `Item with id:::${idcredit} not found !`)
                 })
                 .catch(er => Responder(res, HttpStatusCode.InternalServerError, er))
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    validate: async (req: Request, res: Response,) => {
+        const { id_credit } = req.params as any;
+        if (!id_credit) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least id_credit !")
+        try {
+            Credits.findOne({
+                where: {
+                    id: id_credit
+                }
+            })
+                .then(credit => {
+                    if (credit instanceof Credits) {
+                        credit.update({
+                            
+                        })
+                            .then(__ => {
+                                return Responder(res, HttpStatusCode.Ok, credit)
+                            })
+                            .catch(err => {
+                                return Responder(res, HttpStatusCode.BadGateway, err)
+                            })
+                    } else {
+                        return Responder(res, HttpStatusCode.BadRequest, credit)
+                    }
+                })
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
