@@ -15,7 +15,8 @@ export const __controllersCredits = {
         try {
             Credits.belongsTo(Users, { foreignKey: "id_user" })
             Credits.belongsTo(Cooperatives, { foreignKey: "id_cooperative" })
-            Credits.findAndCountAll({
+            Credits.findAll({
+                where: {},
                 include: [
                     {
                         model: Cooperatives,
@@ -23,17 +24,20 @@ export const __controllersCredits = {
                     },
                     {
                         model: Users,
-                        required: false
+                        required: false,
+                        attributes: ['id', 'nom', 'postnom', 'phone', 'email', 'sexe']
                     }
                 ]
             })
-                .then(({ rows, count }) => {
-                    return Responder(res, HttpStatusCode.Ok, { count, rows })
+                .then((list) => {
+                    return Responder(res, HttpStatusCode.Ok, { count: list.length, rows: list })
                 })
                 .catch(err => {
+                    log(err)
                     return Responder(res, HttpStatusCode.InternalServerError, err)
                 })
         } catch (error) {
+            log(error)
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     },
@@ -111,6 +115,7 @@ export const __controllersCredits = {
         const { idcredit } = req.params
         if (!idcredit) return Responder(res, HttpStatusCode.NoContent, "This request must have at least idcredit")
         if (Object.keys(req.body).length <= 0) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least somes keys in body !")
+        const b = req.body as any;
         try {
             Credits.update({
                 ...req.body
@@ -150,24 +155,45 @@ export const __controllersCredits = {
         const { id_credit } = req.params as any;
         if (!id_credit) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least id_credit !")
         try {
+            Credits.belongsTo(Users, { foreignKey: "id_user" })
             Credits.findOne({
+                include: [
+                    {
+                        model: Users,
+                        attributes: ['id', 'phone', 'email', 'nom', 'postnom']
+                    }
+                ],
                 where: {
                     id: id_credit
                 }
             })
                 .then(credit => {
                     if (credit instanceof Credits) {
-                        credit.update({
-                            
-                        })
-                            .then(__ => {
-                                return Responder(res, HttpStatusCode.Ok, credit)
+                        const { status, __tbl_ecom_user, montant, currency, motif } = credit.toJSON() as any
+                        log(credit.toJSON())
+                        if (status === 1) {
+                            return Responder(res, HttpStatusCode.BadRequest, "The credit already validated !")
+                        } else {
+                            credit.update({
+                                status: 1
                             })
-                            .catch(err => {
-                                return Responder(res, HttpStatusCode.BadGateway, err)
-                            })
+                                .then(__ => {
+                                    const { phone, nom, postnom, email } = __tbl_ecom_user as any
+                                    Services.onSendSMS({
+                                        is_flash: false,
+                                        to: phone,
+                                        content: `Bonjour ${nom} ${postnom}, votre démande de crédit de ${montant}${currency} pour motif de ${motif} a été aprouvé; les autres informations vous seront transmises dans un bref délais`
+                                    })
+                                    .then(_ => {})
+                                    .catch(err => {})
+                                    return Responder(res, HttpStatusCode.Ok, credit)
+                                })
+                                .catch(err => {
+                                    return Responder(res, HttpStatusCode.BadGateway, err)
+                                })
+                        }
                     } else {
-                        return Responder(res, HttpStatusCode.BadRequest, credit)
+                        return Responder(res, HttpStatusCode.NotFound, credit)
                     }
                 })
         } catch (error) {

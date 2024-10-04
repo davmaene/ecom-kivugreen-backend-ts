@@ -18,13 +18,13 @@ export const Credits = connect.define<Credit>('__tbl_ecom_credits', {
     currency: DataTypes.STRING,
     motif: DataTypes.STRING,
     status: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.INTEGER, // 1: validated 0: otherwise
         allowNull: true,
         defaultValue: 0
     },
     periode_remboursement: {
-        type: DataTypes.FLOAT,
-        allowNull: false 
+        type: DataTypes.FLOAT, // in month
+        allowNull: false
     }
 
 }, { paranoid: true, timestamps: false, freezeTableName: true });
