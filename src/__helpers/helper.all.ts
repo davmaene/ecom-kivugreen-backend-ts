@@ -92,13 +92,33 @@ export const validatePhoneNumber = ({ phoneNumber }: { phoneNumber: string }) =>
     return phoneRegex.test(phoneNumber);
 }
 
-export const checkFileType = ({ mimetype, as = "doc" || "img" }: { mimetype: string, as: string }): { mimetype: string, isKnownType: boolean } | false => {
+export const checkFileType = ({ mimetype, as = "doc" }: { mimetype: string, as: string }): { mimetype: string, isKnownType: boolean } | false => {
     if (imageTypes.map(type => type['mimeType']).includes(mimetype) && as === "img") {
         return { isKnownType: true, mimetype };
     } else if (documentTypes.map(type => type['mimeType']).includes(mimetype) && as === "doc") {
         return { isKnownType: true, mimetype };
     } else {
         return false;
+    }
+};
+
+export const returnStateCredit = ({ state }: { state: Number }) => {
+    switch (state) {
+        case 1:
+            return "validé";
+            break;
+        case 2:
+            return "rejeté";
+            break;
+        case 3:
+            return "en cours";
+            break;
+        case 0:
+            return "en attente";
+            break;
+        default:
+            return "en cours"
+            break;
     }
 };
 

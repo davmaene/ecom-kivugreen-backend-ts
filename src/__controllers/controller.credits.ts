@@ -5,7 +5,7 @@ import { Users } from "../__models";
 import { Cooperatives } from "../__models/model.cooperatives";
 import { Credits } from "../__models/model.credits";
 import { Request, Response } from "express";
-import { capitalizeWords } from "../__helpers/helper.all";
+import { capitalizeWords, returnStateCredit } from "../__helpers/helper.all";
 import { date, now } from "../__helpers/helper.moment";
 import { Services } from "../__services/serives.all";
 import { fillphone } from "../__helpers/helper.fillphone";
@@ -153,6 +153,7 @@ export const __controllersCredits = {
     },
     validate: async (req: Request, res: Response,) => {
         const { id_credit } = req.params as any;
+        const { state } = req.body as any
         if (!id_credit) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least id_credit !")
         try {
             Credits.belongsTo(Users, { foreignKey: "id_user" })
@@ -175,17 +176,17 @@ export const __controllersCredits = {
                             return Responder(res, HttpStatusCode.BadRequest, "The credit already validated !")
                         } else {
                             credit.update({
-                                status: 1
+                                status: state
                             })
                                 .then(__ => {
                                     const { phone, nom, postnom, email } = __tbl_ecom_user as any
                                     Services.onSendSMS({
                                         is_flash: false,
                                         to: phone,
-                                        content: `Bonjour ${nom} ${postnom}, votre démande de crédit de ${montant}${currency} pour motif de ${motif} a été aprouvé; les autres informations vous seront transmises dans un bref délais`
+                                        content: `Bonjour ${nom} ${postnom}, votre démande de crédit de ${montant}${currency} pour motif de ${motif} son état en maintenant ${returnStateCredit({ state })}; les autres informations vous seront transmises dans un bref délais`
                                     })
-                                    .then(_ => {})
-                                    .catch(err => {})
+                                        .then(_ => { })
+                                        .catch(err => { })
                                     return Responder(res, HttpStatusCode.Ok, credit)
                                 })
                                 .catch(err => {
