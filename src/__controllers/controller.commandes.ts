@@ -25,18 +25,33 @@ export const __controllerCommandes = {
         try {
             Commandes.belongsTo(Produits, { foreignKey: "id_produit" })
             Commandes.belongsTo(Typelivraisons, { foreignKey: "type_livraison" })
+            Commandes.belongsTo(Unites, { foreignKey: "id_unity" })
+            Commandes.belongsTo(Users, { foreignKey: "createdby" })
             Commandes.findAll({
                 order: [
                     ['id', 'DESC']
                 ],
+                attributes: ['id', 'id_produit', 'type_livraison', 'id_unity', 'createdby', 'id_cooperative', 'transaction', 'qte', 'prix_total', 'prix_unit', 'currency', 'payament_phone', 'createdAt'],
                 include: [
                     {
                         model: Produits,
-                        required: false,
+                        required: true,
+                        attributes: ['id', 'tva', 'produit', 'image']
                     },
                     {
                         model: Typelivraisons,
-                        required: false,
+                        required: true,
+                        attributes: ['id', 'type', 'description']
+                    },
+                    {
+                        model: Unites,
+                        required: true,
+                        attributes: ['id', 'unity']
+                    },
+                    {
+                        model: Users,
+                        required: true,
+                        attributes: ['id', 'nom', 'postnom', 'phone']
                     }
                 ],
                 where: {
@@ -54,7 +69,7 @@ export const __controllerCommandes = {
         }
     },
     listcommandebycooperative: async (req: Request, res: Response) => {
-        const { idcooperative: idtransaction } = req.params
+        const { idcooperative } = req.params
         const { currentuser } = req as any;
         const { __id, roles, uuid } = currentuser;
         try {
@@ -67,32 +82,36 @@ export const __controllerCommandes = {
                 order: [
                     ['id', 'DESC']
                 ],
+                attributes: ['id', 'id_produit', 'type_livraison', 'id_unity', 'createdby', 'id_cooperative', 'transaction', 'qte', 'prix_total', 'prix_unit', 'currency', 'payament_phone', 'createdAt', 'state'],
                 include: [
                     {
                         model: Produits,
                         required: true,
-                    },
-                    {
-                        model: Users,
-                        required: true,
-                        attributes: ['id', 'nom', 'postnom', 'prenom', 'phone', 'email', 'sexe']
-                    },
-                    {
-                        model: Unites,
-                        required: true,
+                        attributes: ['tva', 'produit', 'image']
                     },
                     {
                         model: Typelivraisons,
                         required: true,
+                        attributes: ['type']
+                    },
+                    {
+                        model: Unites,
+                        required: true,
+                        attributes: ['unity']
+                    },
+                    {
+                        model: Users,
+                        required: true,
+                        attributes: ['nom', 'postnom', 'phone']
                     }
                 ],
                 where: {
-                    id_cooperative: idtransaction
+                    id_cooperative: idcooperative
                 }
             })
                 .then(commandes => {
                     const groupes = groupedDataByColumn({ column: "transaction", data: commandes })
-                    return Responder(res, HttpStatusCode.Ok, { count: commandes.length, rows: commandes, groupes })
+                    return Responder(res, HttpStatusCode.Ok, { count: commandes.length, rows: commandes })
                 })
                 .catch(err => {
                     return Responder(res, HttpStatusCode.InternalServerError, err)
@@ -115,23 +134,27 @@ export const __controllerCommandes = {
                 order: [
                     ['id', 'DESC']
                 ],
+                attributes: ['id', 'id_produit', 'type_livraison', 'id_unity', 'createdby', 'id_cooperative', 'transaction', 'qte', 'prix_total', 'prix_unit', 'currency', 'payament_phone', 'createdAt'],
                 include: [
                     {
                         model: Produits,
                         required: true,
-                    },
-                    {
-                        model: Users,
-                        required: true,
-                        attributes: ['id', 'nom', 'postnom', 'prenom', 'phone', 'email', 'sexe']
-                    },
-                    {
-                        model: Unites,
-                        required: true,
+                        attributes: ['id', 'tva', 'produit', 'image']
                     },
                     {
                         model: Typelivraisons,
                         required: true,
+                        attributes: ['id', 'type', 'description']
+                    },
+                    {
+                        model: Unites,
+                        required: true,
+                        attributes: ['id', 'unity']
+                    },
+                    {
+                        model: Users,
+                        required: true,
+                        attributes: ['id', 'nom', 'postnom', 'phone']
                     }
                 ],
                 where: {
@@ -186,22 +209,27 @@ export const __controllerCommandes = {
                 order: [
                     ['id', 'DESC']
                 ],
+                attributes: ['id', 'id_produit', 'type_livraison', 'id_unity', 'createdby', 'id_cooperative', 'transaction', 'qte', 'prix_total', 'prix_unit', 'currency', 'payament_phone', 'createdAt'],
                 include: [
                     {
                         model: Produits,
                         required: true,
+                        attributes: ['id', 'tva', 'produit', 'image']
                     },
                     {
                         model: Typelivraisons,
                         required: true,
+                        attributes: ['id', 'type', 'description']
                     },
                     {
                         model: Unites,
                         required: true,
+                        attributes: ['id', 'unity']
                     },
                     {
                         model: Users,
                         required: true,
+                        attributes: ['id', 'nom', 'postnom', 'phone']
                     }
                 ],
                 where: {}
@@ -230,22 +258,27 @@ export const __controllerCommandes = {
                 order: [
                     ['id', 'DESC']
                 ],
+                attributes: ['id', 'id_produit', 'type_livraison', 'id_unity', 'createdby', 'id_cooperative', 'transaction', 'qte', 'prix_total', 'prix_unit', 'currency', 'payament_phone', 'createdAt'],
                 include: [
                     {
                         model: Produits,
                         required: true,
+                        attributes: ['id', 'tva', 'produit', 'image']
                     },
                     {
                         model: Typelivraisons,
                         required: true,
+                        attributes: ['id', 'type', 'description']
                     },
                     {
                         model: Unites,
                         required: true,
+                        attributes: ['id', 'unity']
                     },
                     {
                         model: Users,
                         required: true,
+                        attributes: ['id', 'nom', 'postnom', 'phone']
                     }
                 ],
                 where: {
@@ -276,22 +309,27 @@ export const __controllerCommandes = {
                 order: [
                     ['id', 'DESC']
                 ],
+                attributes: ['id', 'id_produit', 'type_livraison', 'id_unity', 'createdby', 'id_cooperative', 'transaction', 'qte', 'prix_total', 'prix_unit', 'currency', 'payament_phone', 'createdAt'],
                 include: [
                     {
                         model: Produits,
                         required: true,
+                        attributes: ['id', 'tva', 'produit', 'image']
                     },
                     {
                         model: Typelivraisons,
                         required: true,
+                        attributes: ['id', 'type', 'description']
                     },
                     {
                         model: Unites,
                         required: true,
+                        attributes: ['id', 'unity']
                     },
                     {
                         model: Users,
                         required: true,
+                        attributes: ['id', 'nom', 'postnom', 'phone']
                     }
                 ],
                 where: {
@@ -324,22 +362,27 @@ export const __controllerCommandes = {
                 order: [
                     ['id', 'DESC']
                 ],
+                attributes: ['id', 'id_produit', 'type_livraison', 'id_unity', 'createdby', 'id_cooperative', 'transaction', 'qte', 'prix_total', 'prix_unit', 'currency', 'payament_phone', 'createdAt'],
                 include: [
                     {
                         model: Produits,
                         required: true,
+                        attributes: ['id', 'tva', 'produit', 'image']
                     },
                     {
                         model: Typelivraisons,
                         required: true,
+                        attributes: ['id', 'type', 'description']
                     },
                     {
                         model: Unites,
                         required: true,
+                        attributes: ['id', 'unity']
                     },
                     {
                         model: Users,
                         required: true,
+                        attributes: ['id', 'nom', 'postnom', 'phone']
                     }
                 ],
                 where: {
