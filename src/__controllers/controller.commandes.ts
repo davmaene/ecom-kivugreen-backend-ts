@@ -41,7 +41,7 @@ export const __controllerCommandes = {
                     {
                         model: Typelivraisons,
                         required: true,
-                        attributes: ['id', 'type', 'description']
+                        attributes: ['id', 'type']
                     },
                     {
                         model: Unites,
@@ -144,7 +144,7 @@ export const __controllerCommandes = {
                     {
                         model: Typelivraisons,
                         required: true,
-                        attributes: ['id', 'type', 'description']
+                        attributes: ['id', 'type']
                     },
                     {
                         model: Unites,

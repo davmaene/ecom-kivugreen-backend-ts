@@ -18,6 +18,128 @@ import { Historiquesmembersstocks } from '../__models/model.histories';
 import { Users } from '../__models/model.users';
 
 export const __controllerStocks = {
+    historiqueapprovisionnementpartransaction: async (req: Request, res: Response, next: NextFunction) => {
+        const { id_stock } = req.params as any
+        if (!id_stock) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least id_cooperative")
+        const { currentuser } = req as any;
+        const { __id, roles, uuid, phone } = currentuser;
+        try {
+
+            Historiquesmembersstocks.belongsTo(Cooperatives)
+            Historiquesmembersstocks.belongsTo(Users)
+            Historiquesmembersstocks.belongsTo(Produits)
+            Historiquesmembersstocks.belongsTo(Categories)
+            Historiquesmembersstocks.belongsTo(Unites)
+
+            Historiquesmembersstocks.findAndCountAll({
+                where: {
+                    TblEcomStockId: id_stock
+                },
+                include: [
+                    {
+                        model: Cooperatives,
+                        required: true,
+                        attributes: ['id', 'adresse', 'phone', 'num_enregistrement']
+                    },
+                    {
+                        model: Users,
+                        required: true,
+                        attributes: ['id', 'nom', 'postnom', 'prenom', 'phone', 'email']
+                    },
+                    {
+                        model: Produits,
+                        required: true,
+                        attributes: ['id', 'produit']
+                    },
+                    {
+                        model: Categories,
+                        required: true,
+                        attributes: ['id', 'category']
+                    },
+                    {
+                        model: Unites,
+                        required: true,
+                        attributes: ['id', 'unity', 'equival_kgs']
+                    },
+                    // {
+                    //     model: Stocks,
+                    //     required: true
+                    // }
+                ]
+            })
+                .then(({ rows, count }) => {
+                    return Responder(res, HttpStatusCode.Ok, { count, rows })
+                })
+                .catch(err => {
+                    log(err)
+                    return Responder(res, HttpStatusCode.InternalServerError, err)
+                })
+        } catch (error) {
+            log(error)
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    historiqueapprovisionnement: async (req: Request, res: Response, next: NextFunction) => {
+        const { id_cooperative } = req.params as any
+        if (!id_cooperative) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least id_cooperative")
+        const { currentuser } = req as any;
+        const { __id, roles, uuid, phone } = currentuser;
+        try {
+
+            Historiquesmembersstocks.belongsTo(Cooperatives)
+            Historiquesmembersstocks.belongsTo(Users)
+            Historiquesmembersstocks.belongsTo(Produits)
+            Historiquesmembersstocks.belongsTo(Categories)
+            Historiquesmembersstocks.belongsTo(Unites)
+
+            Historiquesmembersstocks.findAndCountAll({
+                where: {
+                    TblEcomCooperativeId: id_cooperative
+                },
+                include: [
+                    {
+                        model: Cooperatives,
+                        required: true,
+                        attributes: ['id', 'adresse', 'phone', 'num_enregistrement']
+                    },
+                    {
+                        model: Users,
+                        required: true,
+                        attributes: ['id', 'nom', 'postnom', 'prenom', 'phone', 'email']
+                    },
+                    {
+                        model: Produits,
+                        required: true,
+                        attributes: ['id', 'produit']
+                    },
+                    {
+                        model: Categories,
+                        required: true,
+                        attributes: ['id', 'category']
+                    },
+                    {
+                        model: Unites,
+                        required: true,
+                        attributes: ['id', 'unity', 'equival_kgs']
+                    },
+                    // {
+                    //     model: Stocks,
+                    //     required: true
+                    // }
+                ]
+            })
+                .then(({ rows, count }) => {
+                    return Responder(res, HttpStatusCode.Ok, { count, rows })
+                })
+                .catch(err => {
+                    log(err)
+                    return Responder(res, HttpStatusCode.InternalServerError, err)
+                })
+        } catch (error) {
+            log(error)
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
     history: async (req: Request, res: Response, next: NextFunction) => {
         const { currentuser } = req as any;
         const { __id, roles, uuid, phone } = currentuser;
@@ -173,7 +295,6 @@ export const __controllerStocks = {
                                                         TblEcomUnitesmesureId: id_unity,
                                                     }, {})
                                                     treated.push(array[index])
-
                                                 } else {
                                                     const { qte: asqte, id_membre: asids } = item?.toJSON()
                                                     Historiquesmembersstocks.create({

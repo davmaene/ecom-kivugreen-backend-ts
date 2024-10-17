@@ -18,9 +18,7 @@ export const accessValidator = (req: Request, res: Response, next: NextFunction)
     url = String(url).includes("?") ? String(url).substring(0, String(url).indexOf("?")) : String(url);
 
     if (String(url).includes("by/")) return next()
-
     if (isMarketplaceRoute({ route: url })) return next()
-
     if (headers && url) {
         if (exludedRoutes.indexOf(url) === -1) {
             if ((headers && headers.hasOwnProperty(APP_CONNEXIONTOAPPWEB)) || (headers && headers.hasOwnProperty(APP_CONNEXIONTOAPPMOB))) {
