@@ -248,7 +248,7 @@ export const __controllerCommandes = {
     listbyowner: async (req: Request, res: Response) => {
         const { currentuser } = req as any;
         const { __id, roles, uuid } = currentuser;
-
+        log(__id)
         try {
             Commandes.belongsTo(Produits, { foreignKey: "id_produit" })
             Commandes.belongsTo(Typelivraisons, { foreignKey: "type_livraison" })
@@ -286,8 +286,8 @@ export const __controllerCommandes = {
                 }
             })
                 .then(commandes => {
-                    const groupes = groupedDataByColumn({ column: "transaction", data: commandes })
-                    return Responder(res, HttpStatusCode.Ok, { count: commandes.length, rows: commandes, groupes })
+                    // const groupes = groupedDataByColumn({ column: "transaction", data: commandes })
+                    return Responder(res, HttpStatusCode.Ok, { count: commandes.length, rows: commandes, groupes: [] })
                 })
                 .catch(err => {
                     log(err)

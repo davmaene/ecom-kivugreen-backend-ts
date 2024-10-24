@@ -13,6 +13,7 @@ __routesCommandes.get("/list/bytransaction/:idtransaction", __controllerCommande
 __routesCommandes.get("/list/bycooperative/:idcooperative", __controllerCommandes.listcommandebycooperative)
 __routesCommandes.get("/list/bycooperativeandstate/:idcooperative/:state", __controllerCommandes.listcommandebycooperativeandstate)
 __routesCommandes.post("/commande/add", __controllerMarketplace.placecommand)
+__routesCommandes.post("/commande/retry", __controllerMarketplace.replacecommande)
 __routesCommandes.put("/commande/validate/:idcommande", __controllerCommandes.validate)
 __routesCommandes.put("/commande/beforevalidation/:idcommande", __controllerCommandes.beforevalidation)
 __routesCommandes.put("/commande/changestate/:idcommande", __controllerCommandes.changestate)

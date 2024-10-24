@@ -9,7 +9,7 @@ import { Roles } from '../__models/model.roles';
 import { Provinces } from '../__models/model.provinces';
 import { Territoires } from '../__models/model.territoires';
 import { Villages } from '../__models/model.villages';
-import { completeCodeCountryToPhoneNumber } from '../__helpers/helper.fillphone';
+import { completeCodeCountryToPhoneNumber, fillphone } from '../__helpers/helper.fillphone';
 import { log } from 'console';
 import { Users } from '../__models/model.users';
 import { Hasmembers } from '../__models/model.hasmembers';
@@ -17,6 +17,18 @@ import fs from 'fs';
 import { Configs } from '../__models/model.configs';
 import { addDaysThenReturnUnix, unixToDate } from '../__helpers/helper.moment';
 import base64 from 'base-64';
+import { NextFunction, Request, Response } from 'express';
+import { Responder } from '../__helpers/helper.responseserver';
+import { HttpStatusCode } from '../__enums/enum.httpsstatuscode';
+import { Scheduler } from './services.scheduler';
+import { Payements } from './services.payements';
+import { Commandes } from '../__models/model.commandes';
+import { Hasproducts } from '../__models/model.hasproducts';
+import { Cooperatives } from '../__models/model.cooperatives';
+import { Stocks } from '../__models/model.stocks';
+import { Unites } from '../__models/model.unitemesures';
+import { Produits } from '../__models/model.produits';
+import { connect } from '../__databases/connecte';
 
 dotenv.config()
 
@@ -29,6 +41,197 @@ export const Services = {
     accomplishePayement: async ({ }) => {
 
     },
+    placecommande: async ({ req, res, next }: { req: Request, res: Response, next: NextFunction }) => {
+        const { currentuser } = req as any;
+        const { __id, roles, uuid } = currentuser;
+        const { items, type_livraison, payament_phone, currency_payement, shipped_to, retry } = req.body;
+        const default_currency = "CDF"
+        // log(req.body)
+        if (!items || !Array.isArray(items) || !type_livraison) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least items and can not be empty ! and type_livraison");
+        if (type_livraison === 4) {
+            if (!shipped_to) return Responder(res, HttpStatusCode.NotAcceptable, "please provide the shipped_to as addresse !")
+        }
+        try {
+            const treated: any[] = []
+            const c_treated: any[] = []
+            const c_nottreated: any[] = []
+            const nottreated: any[] = []
+            const transaction = randomLongNumber({ length: 13 })
+            const tr_ = await connect.transaction()
+            const currentUser = await Users.findOne({
+                where: {
+                    id: __id
+                }
+            })
+
+            if (currentUser instanceof Users) {
+                const { phone, email, nom } = currentUser.toJSON() as any;
+                for (let index = 0; index < Array.from(items).length; index++) {
+                    const { id_produit, qte } = items[index];
+
+                    Hasproducts.belongsTo(Produits) // , { foreignKey: 'TblEcomProduitId' }
+                    Hasproducts.belongsTo(Unites) // , { foreignKey: 'TblEcomUnitesmesureId' }
+                    Hasproducts.belongsTo(Stocks) // , { foreignKey: 'TblEcomStockId' }
+                    Hasproducts.belongsTo(Cooperatives) // , { foreignKey: 'TblEcomCooperativeId' }
+
+                    const has = await Hasproducts.findOne({
+                        transaction: tr_,
+                        include: [
+                            {
+                                model: Produits,
+                                required: true,
+                                attributes: ['id', 'produit', 'image', 'description']
+                            },
+                            {
+                                model: Unites,
+                                required: true,
+                                attributes: ['id', 'unity', 'equival_kgs']
+                            },
+                            {
+                                model: Stocks,
+                                required: true,
+                                attributes: ['id', 'transaction']
+                            },
+                            {
+                                model: Cooperatives,
+                                required: true,
+                                attributes: ['id', 'coordonnees_gps', 'phone', 'num_enregistrement', 'cooperative', 'sigle']
+                            }
+                        ],
+                        where: {
+                            id: id_produit
+                        }
+                    })
+
+                    if (has instanceof Hasproducts) {
+                        const { id, qte: asqte, prix_unitaire, currency, __tbl_ecom_produit, __tbl_ecom_unitesmesure, __tbl_ecom_stock, __tbl_ecom_cooperative } = has.toJSON() as any
+                        if (qte <= asqte) {
+                            treated.push({ ...has.toJSON(), qte })
+                        } else {
+                            nottreated.push({ item: has.toJSON() as any, message: `Commande received but the commanded qte is 'gt' the current store ! STORE:::${asqte} <==> QRY:::${qte}` })
+                        }
+                    } else {
+                        nottreated.push({ item: items[index] as any, message: `Item can not be found !` })
+                    }
+                }
+
+                if (treated.length > 0) {
+                    const somme: number[] = [0, 0]
+                    for (let index = 0; index < treated.length; index++) {
+                        const { id, qte, prix_unitaire, currency, __tbl_ecom_cooperative, __tbl_ecom_stock, prix_plus_commission, __tbl_ecom_unitesmesure, __tbl_ecom_produit, tva }: any = treated[index] as any;
+                        const { produit, id_unity } = __tbl_ecom_produit
+                        const { unity } = __tbl_ecom_unitesmesure
+                        const { id: id_cooperative } = __tbl_ecom_cooperative as any;
+                        let price: number = (parseFloat(prix_plus_commission) * parseFloat(qte))
+                        let { code, data, message } = await Services.converterDevise({ amount: price, currency: currency_payement ? currency_payement : currency });
+                        if (code === 200) {
+                            const { amount: converted_price, currency: converted_currency } = data
+                            somme.push(converted_price)
+                            if (retry && retry === true) {
+                                c_treated.push({ currency: converted_currency, amount: converted_price, qte, unity, produit })
+                            } else {
+                                const cmmd = await Commandes.create({
+                                    id_produit: id,
+                                    is_pending: 1,
+                                    id_cooperative,
+                                    id_unity,
+                                    shipped_to: parseInt(type_livraison) === 4 ? shipped_to : "---",
+                                    payament_phone: payament_phone || phone,
+                                    currency: converted_currency,
+                                    prix_total: converted_price,
+                                    prix_unit: prix_unitaire,
+                                    qte,
+                                    state: 0,
+                                    transaction,
+                                    type_livraison,
+                                    createdby: __id
+                                }, { transaction: tr_ })
+                                if (cmmd instanceof Commandes) c_treated.push({ currency: converted_currency, amount: converted_price, qte, unity, produit })
+                            }
+                        }
+                    }
+
+                    if (c_treated.length > 0) {
+
+                        const currency_tobe_displayed = c_treated[0].currency
+                        const amount_tobe_payed = c_treated.map(t => t.amount).concat([0, 0]).reduce((p, n) => parseFloat(p) + parseFloat(n));
+                        const product_tobe_payed = c_treated.map(t => String(t.produit).concat(` ( ${t.qte}${t.unity},${t.amount}${t.currency} )`));
+
+                        const ________ = () => {
+                            Services.onSendSMS({
+                                is_flash: false,
+                                to: fillphone({ phone }),
+                                content: `Bonjour ${nom} nous avons reçu votre commande de ${product_tobe_payed}, veuillez acceptez le paiement sur votre téléphone, montant à payer ${amount_tobe_payed}${currency_payement ? currency_payement : default_currency}, transID: ${transaction}`
+                            })
+                                .then(sms => { })
+                                .catch((err: any) => { })
+
+                            Payements.pay({
+                                amount: somme.reduce((p, c) => p + c),
+                                currency: currency_payement || default_currency,
+                                phone: payament_phone || phone,
+                                createdby: __id,
+                                reference: transaction,
+                                customer_phone: phone
+                            })
+                                .then(({ code, data, message }) => {
+                                    if (code === 200) {
+                                        Scheduler.checkPayement({ munites: 1, secondes: 45 })
+                                        return Responder(res, HttpStatusCode.Ok, { id_transaction: transaction, prix_totale: somme.reduce((p, c) => p + c), currency: "CDF", c_treated, c_nottreated })
+                                    } else {
+                                        tr_.rollback()
+                                        return Responder(res, HttpStatusCode.InternalServerError, { prix_totale: somme.reduce((p, c) => p + c), currency: "CDF", c_treated, c_nottreated })
+                                    }
+                                })
+                                .catch(err => {
+                                    return Responder(res, HttpStatusCode.Ok, { prix_totale: somme.reduce((p, c) => p + c), somme, c_treated, c_nottreated })
+                                })
+                            tr_.commit()
+                        }
+
+                        switch (currency_payement) {
+                            case "USD":
+                                if (amount_tobe_payed >= 1) {
+                                    ________()
+                                } else {
+                                    Services.onSendSMS({
+                                        is_flash: false,
+                                        to: fillphone({ phone }),
+                                        content: `Bonjour ${nom} nous n'acceptons pas des paiements de moins de 1USD, passez en CDF, transID: ${transaction}`
+                                    })
+                                        .then(sms => { })
+                                        .catch((err: any) => { })
+                                    tr_.rollback()
+                                    return Responder(res, HttpStatusCode.NotAcceptable, `We can not process the commande cause amount ${amount_tobe_payed}${currency_tobe_displayed} is less than 1USD`)
+                                }
+                                break;
+                            case "CDF":
+                                ________()
+                                break;
+                            default:
+                                tr_.rollback()
+                                return Responder(res, HttpStatusCode.NotAcceptable, `We can not process the commande cause amount ${amount_tobe_payed}${currency_tobe_displayed} is less than 1USD`)
+                                break;
+                        }
+
+                    } else {
+                        tr_.rollback()
+                        return Responder(res, HttpStatusCode.InternalServerError, "Commande can not be proceded cause the table of all commande is empty !")
+                    }
+
+                } else {
+                    tr_.rollback()
+                    return Responder(res, HttpStatusCode.InternalServerError, "Commande can not be proceded cause the table of all commande is empty !")
+                }
+            } else {
+                tr_.rollback()
+                return Responder(res, HttpStatusCode.InternalServerError, `User can not be found in ---USER:${__id} `)
+            }
+
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
     calcAmountBeforePaiement: ({ amount }: { amount: number }) => {
         const comm: number = parseFloat(APP_FLEXPAYRETROCOMMISIONNE) || 0
         return (amount - (amount * (comm / 100)));
@@ -38,23 +241,55 @@ export const Services = {
         return (amount + (amount * (comm / 100)));
     },
     converterDevise: async ({ amount, currency }: { currency: string, amount: number }) => {
-        const configs = await Configs.findAll({
-            order: [['id', 'DESC']],
-            limit: 1
-        })
-        if (configs.length > 0) {
-            const { id, taux_change, commission_price } = configs[0]
-            const tauxDeChange = taux_change || 3000;
-            currency = currency.toUpperCase()
-            if (currency === 'USD') {
-                return { code: 200, message: `Amount converted from USD to CDF with tx(${tauxDeChange})`, data: { currency, amount: amount * tauxDeChange } };
-            } else if (currency === 'CDF') {
-                return { code: 200, message: 'Currency is still CDF', data: { currency, amount } };
-            } else {
-                return { code: 500, message: 'Not supported currency !', data: { currency, amount } };
+        try {
+            const configs = await Configs.findAll({
+                order: [['id', 'DESC']],
+                limit: 1
+            });
+
+            if (configs.length === 0) {
+                return { code: 500, message: 'Erreur : Configurations non trouvées.', data: { currency, amount } };
             }
-        } else {
-            return { code: 500, message: 'Error occured ! we can not find Configs :::', data: { currency, amount } };
+
+            const { taux_change, commission_price } = configs[0].toJSON() as any;
+            const tauxDeChange = taux_change || 3000;
+
+            if (typeof currency !== 'string') {
+                return { code: 400, message: 'Erreur : La devise doit être une chaîne de caractères.', data: { currency, amount } };
+            }
+
+            currency = currency.toUpperCase();
+            switch (currency) {
+                case 'USD':
+                    const convertedAmountToCDF = (amount / tauxDeChange).toFixed(3);
+                    return {
+                        code: 200,
+                        message: `Montant converti de USD à CDF avec un taux de ${tauxDeChange}.`,
+                        data: { currency, amount: parseFloat(convertedAmountToCDF) }
+                    };
+
+                case 'CDF':
+                    return {
+                        code: 200,
+                        message: 'La devise est déjà en CDF, pas de conversion nécessaire.',
+                        data: { currency, amount }
+                    };
+
+                default:
+                    return {
+                        code: 400,
+                        message: 'Erreur : Devise non supportée.',
+                        data: { currency, amount }
+                    };
+            }
+
+        } catch (error: any) {
+            // En cas d'erreur lors de l'exécution de la requête ou autre
+            return {
+                code: 500,
+                message: `Erreur serveur : ${error.message}`,
+                data: { currency, amount }
+            };
         }
     },
     convertCurrency: async ({ amount, fromCurrency, toCurrency }: { amount: number, fromCurrency: string, toCurrency: string }) => {
@@ -132,7 +367,7 @@ export const Services = {
             service: 'gmail',
             auth: {
                 user: 'mukulima.app@gmail.com',
-                pass: 'zusa tcto irad zvqb' || 'fesx oblh dadb zwwo' || 'Mukulima@2002'
+                pass: 'zusa tcto irad zvqb'
             }
         });
 
@@ -868,7 +1103,7 @@ export const Services = {
             service: 'gmail',
             auth: {
                 user: 'mukulima.app@gmail.com',
-                pass: 'zusa tcto irad zvqb' || 'fesx oblh dadb zwwo' || 'Mukulima@2002'
+                pass: 'zusa tcto irad zvqb'
             }
         });
 
@@ -1642,7 +1877,6 @@ export const Services = {
         }
     },
     addMemberToCoopec: async ({ inputs, transaction, cb }: { inputs: { idmember?: number, idcooperative: number, card: string, expiresIn: string, expiresInUnix: string }, transaction: any, cb: Function }) => {
-        log("+++++++++++======>", inputs)
         const { idmember, idcooperative, card, expiresIn, expiresInUnix } = inputs;
         if (!idmember || !idcooperative) return cb(undefined, { code: 401, message: "This request must have at least !", data: { idmember, idcooperative } });
         try {

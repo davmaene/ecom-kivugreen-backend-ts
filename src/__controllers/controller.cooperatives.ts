@@ -145,8 +145,9 @@ export const __controllerCooperatives = {
                                 logo: fullpath
                             })
                                 .then(coopec => {
-                                    if (coopec instanceof Cooperatives) return Responder(res, HttpStatusCode.Ok, coopec)
-                                    else return Responder(res, HttpStatusCode.Conflict, coopec)
+                                    if (coopec instanceof Cooperatives){
+                                        return Responder(res, HttpStatusCode.Ok, coopec)
+                                    }else return Responder(res, HttpStatusCode.Conflict, coopec)
                                 })
                                 .catch(err => {
                                     return Responder(res, HttpStatusCode.Conflict, err)

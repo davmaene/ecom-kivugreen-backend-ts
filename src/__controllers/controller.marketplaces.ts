@@ -20,152 +20,38 @@ import { Scheduler } from '../__services/services.scheduler';
 
 export const __controllerMarketplace = {
     placecommand: async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            await Services.placecommande({ req, res, next })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    replacecommande: async (req: Request, res: Response, next: NextFunction) => {
+        const { id_transaction } = req.body as any;
         const { currentuser } = req as any;
         const { __id, roles, uuid } = currentuser;
-        const { items, type_livraison, payament_phone, currency_payement, shipped_to } = req.body;
-        if (!items || !Array.isArray(items) || !type_livraison) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least items and can not be empty ! and type_livraison");
-        if (type_livraison === 4) {
-            if (!shipped_to) return Responder(res, HttpStatusCode.NotAcceptable, "please provide the shipped_to as addresse !")
-        }
+        if (!id_transaction || !__id) return Responder(res, HttpStatusCode.NotAcceptable, "this request must have at least id_transaction ")
         try {
-            const treated: any[] = []
-            const c_treated: any[] = []
-            const c_nottreated: any[] = []
-            const nottreated: any[] = []
-            const transaction = randomLongNumber({ length: 13 })
-            const tr_ = await connect.transaction()
-            const currentUser = await Users.findOne({
+            const cmmds = await Commandes.findAll({
                 where: {
-                    id: __id
+                    transaction: id_transaction,
+                    createdby: __id,
+                    state: 0
                 }
             })
-
-            if (currentUser instanceof Users) {
-                const { phone, email, nom } = currentUser.toJSON() as any;
-                for (let index = 0; index < Array.from(items).length; index++) {
-                    const { id_produit, qte } = items[index];
-
-                    Hasproducts.belongsTo(Produits) // , { foreignKey: 'TblEcomProduitId' }
-                    Hasproducts.belongsTo(Unites) // , { foreignKey: 'TblEcomUnitesmesureId' }
-                    Hasproducts.belongsTo(Stocks) // , { foreignKey: 'TblEcomStockId' }
-                    Hasproducts.belongsTo(Cooperatives) // , { foreignKey: 'TblEcomCooperativeId' }
-
-                    const has = await Hasproducts.findOne({
-                        transaction: tr_,
-                        include: [
-                            {
-                                model: Produits,
-                                required: true,
-                                attributes: ['id', 'produit', 'image', 'description']
-                            },
-                            {
-                                model: Unites,
-                                required: true,
-                                attributes: ['id', 'unity', 'equival_kgs']
-                            },
-                            {
-                                model: Stocks,
-                                required: true,
-                                attributes: ['id', 'transaction']
-                            },
-                            {
-                                model: Cooperatives,
-                                required: true,
-                                attributes: ['id', 'coordonnees_gps', 'phone', 'num_enregistrement', 'cooperative', 'sigle']
-                            }
-                        ],
-                        where: {
-                            id: id_produit
-                        }
-                    })
-
-                    if (has instanceof Hasproducts) {
-                        const { id, qte: asqte, prix_unitaire, currency, __tbl_ecom_produit, __tbl_ecom_unitesmesure, __tbl_ecom_stock, __tbl_ecom_cooperative } = has.toJSON() as any
-                        if (qte <= asqte) {
-                            treated.push({ ...has.toJSON(), qte })
-                        } else {
-                            nottreated.push({ item: has.toJSON() as any, message: `Commande received but the commanded qte is 'gt' the current store ! STORE:::${asqte} <==> QRY:::${qte}` })
-                        }
-                    } else {
-                        nottreated.push({ item: items[index] as any, message: `Item can not be found !` })
+            if (cmmds.length > 0) {
+                const { type_livraison, payament_phone, currency: currency_payement, shipped_to, id_produit, qte } = cmmds[0].toJSON()
+                const items = cmmds.map(cmmd => {
+                    return {
+                        "id_produit": id_produit,
+                        "qte": qte
                     }
-                }
-
-                if (treated.length > 0) {
-                    const somme: number[] = []
-                    for (let index = 0; index < treated.length; index++) {
-                        const { id, qte, prix_unitaire, currency, __tbl_ecom_cooperative, __tbl_ecom_stock, prix_plus_commission, __tbl_ecom_unitesmesure, __tbl_ecom_produit, tva }: any = treated[index] as any;
-                        const { produit, id_unity } = __tbl_ecom_produit
-                        const { unity } = __tbl_ecom_unitesmesure
-                        const { id: id_cooperative } = __tbl_ecom_cooperative as any;
-                        let price: number = (parseFloat(prix_plus_commission) * parseFloat(qte))
-                        let { code, data, message } = await Services.converterDevise({ amount: price, currency: currency_payement || currency });
-                        if (code === 200) {
-                            const { amount: converted_price, currency: converted_currency } = data
-                            somme.push(converted_price)
-                            const cmmd = await Commandes.create({
-                                id_produit: id,
-                                is_pending: 1,
-                                id_cooperative,
-                                id_unity,
-                                shipped_to: parseInt(type_livraison) === 4 ? shipped_to : "---",
-                                payament_phone: payament_phone || phone,
-                                currency: converted_currency,
-                                prix_total: converted_price,
-                                prix_unit: prix_unitaire,
-                                qte,
-                                state: 0,
-                                transaction,
-                                type_livraison,
-                                createdby: __id
-                            }, { transaction: tr_ })
-                            if (cmmd instanceof Commandes) {
-                                Services.onSendSMS({
-                                    is_flash: false,
-                                    to: fillphone({ phone }),
-                                    content: `Bonjour ${nom} nous avons reçu votre commande de (${qte}${unity}) de ${produit}, veuillez acceptez le paiement sur votre téléphone, montant à payer ${converted_price}${converted_currency}, transID: ${transaction}`
-                                })
-                                    .then(sms => { })
-                                    .catch((err: any) => { })
-                                c_treated.push(cmmd)
-                            } else {
-                                // tr_.rollback()
-                                c_nottreated.push(cmmd)
-                            }
-                        } else {
-                            // tr_.rollback()
-                        }
-                    }
-                    Payements.pay({
-                        amount: somme.reduce((p, c) => p + c),
-                        currency: currency_payement || "CDF",
-                        phone: payament_phone || phone,
-                        createdby: __id,
-                        reference: transaction,
-                        customer_phone: phone
-                    })
-                        .then(({ code, data, message }) => {
-                            if (code === 200) {
-                                tr_.commit()
-                                Scheduler.checkPayement({ munites: 2, secondes: 30 })
-                                return Responder(res, HttpStatusCode.Ok, { prix_totale: somme.reduce((p, c) => p + c), currency: "CDF", c_treated, c_nottreated })
-                            } else {
-                                tr_.rollback()
-                                return Responder(res, HttpStatusCode.InternalServerError, { prix_totale: somme.reduce((p, c) => p + c), currency: "CDF", c_treated, c_nottreated })
-                            }
-                        })
-                        .catch(err => {
-                            return Responder(res, HttpStatusCode.Ok, { prix_totale: somme.reduce((p, c) => p + c), somme, c_treated, c_nottreated })
-                        })
-                } else {
-                    tr_.rollback()
-                    return Responder(res, HttpStatusCode.InternalServerError, "Commande can not be proceded cause the table of all commande is empty !")
-                }
+                })
+                req.body = { type_livraison, payament_phone, currency_payement, shipped_to, items, retry: true }
+                await Services.placecommande({ req, res, next })
             } else {
-                tr_.rollback()
-                return Responder(res, HttpStatusCode.InternalServerError, `User can not be found in ---USER:${__id} `)
+                return Responder(res, HttpStatusCode.BadRequest, "We can not process cause the list of commandes is empty !")
             }
-
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }

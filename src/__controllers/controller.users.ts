@@ -182,7 +182,7 @@ export const __controllerUsers = {
         }
     },
     signin: async (req: Request, res: Response, next: NextFunction) => {
-
+        log(APP_EXIPRES_IN_ADMIN, APP_EXIPRES_IN_ALL)
         const { phone, password } = req.body;
         let allowedRoles = await Roles.findAll({ where: {}, raw: true });
         allowedRoles = [...allowedRoles.map(r => r['id']), ...[1, 3, 2, 4, 5] as any];
