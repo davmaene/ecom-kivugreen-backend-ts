@@ -1,3 +1,5 @@
 /node_modules
 # .env
 # /config
+/src/as_log
+/src/__server/access.log
