@@ -104,7 +104,7 @@ export const Services = {
                     })
 
                     if (has instanceof Hasproducts) {
-                        const { id, qte: asqte, prix_unitaire, currency, __tbl_ecom_produit, __tbl_ecom_unitesmesure, __tbl_ecom_stock, __tbl_ecom_cooperative } = has.toJSON() as any
+                        const { id, qte: asqte, prix_unitaire, currency, __tbl_ecom_produit, __tbl_ecom_unitesmesure, __tbl_ecom_stock, __tbl_ecom_cooperative, TblEcomProduitId } = has.toJSON() as any
                         if (qte <= asqte) {
                             treated.push({ ...has.toJSON(), qte })
                         } else {
@@ -118,7 +118,7 @@ export const Services = {
                 if (treated.length > 0) {
                     const somme: number[] = [0, 0]
                     for (let index = 0; index < treated.length; index++) {
-                        const { id, qte, prix_unitaire, currency, __tbl_ecom_cooperative, __tbl_ecom_stock, prix_plus_commission, __tbl_ecom_unitesmesure, __tbl_ecom_produit, tva }: any = treated[index] as any;
+                        const { id, qte, prix_unitaire, currency, __tbl_ecom_cooperative, __tbl_ecom_stock, prix_plus_commission, __tbl_ecom_unitesmesure, __tbl_ecom_produit, tva, TblEcomProduitId }: any = treated[index] as any;
                         const { produit, id_unity } = __tbl_ecom_produit
                         const { unity } = __tbl_ecom_unitesmesure
                         const { id: id_cooperative } = __tbl_ecom_cooperative as any;
@@ -131,7 +131,7 @@ export const Services = {
                                 c_treated.push({ currency: converted_currency, amount: converted_price, qte, unity, produit })
                             } else {
                                 const cmmd = await Commandes.create({
-                                    id_produit: id,
+                                    id_produit: TblEcomProduitId, //id,
                                     is_pending: 1,
                                     id_cooperative,
                                     id_unity,

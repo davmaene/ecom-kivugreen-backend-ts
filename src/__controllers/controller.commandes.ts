@@ -22,11 +22,15 @@ export const __controllerCommandes = {
         const { currentuser } = req as any;
         const { idtransaction } = req.params
         const { __id, roles, uuid } = currentuser;
+
+        log(req.params, req.body)
         try {
+
             Commandes.belongsTo(Produits, { foreignKey: "id_produit" })
             Commandes.belongsTo(Typelivraisons, { foreignKey: "type_livraison" })
             Commandes.belongsTo(Unites, { foreignKey: "id_unity" })
             Commandes.belongsTo(Users, { foreignKey: "createdby" })
+
             Commandes.findAll({
                 order: [
                     ['id', 'DESC']
@@ -35,7 +39,7 @@ export const __controllerCommandes = {
                 include: [
                     {
                         model: Produits,
-                        required: true,
+                        required: false,
                         attributes: ['id', 'tva', 'produit', 'image']
                     },
                     {
