@@ -10,18 +10,13 @@ import { Unites } from "../__models/model.unitemesures";
 import { Stocks } from "../__models/model.stocks";
 import { Cooperatives } from "../__models/model.cooperatives";
 import { Commandes } from '../__models/model.commandes';
-import { Users } from '../__models/model.users';
 import { Services } from '../__services/serives.all';
-import { fillphone } from '../__helpers/helper.fillphone';
-import { connect } from '../__databases/connecte';
 import { Categories } from '../__models/model.categories';
-import { Payements } from '../__services/services.payements';
-import { Scheduler } from '../__services/services.scheduler';
 
 export const __controllerMarketplace = {
     placecommand: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            await Services.placecommande({ req, res, next })
+            await Services.placecommande({ req, res, next, id_transaction: null })
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
@@ -48,7 +43,7 @@ export const __controllerMarketplace = {
                     }
                 })
                 req.body = { type_livraison, payament_phone, currency_payement, shipped_to, items, retry: true }
-                await Services.placecommande({ req, res, next })
+                await Services.placecommande({ req, res, next, id_transaction })
             } else {
                 return Responder(res, HttpStatusCode.BadRequest, "We can not process cause the list of commandes is empty !")
             }

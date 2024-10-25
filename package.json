@@ -1,6 +1,6 @@
 {
   "name": "ecom-kivugreen-api",
-  "version": "1.6.3",
+  "version": "1.6.4",
   "description": "Ecommerce app de kivugreen, ",
   "main": "index.js",
   "scripts": {

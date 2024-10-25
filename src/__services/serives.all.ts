@@ -41,7 +41,7 @@ export const Services = {
     accomplishePayement: async ({ }) => {
 
     },
-    placecommande: async ({ req, res, next }: { req: Request, res: Response, next: NextFunction }) => {
+    placecommande: async ({ req, res, next, id_transaction }: { req: Request, res: Response, next: NextFunction, id_transaction: any }) => {
         const { currentuser } = req as any;
         const { __id, roles, uuid } = currentuser;
         const { items, type_livraison, payament_phone, currency_payement, shipped_to, retry } = req.body;
@@ -56,7 +56,7 @@ export const Services = {
             const c_treated: any[] = []
             const c_nottreated: any[] = []
             const nottreated: any[] = []
-            const transaction = randomLongNumber({ length: 13 })
+            const transaction = id_transaction || randomLongNumber({ length: 13 })
             const tr_ = await connect.transaction()
             const currentUser = await Users.findOne({
                 where: {

@@ -59,7 +59,8 @@ export const __controllerCommandes = {
                     }
                 ],
                 where: {
-                    transaction: idtransaction
+                    transaction: idtransaction,
+                    // createdby: __id
                 }
             })
                 .then(commandes => {
