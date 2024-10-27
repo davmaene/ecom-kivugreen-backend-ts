@@ -268,7 +268,7 @@ export const __controllerUsers = {
             }
 
             Middleware.onSignin({
-                expiresIn: APP_EXIPRES_IN_ADMIN || '45m',
+                expiresIn: APP_EXIPRES_IN_ALL || '45d',
                 data: {
                     phone: user.phone,
                     uuid: user.uuid,

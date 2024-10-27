@@ -28,6 +28,7 @@ export const __controllerMarketplace = {
         if (!id_transaction || !__id) return Responder(res, HttpStatusCode.NotAcceptable, "this request must have at least id_transaction ")
         try {
             const cmmds = await Commandes.findAll({
+                raw: true,
                 where: {
                     transaction: id_transaction,
                     createdby: __id,
@@ -35,19 +36,32 @@ export const __controllerMarketplace = {
                 }
             })
             if (cmmds.length > 0) {
-                const { type_livraison, payament_phone, currency: currency_payement, shipped_to, id_produit, qte } = cmmds[0].toJSON()
-                const items = cmmds.map(cmmd => {
-                    return {
-                        "id_produit": id_produit,
-                        "qte": qte
-                    }
-                })
-                req.body = { type_livraison, payament_phone, currency_payement, shipped_to, items, retry: true }
+                const { type_livraison, payament_phone, currency: currency_payement, shipped_to, id_produit, qte, id_cooperative } = cmmds[0]
+                const items: any[] = []
+                for (let i = 0; i < cmmds.length; i++) {
+                    const { id_produit: as_id_produit, qte: as_qte, id_cooperative } = cmmds[i] as any
+                    const has_product = await Hasproducts.findOne({
+                        raw: true,
+                        where: {
+                            TblEcomCooperativeId: id_cooperative,
+                            TblEcomProduitId: as_id_produit
+                        }
+                    })
+                    const { id: as_id_product_from } = has_product as any
+                    items.push({
+                        "id_produit": as_id_product_from,
+                        "qte": as_qte
+                    })
+                }
+                req.body = { type_livraison, payament_phone, currency_payement, shipped_to, retry: true, items, }
+                log(req.body)
                 await Services.placecommande({ req, res, next, id_transaction })
             } else {
+                log(cmmds)
                 return Responder(res, HttpStatusCode.BadRequest, "We can not process cause the list of commandes is empty !")
             }
         } catch (error) {
+            log(error)
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     },

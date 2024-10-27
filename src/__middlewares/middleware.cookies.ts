@@ -57,17 +57,17 @@ export const isMarketplaceRoute = ({ route }: { route: string }) => {
 export const tries = 3;
 
 export const optionsSignin: any = {
-    expiresIn: '14h',
+    // expiresIn: '14h',
     jwtid: '993'.toString()
 };
 
-export const onSignin: Function = async ({ data }: { data: any }, cb: Function) => {
+export const onSignin = async ({ data, expiresIn }: { data: any, expiresIn: string }, cb: Function) => {
     try {
         jwt.sign({
             ...data
         },
             APPAPIKEY,
-            { ...optionsSignin },
+            { ...optionsSignin, expiresIn },
             (err, encoded) => {
                 if (encoded) {
                     let tr: string
