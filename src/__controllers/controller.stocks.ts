@@ -16,6 +16,7 @@ import { Typelivraisons } from '../__models/model.typelivraison';
 import { supprimerDoublons } from '../__helpers/helper.all';
 import { Historiquesmembersstocks } from '../__models/model.histories';
 import { Users } from '../__models/model.users';
+import { Services } from '../__services/serives.all';
 
 export const __controllerStocks = {
     historiqueapprovisionnementpartransaction: async (req: Request, res: Response, next: NextFunction) => {
@@ -261,13 +262,14 @@ export const __controllerStocks = {
                                             const { id, produit, id_unity, id_category, id_souscategory, image, tva } = prd.toJSON() as any
                                             const { id: asstockid } = stock.toJSON() as any;
                                             if (produit && id_category && id_unity) {
+                                                const price = await Services.calcProductPrice({ unit_price: prix_unitaire, tva })
                                                 const [item, created] = await Hasproducts.findOrCreate({
                                                     where: {
                                                         TblEcomProduitId: id_produit,
                                                         TblEcomCooperativeId: id_cooperative
                                                     },
                                                     defaults: {
-                                                        prix_plus_commission: prix_unitaire + (prix_unitaire * parseFloat(commission_price)) + (prix_unitaire * parseFloat(tva)),
+                                                        prix_plus_commission: price,
                                                         currency,
                                                         tva,
                                                         qte_critique: qte_critique || 0,

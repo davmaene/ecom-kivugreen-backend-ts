@@ -17,6 +17,10 @@ export const Credits = connect.define<Credit>('__tbl_ecom_credits', {
     montant: DataTypes.FLOAT,
     currency: DataTypes.STRING,
     motif: DataTypes.STRING,
+    validated_by_bank: {
+        defaultValue: 0,
+        type: DataTypes.INTEGER,
+    },
     status: {
         type: DataTypes.INTEGER, // 1: validated 0: otherwise
         allowNull: true,

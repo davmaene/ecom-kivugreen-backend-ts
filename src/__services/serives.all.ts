@@ -38,6 +38,21 @@ if (!APP_FLEXPAYRETROCOMMISIONNE || !APP_NAME || !API_SMS_ENDPOINT) throw new Er
 let tempfolder: string = 'as_assets'
 
 export const Services = {
+    calcProductPrice: async ({ unit_price, tva = 16 }: { unit_price: number, tva: number }) => {
+        const configs = await Configs.findOne({
+            where: {
+                id: 1
+            }
+        })
+        const { taux_change, commission_price } = configs?.toJSON() as any;
+        const commission = unit_price * commission_price;
+        const prixAvecCommission = unit_price + commission;
+        const TVA = prixAvecCommission * (tva / 100);
+
+        const prixTotal = prixAvecCommission + TVA;
+
+        return prixTotal;
+    },
     accomplishePayement: async ({ }) => {
 
     },

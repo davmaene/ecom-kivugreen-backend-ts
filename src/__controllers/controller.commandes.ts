@@ -19,11 +19,11 @@ dotenv.config()
 export const __controllerCommandes = {
 
     listcommandebytransaction: async (req: Request, res: Response) => {
-        const { currentuser } = req as any;
-        const { idtransaction } = req.params
-        const { __id, roles, uuid } = currentuser;
 
-        log(req.params, req.body)
+        const { currentuser } = req as any;
+        const { __id, roles, uuid } = currentuser;
+        const { idtransaction } = req.params
+        // log(req.params, req.body)
         try {
 
             Commandes.belongsTo(Produits, { foreignKey: "id_produit" })
@@ -35,7 +35,7 @@ export const __controllerCommandes = {
                 order: [
                     ['id', 'DESC']
                 ],
-                attributes: ['id', 'id_produit', 'type_livraison', 'id_unity', 'createdby', 'id_cooperative', 'transaction', 'qte', 'prix_total', 'prix_unit', 'currency', 'payament_phone', 'createdAt'],
+                attributes: ['id', 'id_produit', 'type_livraison', 'id_unity', 'createdby', 'id_cooperative', 'transaction', 'qte', 'prix_total', 'currency', 'payament_phone', 'createdAt', 'state'],
                 include: [
                     {
                         model: Produits,
@@ -87,7 +87,7 @@ export const __controllerCommandes = {
                 order: [
                     ['id', 'DESC']
                 ],
-                attributes: ['id', 'id_produit', 'type_livraison', 'id_unity', 'createdby', 'id_cooperative', 'transaction', 'qte', 'prix_total', 'prix_unit', 'currency', 'payament_phone', 'createdAt', 'state'],
+                attributes: ['id', 'id_produit', 'type_livraison', 'id_unity', 'createdby', 'id_cooperative', 'transaction', 'qte', 'prix_total', 'currency', 'payament_phone', 'createdAt', 'state', 'state'],
                 include: [
                     {
                         model: Produits,
@@ -139,7 +139,7 @@ export const __controllerCommandes = {
                 order: [
                     ['id', 'DESC']
                 ],
-                attributes: ['id', 'id_produit', 'type_livraison', 'id_unity', 'createdby', 'id_cooperative', 'transaction', 'qte', 'prix_total', 'prix_unit', 'currency', 'payament_phone', 'createdAt'],
+                attributes: ['id', 'id_produit', 'type_livraison', 'id_unity', 'createdby', 'id_cooperative', 'transaction', 'qte', 'prix_total', 'currency', 'payament_phone', 'createdAt', 'state'],
                 include: [
                     {
                         model: Produits,
@@ -214,7 +214,7 @@ export const __controllerCommandes = {
                 order: [
                     ['id', 'DESC']
                 ],
-                attributes: ['id', 'id_produit', 'type_livraison', 'id_unity', 'createdby', 'id_cooperative', 'transaction', 'qte', 'prix_total', 'prix_unit', 'currency', 'payament_phone', 'createdAt'],
+                attributes: ['id', 'id_produit', 'type_livraison', 'id_unity', 'createdby', 'id_cooperative', 'transaction', 'qte', 'prix_total', 'currency', 'payament_phone', 'createdAt', 'state'],
                 include: [
                     {
                         model: Produits,
@@ -263,7 +263,7 @@ export const __controllerCommandes = {
                 order: [
                     ['id', 'DESC']
                 ],
-                attributes: ['id', 'id_produit', 'type_livraison', 'id_unity', 'createdby', 'id_cooperative', 'transaction', 'qte', 'prix_total', 'prix_unit', 'currency', 'payament_phone', 'createdAt'],
+                attributes: ['id', 'id_produit', 'type_livraison', 'id_unity', 'createdby', 'id_cooperative', 'transaction', 'qte', 'prix_total', 'currency', 'payament_phone', 'createdAt', 'state'],
                 include: [
                     {
                         model: Produits,
@@ -314,7 +314,7 @@ export const __controllerCommandes = {
                 order: [
                     ['id', 'DESC']
                 ],
-                attributes: ['id', 'id_produit', 'type_livraison', 'id_unity', 'createdby', 'id_cooperative', 'transaction', 'qte', 'prix_total', 'prix_unit', 'currency', 'payament_phone', 'createdAt'],
+                attributes: ['id', 'id_produit', 'type_livraison', 'id_unity', 'createdby', 'id_cooperative', 'transaction', 'qte', 'prix_total', 'currency', 'payament_phone', 'createdAt', 'state'],
                 include: [
                     {
                         model: Produits,
@@ -367,7 +367,7 @@ export const __controllerCommandes = {
                 order: [
                     ['id', 'DESC']
                 ],
-                attributes: ['id', 'id_produit', 'type_livraison', 'id_unity', 'createdby', 'id_cooperative', 'transaction', 'qte', 'prix_total', 'prix_unit', 'currency', 'payament_phone', 'createdAt'],
+                attributes: ['id', 'id_produit', 'type_livraison', 'id_unity', 'createdby', 'id_cooperative', 'transaction', 'qte', 'prix_total', 'currency', 'payament_phone', 'createdAt', 'state'],
                 include: [
                     {
                         model: Produits,

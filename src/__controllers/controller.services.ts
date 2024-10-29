@@ -4,10 +4,13 @@ import { fillphone } from '../__helpers/helper.fillphone';
 import { Responder } from '../__helpers/helper.responseserver';
 import { Services } from '../__services/serives.all';
 import { NextFunction, Response, Request } from 'express';
+import { log } from 'console';
 
 export const __controllerServices = {
     onsendsms: async (req: Request, res: Response, next: NextFunction) => {
         const { message, to } = req.body;
+        // const p = await Services.calcProductPrice({ tva: 16, unit_price: 3500 })
+        // log(p)
         try {
             Services.onSendSMS({
                 to: fillphone({ phone: to }),

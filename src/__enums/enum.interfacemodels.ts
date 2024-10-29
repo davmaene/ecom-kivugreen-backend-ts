@@ -124,6 +124,7 @@ export interface IConfigs extends globalInterface {
 export interface ICredits extends globalInterface {
     id_cooperative: number,
     id_user?: number,
+    validated_by_bank?: number,
     montant: number,
     currency: string,
     motif: string,

@@ -9,18 +9,26 @@ import { capitalizeWords, returnStateCredit } from "../__helpers/helper.all";
 import { date, now } from "../__helpers/helper.moment";
 import { Services } from "../__services/serives.all";
 import { fillphone } from "../__helpers/helper.fillphone";
+import { Banks } from "../__models/model.banks";
 
 export const __controllersCredits = {
     list: async (req: Request, res: Response) => {
         try {
+
             Credits.belongsTo(Users, { foreignKey: "id_user" })
             Credits.belongsTo(Cooperatives, { foreignKey: "id_cooperative" })
+            Credits.belongsTo(Banks, { foreignKey: "validated_by_bank" })
+
             Credits.findAll({
                 where: {},
                 include: [
                     {
                         model: Cooperatives,
                         required: true
+                    },
+                    {
+                        model: Banks,
+                        required: false
                     },
                     {
                         model: Users,
@@ -47,11 +55,17 @@ export const __controllersCredits = {
         try {
             Credits.belongsTo(Users, { foreignKey: "id_user" })
             Credits.belongsTo(Cooperatives, { foreignKey: "id_cooperative" })
+            Credits.belongsTo(Banks, { foreignKey: "validated_by_bank" })
+
             Credits.findAndCountAll({
                 include: [
                     {
                         model: Cooperatives,
                         required: true
+                    },
+                    {
+                        model: Banks,
+                        required: false
                     },
                     {
                         model: Users,
@@ -116,9 +130,10 @@ export const __controllersCredits = {
         if (!idcredit) return Responder(res, HttpStatusCode.NoContent, "This request must have at least idcredit")
         if (Object.keys(req.body).length <= 0) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least somes keys in body !")
         const b = req.body as any;
+        delete b.status
         try {
             Credits.update({
-                ...req.body
+                ...b
             }, {
                 where: {
                     id: idcredit
@@ -155,48 +170,65 @@ export const __controllersCredits = {
         const { id_credit } = req.params as any;
         const { state } = req.body as any
         if (!id_credit) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least id_credit !")
+        const { currentuser } = req as any;
+        const { __id, roles, uuid } = currentuser;
         try {
-            Credits.belongsTo(Users, { foreignKey: "id_user" })
-            Credits.findOne({
-                include: [
-                    {
-                        model: Users,
-                        attributes: ['id', 'phone', 'email', 'nom', 'postnom']
-                    }
-                ],
+            const bank = await Banks.findOne({
                 where: {
-                    id: id_credit
+                    id_responsable: __id
                 }
             })
-                .then(credit => {
-                    if (credit instanceof Credits) {
-                        const { status, __tbl_ecom_user, montant, currency, motif } = credit.toJSON() as any
-                        log(credit.toJSON())
-                        if (status === 1) {
-                            return Responder(res, HttpStatusCode.BadRequest, "The credit already validated !")
-                        } else {
-                            credit.update({
-                                status: state
-                            })
-                                .then(__ => {
-                                    const { phone, nom, postnom, email } = __tbl_ecom_user as any
-                                    Services.onSendSMS({
-                                        is_flash: false,
-                                        to: phone,
-                                        content: `Bonjour ${nom} ${postnom}, votre démande de crédit de ${montant}${currency} pour motif de ${motif} son état en maintenant ${returnStateCredit({ state })}; les autres informations vous seront transmises dans un bref délais`
-                                    })
-                                        .then(_ => { })
-                                        .catch(err => { })
-                                    return Responder(res, HttpStatusCode.Ok, credit)
-                                })
-                                .catch(err => {
-                                    return Responder(res, HttpStatusCode.BadGateway, err)
-                                })
+            if (bank instanceof Banks) {
+                const { id, id_responsable } = bank
+                Credits.belongsTo(Users, { foreignKey: "id_user" })
+                Credits.findOne({
+                    include: [
+                        {
+                            model: Users,
+                            attributes: ['id', 'phone', 'email', 'nom', 'postnom'],
+                            required: false,
                         }
-                    } else {
-                        return Responder(res, HttpStatusCode.NotFound, credit)
+                    ],
+                    where: {
+                        id: id_credit
                     }
                 })
+                    .then(credit => {
+                        if (credit instanceof Credits) {
+                            const { status, __tbl_ecom_user, montant, currency, motif } = credit.toJSON() as any
+                            // log(credit.toJSON())
+                            if (status === 1) {
+                                return Responder(res, HttpStatusCode.BadRequest, "The credit already validated !")
+                            } else {
+                                credit.update({
+                                    status: state,
+                                    validated_by_bank: id
+                                })
+                                    .then(__ => {
+                                        const { phone, nom, postnom, email } = __tbl_ecom_user as any
+                                        Services.onSendSMS({
+                                            is_flash: false,
+                                            to: phone,
+                                            content: `Bonjour ${nom} ${postnom}, votre démande de crédit de ${montant}${currency} pour motif de ${motif} son état en maintenant ${returnStateCredit({ state })}; les autres informations vous seront transmises dans un bref délais`
+                                        })
+                                            .then(_ => { })
+                                            .catch(err => { })
+                                        return Responder(res, HttpStatusCode.Ok, credit)
+                                    })
+                                    .catch(err => {
+                                        return Responder(res, HttpStatusCode.BadGateway, err)
+                                    })
+                            }
+                        } else {
+                            return Responder(res, HttpStatusCode.NotFound, credit)
+                        }
+                    })
+                    .catch(err => {
+                        return Responder(res, HttpStatusCode.InternalServerError, err)
+                    })
+            } else {
+                return Responder(res, HttpStatusCode.NotFound, "Informations about bank not found !")
+            }
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
