@@ -28,7 +28,8 @@ export const __controllersCredits = {
                     },
                     {
                         model: Banks,
-                        required: false
+                        required: false,
+                        attributes: ['id', 'bank', 'email', 'phone']
                     },
                     {
                         model: Users,
@@ -65,7 +66,8 @@ export const __controllersCredits = {
                     },
                     {
                         model: Banks,
-                        required: false
+                        required: false,
+                        attributes: ['id', 'bank', 'email', 'phone']
                     },
                     {
                         model: Users,

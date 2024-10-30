@@ -141,6 +141,70 @@ export const __controllerStocks = {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     },
+    historiqueapprovisionnementmembrecooperative: async (req: Request, res: Response, next: NextFunction) => {
+        const { id_membre } = req.params as any
+        if (!id_membre) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least id_cooperative")
+        const { currentuser } = req as any;
+        const { __id, roles, uuid, phone } = currentuser;
+        try {
+
+            Historiquesmembersstocks.belongsTo(Cooperatives)
+            Historiquesmembersstocks.belongsTo(Users)
+            Historiquesmembersstocks.belongsTo(Produits)
+            Historiquesmembersstocks.belongsTo(Categories)
+            Historiquesmembersstocks.belongsTo(Unites)
+
+            Historiquesmembersstocks.findAndCountAll({
+                where: {
+                    // TblEcomCooperativeId: id_membre
+                },
+                include: [
+                    {
+                        model: Cooperatives,
+                        required: true,
+                        attributes: ['id', 'adresse', 'phone', 'num_enregistrement']
+                    },
+                    {
+                        model: Users,
+                        required: true,
+                        attributes: ['id', 'nom', 'postnom', 'prenom', 'phone', 'email'],
+                        where: {
+                            id: id_membre
+                        }
+                    },
+                    {
+                        model: Produits,
+                        required: true,
+                        attributes: ['id', 'produit']
+                    },
+                    {
+                        model: Categories,
+                        required: true,
+                        attributes: ['id', 'category']
+                    },
+                    {
+                        model: Unites,
+                        required: true,
+                        attributes: ['id', 'unity', 'equival_kgs']
+                    },
+                    // {
+                    //     model: Stocks,
+                    //     required: true
+                    // }
+                ]
+            })
+                .then(({ rows, count }) => {
+                    return Responder(res, HttpStatusCode.Ok, { count, rows })
+                })
+                .catch(err => {
+                    log(err)
+                    return Responder(res, HttpStatusCode.InternalServerError, err)
+                })
+        } catch (error) {
+            log(error)
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
     history: async (req: Request, res: Response, next: NextFunction) => {
         const { currentuser } = req as any;
         const { __id, roles, uuid, phone } = currentuser;
