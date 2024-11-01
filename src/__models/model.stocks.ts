@@ -2,6 +2,7 @@ import { DataTypes, Model } from 'sequelize'
 import { connect } from '../__databases/connecte'
 import { IRoles, IStocks, IUsers } from '__enums/enum.interfacemodels';
 import dotenv from 'dotenv';
+import { now } from '../__helpers/helper.moment';
 
 dotenv.config()
 
@@ -39,6 +40,11 @@ export const Stocks = connect.define<Stock>('__tbl_ecom_stocks', {
     createdby: DataTypes.INTEGER,
     date_expiration: DataTypes.STRING,
     date_production: DataTypes.STRING,
+    createdAt: {
+        type: DataTypes.DATE,
+        defaultValue: new Date() || now({ options: {} }),
+        allowNull: true
+    }
 
 }, { paranoid: true, timestamps: true });
 

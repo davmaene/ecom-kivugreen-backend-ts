@@ -42,8 +42,8 @@ export const Codelivraisons = connect.define<Codes>('__tbl_ecom_codelivraisons',
     },
     description: DataTypes.STRING,
     createdAt: {
-        type: DataTypes.STRING,
-        defaultValue: now({ options: {} }),
+        type: DataTypes.DATE,
+        defaultValue: new Date() || now({ options: {} }),
         allowNull: true
     }
 

@@ -8,6 +8,7 @@ import { Categories } from './model.categories';
 import { Unites } from './model.unitemesures';
 import { Cooperatives } from './model.cooperatives';
 import { Stocks } from './model.stocks';
+import { now } from '../__helpers/helper.moment';
 
 export interface IHistoriesstocks extends Model<IHistoriesstock>, IHistoriesstock { }
 
@@ -61,6 +62,11 @@ export const Historiquesmembersstocks = connect.define<IHistoriesstocks>('__tbl_
             model: Stocks,
             key: 'id'
         }
+    },
+    createdAt: {
+        type: DataTypes.DATE,
+        defaultValue: new Date() || now({ options: {} }),
+        allowNull: true
     }
 }, {
     paranoid: false,

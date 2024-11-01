@@ -2,6 +2,7 @@ import { DataTypes, Model } from 'sequelize'
 import { connect } from '../__databases/connecte'
 import { IBank, IRoles, IStocks, IUsers } from '__enums/enum.interfacemodels';
 import dotenv from 'dotenv';
+import { now } from '../__helpers/helper.moment';
 
 dotenv.config()
 
@@ -41,6 +42,11 @@ export const Banks = connect.define<Bank>('__tbl_ecom_banks', {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true
+    },
+    createdAt: {
+        type: DataTypes.DATE,
+        defaultValue: new Date() || now({ options: {} }),
+        allowNull: true
     }
 
 }, { paranoid: true, timestamps: true });

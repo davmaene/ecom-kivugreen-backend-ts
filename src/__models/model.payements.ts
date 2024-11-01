@@ -1,6 +1,7 @@
 import { DataTypes, Model } from 'sequelize'
 import { connect } from '../__databases/connecte'
 import { ICategorie, IPayement } from '../__enums/enum.interfacemodels';
+import { now } from '../__helpers/helper.moment';
 
 export interface Payement extends Model<IPayement>, IPayement { }
 
@@ -24,7 +25,12 @@ export const Paiements = connect.define<Payement>('__tbl_ecom_payements', {
     currency: DataTypes.STRING,
     category: DataTypes.INTEGER,
     description: DataTypes.STRING,
-    createdby: DataTypes.INTEGER
+    createdby: DataTypes.INTEGER,
+    createdAt: {
+        type: DataTypes.DATE,
+        defaultValue: new Date() || now({ options: {} }),
+        allowNull: true
+    }
 
 }, { paranoid: true, timestamps: false, freezeTableName: true });
 

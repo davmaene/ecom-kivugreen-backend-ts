@@ -2,6 +2,7 @@ import { DataTypes, Model } from 'sequelize'
 import { connect } from '../__databases/connecte'
 import { IUsers } from '__enums/enum.interfacemodels';
 import { v4 as uuidv4 } from 'uuid';
+import { now } from '../__helpers/helper.moment';
 
 export interface User extends Model<IUsers>, IUsers { }
 
@@ -45,7 +46,12 @@ export const Users = connect.define<User>('__tbl_ecom_users', {
         type: DataTypes.STRING,
         defaultValue: uuidv4()
     },
-    password: DataTypes.STRING
+    password: DataTypes.STRING,
+    createdAt: {
+        type: DataTypes.DATE,
+        defaultValue: new Date() || now({ options: {} }),
+        allowNull: true
+    }
 }, {
     paranoid: false,
     timestamps: true,

@@ -1,6 +1,7 @@
 import { DataTypes, Model } from 'sequelize'
 import { connect } from '../__databases/connecte'
 import { ICooperative, IProvinces, IRoles, ITerritoires, IUsers, IVillages } from '__enums/enum.interfacemodels';
+import { now } from '../__helpers/helper.moment';
 
 export interface Coopec extends Model<ICooperative>, ICooperative { }
 
@@ -33,7 +34,12 @@ export const Cooperatives = connect.define<Coopec>('__tbl_ecom_cooperatives', {
     id_adjoint: DataTypes.INTEGER,
     id_responsable: DataTypes.INTEGER,
     description: DataTypes.STRING,
-    id_category: DataTypes.INTEGER
+    id_category: DataTypes.INTEGER,
+    createdAt: {
+        type: DataTypes.DATE,
+        defaultValue: new Date() || now({ options: {} }),
+        allowNull: true
+    }
 }, {
     paranoid: true,
     timestamps: false,

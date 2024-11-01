@@ -6,6 +6,7 @@ import { Cooperatives } from './model.cooperatives';
 import { Categories } from './model.categories';
 import { Unites } from './model.unitemesures';
 import { Stocks } from './model.stocks';
+import { now } from '../__helpers/helper.moment';
 
 export interface Hasproduit extends Model<IHasproducts>, IHasproducts { }
 
@@ -73,8 +74,12 @@ export const Hasproducts = connect.define<Hasproduit>('__tbl_ecom_hasproducts', 
             model: Cooperatives,
             key: 'id'
         }
+    },
+    createdAt: {
+        type: DataTypes.DATE,
+        defaultValue: new Date() || now({ options: {} }),
+        allowNull: true
     }
-
 }, {
     paranoid: false,
     timestamps: true,

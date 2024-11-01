@@ -1,6 +1,7 @@
 import { DataTypes, Model } from 'sequelize'
 import { connect } from '../__databases/connecte'
 import { ICategorie, IConfigs, ICredits } from '../__enums/enum.interfacemodels';
+import { now } from '../__helpers/helper.moment';
 
 export interface Credit extends Model<ICredits>, ICredits { }
 
@@ -29,6 +30,11 @@ export const Credits = connect.define<Credit>('__tbl_ecom_credits', {
     periode_remboursement: {
         type: DataTypes.FLOAT, // in month
         allowNull: false
+    },
+    createdAt: {
+        type: DataTypes.DATE,
+        defaultValue: new Date() || now({ options: {} }),
+        allowNull: true
     }
 
 }, { paranoid: true, timestamps: false, freezeTableName: true });

@@ -5,6 +5,7 @@ import { Roles } from './model.roles';
 import { Users } from './model.users';
 import { randomLongNumber } from '../__helpers/helper.random';
 import dotenv from 'dotenv';
+import { now } from '../__helpers/helper.moment';
 
 dotenv.config()
 
@@ -53,6 +54,11 @@ export const Hasmembers = connect.define<Hasmember>('__tbl_ecom_hasmembers', {
             model: Roles,
             key: 'id'
         }
+    },
+    createdAt: {
+        type: DataTypes.DATE,
+        defaultValue: new Date() || now({ options: {} }),
+        allowNull: true
     }
 
 }, {
