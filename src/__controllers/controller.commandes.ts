@@ -241,7 +241,7 @@ export const __controllerCommandes = {
             })
                 .then(commandes => {
                     const groupes = groupedDataByColumn({ column: "transaction", data: commandes })
-                    return Responder(res, HttpStatusCode.Ok, { count: commandes.length, rows: commandes, groupes })
+                    return Responder(res, HttpStatusCode.Ok, { count: commandes.length, rows: commandes, groupes: {} })
                 })
                 .catch(err => {
                     return Responder(res, HttpStatusCode.InternalServerError, err)

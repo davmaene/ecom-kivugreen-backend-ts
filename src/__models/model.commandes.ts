@@ -53,7 +53,7 @@ export const Commandes = connect.define<Commande>('__tbl_ecom_commandes', {
     },
     createdAt: {
         type: DataTypes.DATE,
-        defaultValue: new Date() || now({ options: {} }),
+        defaultValue: new Date(),
         allowNull: true
     }
 

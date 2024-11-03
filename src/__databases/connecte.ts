@@ -2,7 +2,7 @@ import { Sequelize } from "sequelize";
 import Database from "./database";
 
 const database = Database.getInstance();
-const { dbName, username, password, logging, dialect, host, port } = database;
+const { dbName, username, password, logging, dialect, host, port, timeZone } = database;
 
 export const connect = new Sequelize(
     dbName,
@@ -11,7 +11,8 @@ export const connect = new Sequelize(
     port,
     host,
     dialect,
-    logging,
+    logging: false,
+    timezone: timeZone,
     retry: {
         match: [/Deadlock/i],
         max: 3,

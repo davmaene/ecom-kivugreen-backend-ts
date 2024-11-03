@@ -61,7 +61,7 @@ export const Services = {
         const { __id, roles, uuid } = currentuser;
         const { items, type_livraison, payament_phone, currency_payement, shipped_to, retry } = req.body;
         const default_currency = "CDF"
-        // log(req.body)
+        
         if (!items || !Array.isArray(items) || !type_livraison) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least items and can not be empty ! and type_livraison");
         if (type_livraison === 4) {
             if (!shipped_to) return Responder(res, HttpStatusCode.NotAcceptable, "please provide the shipped_to as addresse !")
