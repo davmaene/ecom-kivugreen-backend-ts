@@ -25,6 +25,15 @@ export interface IUsers extends globalInterface {
     __tbl_ecom_roles?: any;
 }
 
+export interface ICarousel extends globalInterface {
+    carousel: string,
+    title: string,
+    status: number,
+    sub_title?: string,
+    description: string,
+    createdBy: number
+}
+
 export interface IRoles extends globalInterface {
     role: string,
     description: string
