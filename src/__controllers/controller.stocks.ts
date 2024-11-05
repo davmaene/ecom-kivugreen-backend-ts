@@ -13,7 +13,7 @@ import { Categories } from '../__models/model.categories';
 import { Unites } from '../__models/model.unitemesures';
 import { Commandes } from '../__models/model.commandes';
 import { Typelivraisons } from '../__models/model.typelivraison';
-import { supprimerDoublons } from '../__helpers/helper.all';
+import { getProductDetailsAsRegister, supprimerDoublons } from '../__helpers/helper.all';
 import { Historiquesmembersstocks } from '../__models/model.histories';
 import { Users } from '../__models/model.users';
 import { Services } from '../__services/serives.all';
@@ -40,7 +40,7 @@ export const __controllerStocks = {
                     {
                         model: Cooperatives,
                         required: true,
-                        attributes: ['id', 'adresse', 'phone', 'num_enregistrement']
+                        attributes: ['id', 'adresse', 'phone', 'num_enregistrement', 'cooperative']
                     },
                     {
                         model: Users,
@@ -101,7 +101,7 @@ export const __controllerStocks = {
                     {
                         model: Cooperatives,
                         required: true,
-                        attributes: ['id', 'adresse', 'phone', 'num_enregistrement']
+                        attributes: ['id', 'adresse', 'phone', 'num_enregistrement', 'cooperative']
                     },
                     {
                         model: Users,
@@ -162,7 +162,7 @@ export const __controllerStocks = {
                     {
                         model: Cooperatives,
                         required: true,
-                        attributes: ['id', 'adresse', 'phone', 'num_enregistrement']
+                        attributes: ['id', 'adresse', 'phone', 'num_enregistrement', 'cooperative']
                     },
                     {
                         model: Users,
@@ -632,6 +632,82 @@ export const __controllerStocks = {
                         })
                     }
                     return Responder(res, HttpStatusCode.Ok, { count: rows.length, rows: __ })
+                })
+                .catch(error => {
+                    log(error)
+                    return Responder(res, HttpStatusCode.Conflict, error)
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    getasregister: async (req: Request, res: Response) => {
+        const { id_cooperative: idstock } = req.params;
+        if (!idstock) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least idstock")
+        try {
+            Stocks.belongsTo(Cooperatives, { foreignKey: "id_cooperative" })
+            Stocks.belongsToMany(Produits, { through: Hasproducts, })// as: 'produits'
+            Stocks.findAll({
+                where: {
+                    id_cooperative: idstock
+                },
+                include: [
+                    {
+                        model: Produits,
+                        // as: 'produits',
+                        required: true,
+                        attributes: ['id', 'produit']
+                    },
+                    {
+                        model: Cooperatives,
+                        required: true,
+                        where: {
+                            id: idstock
+                        },
+                        attributes: ['id', 'coordonnees_gps', 'phone', 'num_enregistrement', 'email', 'sigle', 'cooperative', 'description']
+                    }
+                ]
+            })
+                .then(async (rows) => {
+                    const __: any[] = []
+                    for (let index = 0; index < rows.length; index++) {
+                        let items: any[] = []
+                        const { __tbl_ecom_produits } = rows[index].toJSON() as any;
+                        for (let index = 0; index < __tbl_ecom_produits.length; index++) {
+                            const { id, produit, __tbl_ecom_hasproducts } = __tbl_ecom_produits[index] as any;
+                            const { TblEcomProduitId, TblEcomCategoryId, TblEcomUnitesmesureId, id_membre } = __tbl_ecom_hasproducts;
+                            const member = await Users.findOne({
+                                where: {
+                                    id: id_membre
+                                },
+                                attributes: ['id', 'nom', 'postnom', 'prenom', 'phone']
+                            })
+                            const cat = await Categories.findOne({
+                                // raw: true,
+                                where: {
+                                    id: TblEcomCategoryId
+                                }
+                            })
+                            const uni = await Unites.findOne({
+                                // raw: true,
+                                where: {
+                                    id: TblEcomUnitesmesureId
+                                }
+                            })
+                            items.push({
+                                ...__tbl_ecom_produits[index],
+                                __tbl_ecom_categories: cat?.toJSON(),
+                                __tbl_ecom_unitesmesures: uni?.toJSON(),
+                                __tbl_member: member?.toJSON()
+                            })
+                        }
+                        __.push({
+                            ...rows[index].toJSON() as any,
+                            __tbl_ecom_produits: [...items]
+                        })
+                    }
+                    const infos = getProductDetailsAsRegister({ data: __ })
+                    return Responder(res, HttpStatusCode.Ok, { count: infos.length, rows: infos })
                 })
                 .catch(error => {
                     log(error)

@@ -102,6 +102,55 @@ export const checkFileType = ({ mimetype, as = "doc" }: { mimetype: string, as: 
     }
 };
 
+type Product = {
+    produit: string;
+    __tbl_ecom_hasproducts: {
+        qte: number;
+        updatedAt: string;
+    };
+    __tbl_ecom_unitesmesures: {
+        unity: string;
+    };
+};
+
+type Stock = {
+    __tbl_ecom_produits: Product[];
+};
+
+type ProductDetails = {
+    produit: string;
+    qte: number;
+    unity: string;
+    lastUpdated: string;
+};
+
+export const getProductDetailsAsRegister = ({ data }: { data: Stock[] }): ProductDetails[] => {
+    const productMap: { [key: string]: ProductDetails } = {};
+    data.forEach(stock => {
+        stock.__tbl_ecom_produits.forEach(product => {
+            const produit = product.produit;
+            const qte = product.__tbl_ecom_hasproducts.qte;
+            const unity = product.__tbl_ecom_unitesmesures.unity;
+            const lastUpdated = product.__tbl_ecom_hasproducts.updatedAt;
+
+            if (productMap[produit]) {
+                productMap[produit].qte += qte;
+                if (new Date(lastUpdated) > new Date(productMap[produit].lastUpdated)) {
+                    productMap[produit].lastUpdated = lastUpdated;
+                }
+            } else {
+                productMap[produit] = {
+                    produit,
+                    qte: qte,
+                    unity,
+                    lastUpdated
+                };
+            }
+        });
+    });
+    return Object.values(productMap);
+}
+
 export const returnStateCredit = ({ state }: { state: Number }) => {
     switch (state) {
         case 1:

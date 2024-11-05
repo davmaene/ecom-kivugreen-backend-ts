@@ -1,14 +1,14 @@
 // // // #### offline configuration
-// export default {
-//   "port": 3306,
-//   "host": "localhost",
-//   "dbName": "__app_ecom_kgreen",
-//   "username": "root",
-//   "password": "",
-//   "dialect": "mysql",
-//   "logging": false,
-//   "timeZone": "+02:00",
-// };
+export default {
+  "port": 3306,
+  "host": "localhost",
+  "dbName": "__app_ecom_kgreen",
+  "username": "root",
+  "password": "",
+  "dialect": "mysql",
+  "logging": false,
+  "timeZone": "+02:00",
+};
 
 // // // #### Online configurations BD for production #####
 // export default {
@@ -35,14 +35,14 @@
 // };
 
 // // // #### Remote 
-export default {
-  "port": 3306,
-  "host": "176.223.133.127",
-  "dbName": "EcomProd",
-  "username": "Remote",
-  "password": "@Remote__2024",
-  "dialect": "mysql",
-  "logging": false,
-  "timeZone": "+02:00",
-};
+// export default {
+//   "port": 3306,
+//   "host": "176.223.133.127",
+//   "dbName": "EcomProd",
+//   "username": "Remote",
+//   "password": "@Remote__2024",
+//   "dialect": "mysql",
+//   "logging": false,
+//   "timeZone": "+02:00",
+// };
 

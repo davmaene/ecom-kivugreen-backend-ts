@@ -195,9 +195,9 @@ export const __controllerUsers = {
         try {
             const filledPhone = fillphone({ phone });
 
-            if (!filledPhone || String(filledPhone).length <= 0 || isNaN(Number(filledPhone))) {
-                return Responder(res, HttpStatusCode.NotAcceptable, "Invalid phone value: NaN");
-            }
+            // if (!filledPhone || String(filledPhone).length <= 0 || isNaN(Number(filledPhone))) {
+            //     return Responder(res, HttpStatusCode.NotAcceptable, "Invalid phone value: NaN");
+            // }
 
             Users.belongsToMany(Roles, { through: Hasroles });
             Roles.belongsToMany(Users, { through: Hasroles });
