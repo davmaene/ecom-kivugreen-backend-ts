@@ -105,6 +105,7 @@ export const checkFileType = ({ mimetype, as = "doc" }: { mimetype: string, as: 
 type Product = {
     produit: string;
     __tbl_ecom_hasproducts: {
+        qte_critique: number,
         qte: number;
         updatedAt: string;
     };
@@ -121,6 +122,7 @@ type ProductDetails = {
     produit: string;
     qte: number;
     unity: string;
+    qte_critique: number,
     lastUpdated: string;
 };
 
@@ -131,6 +133,7 @@ export const getProductDetailsAsRegister = ({ data }: { data: Stock[] }): Produc
             const produit = product.produit;
             const qte = product.__tbl_ecom_hasproducts.qte;
             const unity = product.__tbl_ecom_unitesmesures.unity;
+            const qte_critique = product.__tbl_ecom_hasproducts.qte_critique
             const lastUpdated = product.__tbl_ecom_hasproducts.updatedAt;
 
             if (productMap[produit]) {
@@ -143,6 +146,7 @@ export const getProductDetailsAsRegister = ({ data }: { data: Stock[] }): Produc
                     produit,
                     qte: qte,
                     unity,
+                    qte_critique,
                     lastUpdated
                 };
             }

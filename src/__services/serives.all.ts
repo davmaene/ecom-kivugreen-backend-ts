@@ -61,7 +61,7 @@ export const Services = {
         const { __id, roles, uuid } = currentuser;
         const { items, type_livraison, payament_phone, currency_payement, shipped_to, retry } = req.body;
         const default_currency = "CDF"
-        
+
         if (!items || !Array.isArray(items) || !type_livraison) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least items and can not be empty ! and type_livraison");
         if (type_livraison === 4) {
             if (!shipped_to) return Responder(res, HttpStatusCode.NotAcceptable, "please provide the shipped_to as addresse !")
@@ -1847,8 +1847,31 @@ export const Services = {
                         id: parseInt(randomLongNumber({ length: 6 })),
                         TblEcomRoleId: role,
                         TblEcomUserId: iduser
-                    }, { transaction })
+                    })
                     done.push(r)
+                }
+                return cb(undefined, { code: 200, message: "Done", data: done })
+            }
+        } catch (error: any) {
+            return cb(undefined, { code: 500, message: "Error", data: error.toString() })
+        }
+    },
+    removeRoleToUser: async ({ inputs: { iduser, idroles }, transaction, cb }: { inputs: { iduser?: number, idroles: number[] }, transaction: any, cb: Function }) => {
+        if (!iduser || !idroles) return cb(undefined, { code: 401, message: "This request must have at least !", data: { idroles, iduser } });
+        try {
+            if (Array.isArray(idroles)) {
+                const done = []
+                for (let role of idroles) {
+                    const r = await Hasroles.destroy({
+                        where: {
+                            TblEcomRoleId: role,
+                            TblEcomUserId: iduser
+                        }
+                    })
+                    done.push({
+                        TblEcomRoleId: role,
+                        TblEcomUserId: iduser
+                    })
                 }
                 return cb(undefined, { code: 200, message: "Done", data: done })
             }
@@ -1917,6 +1940,14 @@ export const Services = {
         if (count <= 0) return [];
         else {
             return rows.map(r => r && r['id'])
+        }
+    },
+    estInclus({ arr1, arr2 }: { arr1: number[], arr2: number[] }) {
+        const nonInclus = arr1.filter(element => !arr2.includes(element));
+        if (nonInclus.length === 0) {
+            return { code: 200, message: true, roles: arr1 };
+        } else {
+            return { code: 400, message: false, roles: nonInclus };
         }
     },
     rawProvincesAsTableOfIds: async () => {

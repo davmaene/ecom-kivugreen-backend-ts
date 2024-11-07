@@ -26,7 +26,15 @@ export const __controllerRoles = {
         const { id_roles, id_user } = req.body;
         if (!id_roles || !id_user) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !id_roles || !id_user")
         if (!Array.isArray(id_roles)) return Responder(res, HttpStatusCode.NotAcceptable, "id_roles must be a type of array !")
+        if (Array.from(id_roles).length === 0) return Responder(res, HttpStatusCode.NotAcceptable, "id_roles must be a type of array ! and should not be empty ")
+
         try {
+            const rls = (await Services.rawRolesAsTableOfIds()) as number[];
+            const isIn = (Services.estInclus({ arr1: id_roles, arr2: rls }));
+            const { code, message, roles } = isIn
+            if (code === 400) {
+                return Responder(res, HttpStatusCode.NotAcceptable, `Sorry this values are not acceptable ( ${roles.join(",")} )`)
+            }
             Services.addRoleToUser({
                 inputs: {
                     idroles: [...id_roles],
@@ -44,6 +52,38 @@ export const __controllerRoles = {
             })
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    removeroletouser: async (req: Request, res: Response, next: NextFunction) => {
+        const { id_roles, id_user } = req.body;
+        if (!id_roles || !id_user) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !id_roles || !id_user")
+        if (!Array.isArray(id_roles)) return Responder(res, HttpStatusCode.NotAcceptable, "id_roles must be a type of array !")
+        if (Array.from(id_roles).length === 0) return Responder(res, HttpStatusCode.NotAcceptable, "id_roles must be a type of array ! and should not be empty ")
+
+        try {
+            const rls = (await Services.rawRolesAsTableOfIds()) as number[];
+            const isIn = (Services.estInclus({ arr1: id_roles, arr2: rls }));
+            const { code, message, roles } = isIn
+            if (code === 400) {
+                return Responder(res, HttpStatusCode.NotAcceptable, `Sorry this values are not acceptable ( ${roles.join(",")} )`)
+            }
+            Services.removeRoleToUser({
+                inputs: {
+                    idroles: [...id_roles],
+                    iduser: id_user
+                },
+                transaction: null,
+                cb: (err: any, ro: any) => {
+                    if (ro) {
+                        const { code, message, data } = ro
+                        if (code === 200) {
+                            return Responder(res, HttpStatusCode.Ok, ro)
+                        } else return Responder(res, HttpStatusCode.BadRequest, data)
+                    } else return Responder(res, HttpStatusCode.BadRequest, err)
+                }
+            })
+        } catch (e: any) {
+            return Responder(res, HttpStatusCode.InternalServerError, e)
         }
     },
     add: async (req: Request, res: Response, next: NextFunction) => {

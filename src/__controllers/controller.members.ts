@@ -14,9 +14,12 @@ export const __controllerMembers = {
         try {
             Hasmembers.belongsTo(Users, { foreignKey: "TblEcomUserId" })
             Hasmembers.belongsTo(Cooperatives)
-            
+
             Hasmembers.findAll({
                 where: {},
+                order: [
+                    ['id', 'DESC']
+                ],
                 include: [
                     {
                         model: Users,
@@ -62,6 +65,9 @@ export const __controllerMembers = {
             Hasmembers.belongsTo(Users, { foreignKey: "TblEcomUserId" })
             Hasmembers.belongsTo(Cooperatives)
             Hasmembers.findAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 where: {
                     TblEcomCooperativeId: parseInt(idcooperative)
                 },
@@ -115,6 +121,9 @@ export const __controllerMembers = {
                         [Op.ne]: idcooperative
                     }
                 },
+                order: [
+                    ['id', 'DESC']
+                ],
                 include: [
                     {
                         model: Users,

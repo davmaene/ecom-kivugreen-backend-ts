@@ -675,7 +675,7 @@ export const __controllerStocks = {
                         const { __tbl_ecom_produits } = rows[index].toJSON() as any;
                         for (let index = 0; index < __tbl_ecom_produits.length; index++) {
                             const { id, produit, __tbl_ecom_hasproducts } = __tbl_ecom_produits[index] as any;
-                            const { TblEcomProduitId, TblEcomCategoryId, TblEcomUnitesmesureId, id_membre } = __tbl_ecom_hasproducts;
+                            const { TblEcomProduitId, TblEcomCategoryId, TblEcomUnitesmesureId, id_membre, qte_critique } = __tbl_ecom_hasproducts;
                             const member = await Users.findOne({
                                 where: {
                                     id: id_membre
