@@ -67,6 +67,8 @@ export const __controllerRoles = {
             if (code === 400) {
                 return Responder(res, HttpStatusCode.NotAcceptable, `Sorry this values are not acceptable ( ${roles.join(",")} )`)
             }
+
+            log("------------------")
             Services.removeRoleToUser({
                 inputs: {
                     idroles: [...id_roles],
@@ -78,11 +80,18 @@ export const __controllerRoles = {
                         const { code, message, data } = ro
                         if (code === 200) {
                             return Responder(res, HttpStatusCode.Ok, ro)
-                        } else return Responder(res, HttpStatusCode.BadRequest, data)
-                    } else return Responder(res, HttpStatusCode.BadRequest, err)
+                        } else {
+                            log(ro)
+                            return Responder(res, HttpStatusCode.BadRequest, data)
+                        }
+                    } else {
+                        log(err)
+                        return Responder(res, HttpStatusCode.BadRequest, err)
+                    }
                 }
             })
         } catch (e: any) {
+            log(e)
             return Responder(res, HttpStatusCode.InternalServerError, e)
         }
     },

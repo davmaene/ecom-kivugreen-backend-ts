@@ -25,6 +25,7 @@ export const exludedRoutes: string[] = [
     "/villages/byterritory",
     // "/users/user/changepassword",
     "/users/user/signin",
+    "/services/carousels",
     "/users/user/signup",
     "/users/user/auth",
     // "/marketplace/commande",
