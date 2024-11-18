@@ -80,7 +80,6 @@ export const __controllerRoles = {
                         if (code === 200) {
                             return Responder(res, HttpStatusCode.Ok, ro)
                         } else {
-                            log(ro)
                             return Responder(res, HttpStatusCode.BadRequest, data)
                         }
                     } else {

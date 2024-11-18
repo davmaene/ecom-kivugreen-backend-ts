@@ -1866,7 +1866,7 @@ export const Services = {
         if (!iduser || !idroles) return cb(undefined, { code: 401, message: "This request must have at least !", data: { idroles, iduser } });
         try {
             if (Array.isArray(idroles)) {
-                const done = []
+                const done: any[] = []
                 for (let role of idroles) {
                     const r = await Hasroles.destroy({
                         where: {
@@ -1874,10 +1874,20 @@ export const Services = {
                             TblEcomUserId: iduser
                         }
                     })
-                    done.push({
-                        TblEcomRoleId: role,
-                        TblEcomUserId: iduser
-                    })
+                        .then(_ => {
+                            done.push({
+                                TblEcomRoleId: role,
+                                TblEcomUserId: iduser
+                            })
+                        })
+                        .catch(err => {
+                            log(err, "On deleting role to user ==> ")
+                            done.push({
+                                TblEcomRoleId: role,
+                                TblEcomUserId: iduser
+                            })
+                        })
+
                 }
                 return cb(undefined, { code: 200, message: "Done", data: done })
             }

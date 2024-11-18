@@ -1258,7 +1258,7 @@ export const __controllerUsers = {
                 .then((users: any[]) => {
                     transaction.commit()
                     users = Array.from(users).map(user => {
-                        const rawUser = user.get({ plain: true }); // Use plain objects
+                        const rawUser = user.get({ plain: true });
                         const { __tbl_ecom_roles: asroles } = rawUser;
                         const roles = Array.from(asroles || []).map((r: any) => ({
                             id_role: r.id,
