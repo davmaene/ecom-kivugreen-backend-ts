@@ -1841,14 +1841,20 @@ export const Services = {
         if (!iduser || !idroles) return cb(undefined, { code: 401, message: "This request must have at least !", data: { idroles, iduser } });
         try {
             if (Array.isArray(idroles)) {
-                const done = []
+                const done: any[] = []
                 for (let role of idroles) {
                     const r = await Hasroles.create({
                         id: parseInt(randomLongNumber({ length: 6 })),
                         TblEcomRoleId: role,
                         TblEcomUserId: iduser
                     })
-                    done.push(r)
+                        .then(r => done.push(r))
+                        .catch(err => {
+                            log(err, "This role can not be added to this ==> ", {
+                                role,
+                                iduser
+                            })
+                        })
                 }
                 return cb(undefined, { code: 200, message: "Done", data: done })
             }

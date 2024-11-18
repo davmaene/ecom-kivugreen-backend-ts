@@ -68,7 +68,6 @@ export const __controllerRoles = {
                 return Responder(res, HttpStatusCode.NotAcceptable, `Sorry this values are not acceptable ( ${roles.join(",")} )`)
             }
 
-            log("------------------")
             Services.removeRoleToUser({
                 inputs: {
                     idroles: [...id_roles],

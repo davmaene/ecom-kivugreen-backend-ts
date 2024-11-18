@@ -1255,9 +1255,26 @@ export const __controllerUsers = {
                     }
                 ]
             })
-                .then(user => {
+                .then((users: any[]) => {
                     transaction.commit()
-                    return Responder(res, HttpStatusCode.Ok, { count: user.length, rows: user })
+                    users = Array.from(users).map(user => {
+                        const rawUser = user.get({ plain: true }); // Use plain objects
+                        const { __tbl_ecom_roles: asroles } = rawUser;
+                        const roles = Array.from(asroles || []).map((r: any) => ({
+                            id_role: r.id,
+                            role: r.role,
+                        }));
+
+                        return {
+                            ...rawUser,
+                            __tbl_ecom_roles: roles,
+                        };
+                    });
+                    return Responder(res, HttpStatusCode.Ok, { count: users.length, rows: users })
+                })
+                .catch(err => {
+                    log(err)
+                    return Responder(res, HttpStatusCode.InternalServerError, err)
                 })
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
