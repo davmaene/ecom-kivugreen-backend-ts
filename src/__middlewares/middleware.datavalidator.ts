@@ -94,7 +94,7 @@ export const coopecModelValidator = [
     body('phone').notEmpty().isMobilePhone('fr-CD').trim().withMessage("`phone` the value entered for the phone it seems to be not a valide phone number !"),
     body('email').optional().isEmail().trim().withMessage("`email` the value entered for email it seems to be not a valide email adresse !"),
     body('isformel').notEmpty().isNumeric().isLength({ max: 1, min: 1 }).custom(validateIsformel).withMessage("`isformel` the value for isformel is not invalid ! this can only be 1 or 0"),
-    body('id_category').notEmpty().isNumeric().isLength({ max: 1, min: 1 }).custom(validateCategoryCoopec).withMessage("`id_category` the value for id_category is not invalid ! this can only be 1 or 0"),
+    body('id_category').notEmpty().isNumeric().isLength({ max: 100, min: 1 }).custom(validateCategoryCoopec).withMessage("`id_category` the value for id_category is not invalid ! this can only be 1 or 0"),
 ];
 
 export const bankModelValidator = [
