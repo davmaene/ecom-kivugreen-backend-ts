@@ -29,6 +29,7 @@ import { Stocks } from '../__models/model.stocks';
 import { Unites } from '../__models/model.unitemesures';
 import { Produits } from '../__models/model.produits';
 import { connect } from '../__databases/connecte';
+import { Categoriescooperatives } from '../__models/model.categscooperatives';
 
 dotenv.config()
 
@@ -1953,6 +1954,13 @@ export const Services = {
     },
     rawRolesAsTableOfIds: async () => {
         const { count, rows } = await Roles.findAndCountAll({ where: {}, raw: true, attributes: ['id'] });
+        if (count <= 0) return [];
+        else {
+            return rows.map(r => r && r['id'])
+        }
+    },
+    rawCategoriesCoopecAsTableOfIds: async () => {
+        const { count, rows } = await Categoriescooperatives.findAndCountAll({ where: {}, raw: true, attributes: ['id'] });
         if (count <= 0) return [];
         else {
             return rows.map(r => r && r['id'])
