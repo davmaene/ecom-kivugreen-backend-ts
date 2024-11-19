@@ -918,13 +918,13 @@ export const __controllerUsers = {
                 .then(user => {
                     if (user instanceof Users) {
 
-                        user = user.toJSON();
+                        user = user?.toJSON();
                         delete user['password'];
                         delete user['idprovince'];
                         delete user['idterritoire'];
                         delete user['idvillage'];
                         delete user['isvalidated'];
-                        const { id, } = user as any
+                        const { id } = user as any
 
                         Services.addRoleToUser({
                             inputs: {

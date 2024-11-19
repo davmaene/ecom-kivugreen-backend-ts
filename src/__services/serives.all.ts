@@ -1844,18 +1844,19 @@ export const Services = {
             if (Array.isArray(idroles)) {
                 const done: any[] = []
                 for (let role of idroles) {
-                    const r = await Hasroles.create({
-                        id: parseInt(randomLongNumber({ length: 6 })),
-                        TblEcomRoleId: role,
-                        TblEcomUserId: iduser
-                    })
-                        .then(r => done.push(r))
-                        .catch(err => {
-                            log(err, "This role can not be added to this ==> ", {
-                                role,
-                                iduser
-                            })
+                    try {
+                        const r = await Hasroles.create({
+                            id: parseInt(randomLongNumber({ length: 6 })),
+                            TblEcomRoleId: role,
+                            TblEcomUserId: iduser
                         })
+                        done.push(r)
+                    } catch (error) {
+                        log(error, "This role can not be added to this ==> ", {
+                            role,
+                            iduser
+                        })
+                    }
                 }
                 return cb(undefined, { code: 200, message: "Done", data: done })
             }
