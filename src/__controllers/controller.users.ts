@@ -984,14 +984,16 @@ export const __controllerUsers = {
                                                                                 content: `Bonjour ${nom}, votre enregistrement dans la coopérative ${cooperative} en date du ${now({ options: {} })} a réussi, votre carte de membre sera expiré le ${expiresInString.toString()}`
                                                                             })
                                                                                 .then(m => {
-                                                                                    transaction.commit()
-                                                                                    return Responder(res, HttpStatusCode.Ok, user)
+                                                                                    // transaction.commit()
+                                                                                    // return Responder(res, HttpStatusCode.Ok, user)
                                                                                 })
                                                                                 .catch(e => {
-                                                                                    transaction.rollback()
-                                                                                    log(data)
-                                                                                    return Responder(res, HttpStatusCode.InternalServerError, "Error on initializing members table !")
+                                                                                    // transaction.rollback()
+                                                                                    // log(data)
+                                                                                    // return Responder(res, HttpStatusCode.InternalServerError, "Error on initializing members table !")
                                                                                 })
+                                                                            transaction.commit()
+                                                                            return Responder(res, HttpStatusCode.Ok, user)
 
                                                                         } else {
                                                                             transaction.rollback()

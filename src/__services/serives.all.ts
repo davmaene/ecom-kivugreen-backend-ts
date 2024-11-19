@@ -361,7 +361,7 @@ export const Services = {
                 })
                 log("Message was sent to ==> ", payload['phone'], "Content ==> ", payload['message'], "is_flash ==> ", is_flash)
                 if (status === 200 || status === 201) return resolve({ code: status, message: "Message was succefuly sent ", data: data })
-                else return reject({ code: status, message: statusText, data })
+                else return resolve({ code: status, message: statusText, data })
 
             } catch (error: any) {
                 log(error.toString())
