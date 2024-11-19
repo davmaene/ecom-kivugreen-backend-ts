@@ -1256,21 +1256,22 @@ export const __controllerUsers = {
                 ]
             })
                 .then((users: any[]) => {
-                    transaction.commit()
-                    users = Array.from(users).map(user => {
-                        const rawUser = user.get({ plain: true });
-                        const { __tbl_ecom_roles: asroles } = rawUser;
-                        const roles = Array.from(asroles || []).map((r: any) => ({
-                            id_role: r.id,
-                            role: r.role,
-                        }));
-
-                        return {
-                            ...rawUser,
-                            __tbl_ecom_roles: roles,
-                        };
-                    });
                     return Responder(res, HttpStatusCode.Ok, { count: users.length, rows: users })
+                    // transaction.commit()
+                    // users = Array.from(users).map(user => {
+                    //     const rawUser = user.get({ plain: true });
+                    //     const { __tbl_ecom_roles: asroles } = rawUser;
+                    //     const roles = Array.from(asroles || []).map((r: any) => ({
+                    //         id_role: r.id,
+                    //         role: r.role,
+                    //     }));
+
+                    //     return {
+                    //         ...rawUser,
+                    //         __tbl_ecom_roles: roles,
+                    //     };
+                    // });
+                    // return Responder(res, HttpStatusCode.Ok, { count: users.length, rows: users })
                 })
                 .catch(err => {
                     log(err)
