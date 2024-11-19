@@ -548,7 +548,8 @@ export const __controllerUsers = {
                         delete user['idvillage'];
                         delete user['isvalidated'];
                         const { id, } = user
-
+                        
+                        transaction.commit()
                         Services.addRoleToUser({
                             inputs: {
                                 idroles,
@@ -580,30 +581,30 @@ export const __controllerUsers = {
                                                         content: `Bonjour ${capitalizeWords({ text: nom })} votre compte a été crée avec succès. Ceci est votre code de vérification ${code_}`,
                                                     })
                                                         .then(suc => {
-                                                            transaction.commit()
+                                                            // transaction.commit()
                                                             return Responder(res, HttpStatusCode.Created, user)
                                                         })
                                                         .catch(err => {
-                                                            transaction.rollback()
+                                                            // transaction.rollback()
                                                             log(err)
                                                             return Responder(res, HttpStatusCode.InternalServerError, extras)
                                                         })
                                                 } else {
-                                                    transaction.rollback()
+                                                    // transaction.rollback()
                                                     return Responder(res, HttpStatusCode.InternalServerError, extras)
                                                 }
                                             })
                                             .catch(er => {
                                                 log(er)
-                                                transaction.rollback()
+                                                // transaction.rollback()
                                                 return Responder(res, HttpStatusCode.InternalServerError, er)
                                             })
                                     } else {
-                                        transaction.rollback()
+                                        // transaction.rollback()
                                         return Responder(res, HttpStatusCode.InternalServerError, "Role not initialized correctly !")
                                     }
                                 } else {
-                                    transaction.rollback()
+                                    // transaction.rollback()
                                     return Responder(res, HttpStatusCode.InternalServerError, "Role not initialized correctly !")
                                 }
                             }
@@ -925,6 +926,8 @@ export const __controllerUsers = {
                         delete user['isvalidated'];
                         const { id } = user as any
 
+                        transaction.commit()
+
                         Services.addRoleToUser({
                             inputs: {
                                 idroles,
@@ -935,7 +938,6 @@ export const __controllerUsers = {
                                 if (done) {
                                     const { code } = done;
                                     if (code === 200) {
-
                                         if (email) {
                                             let chaine = JSON.stringify({
                                                 email: email,
@@ -973,7 +975,6 @@ export const __controllerUsers = {
                                                                 transaction: transaction,
                                                                 cb: (err: any, done: any) => {
                                                                     log("Added member card is =======> ", code, "=======", done)
-
                                                                     if (done) {
                                                                         const { code, message, data } = done;
                                                                         if (code === 200) {
@@ -991,16 +992,16 @@ export const __controllerUsers = {
                                                                                     // log(data)
                                                                                     // return Responder(res, HttpStatusCode.InternalServerError, "Error on initializing members table !")
                                                                                 })
-                                                                            transaction.commit()
+                                                                            // transaction.commit()
                                                                             return Responder(res, HttpStatusCode.Ok, user)
 
                                                                         } else {
-                                                                            transaction.rollback()
+                                                                            // transaction.rollback()
                                                                             log(data)
                                                                             return Responder(res, HttpStatusCode.InternalServerError, "Error on initializing members table !")
                                                                         }
                                                                     } else {
-                                                                        transaction.rollback()
+                                                                        // transaction.rollback()
                                                                         log(done)
                                                                         return Responder(res, HttpStatusCode.InternalServerError, "Error on initializing members table ! ===")
                                                                     }
@@ -1008,42 +1009,44 @@ export const __controllerUsers = {
                                                             })
 
                                                         } else {
-                                                            transaction.rollback()
+                                                            // transaction.rollback()
                                                             return Responder(res, HttpStatusCode.BadRequest, `The request can not be proceded cause the card can not be initialized !`)
                                                         }
                                                     })
                                                     .catch(err => {
-                                                        transaction.rollback()
+                                                        // transaction.rollback()
                                                         return Responder(res, HttpStatusCode.InternalServerError, err.toString())
                                                     })
                                             } else {
-                                                transaction.rollback();
                                                 log(coop)
+                                                // transaction.rollback();
                                                 return Responder(res, HttpStatusCode.NotFound, `The coopec with ID: XXXX:${id_cooperative} was not found !`)
                                             }
                                         } else {
-                                            await Services.onSendSMS({
+                                            Services.onSendSMS({
                                                 is_flash: false,
                                                 to: fillphone({ phone }),
                                                 content: `Bonjour ${capitalizeWords({ text: nom })} votre compte a été crée avec succès. Ceci est votre mot de passe ${password}`,
                                             })
                                                 .then(sms => {
-                                                    transaction.commit()
-                                                    return Responder(res, HttpStatusCode.Created, user)
+                                                    // transaction.commit()
+                                                    // return Responder(res, HttpStatusCode.Created, user)
                                                 })
                                                 .catch(er => {
-                                                    transaction.rollback()
-                                                    log(er)
-                                                    return Responder(res, HttpStatusCode.InternalServerError, "Role not initialized correctly !")
+                                                    // transaction.rollback()
+                                                    // log(er)
+                                                    // return Responder(res, HttpStatusCode.InternalServerError, "Role not initialized correctly !")
                                                 })
+                                            // transaction.commit()
+                                            return Responder(res, HttpStatusCode.Created, user)
                                         }
 
                                     } else {
-                                        transaction.rollback()
+                                        // transaction.rollback()
                                         return Responder(res, HttpStatusCode.InternalServerError, "Role not initialized correctly !")
                                     }
                                 } else {
-                                    transaction.rollback()
+                                    // transaction.rollback()
                                     return Responder(res, HttpStatusCode.InternalServerError, "Role not initialized correctly !")
                                 }
                             }

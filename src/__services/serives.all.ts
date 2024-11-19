@@ -360,7 +360,7 @@ export const Services = {
                 })
                 log("Message was sent to ==> ", payload['phone'], "Content ==> ", payload['message'], "is_flash ==> ", is_flash)
                 if (status === 200 || status === 201) return resolve({ code: status, message: "Message was succefuly sent ", data: data })
-                else return resolve({ code: status, message: statusText, data })
+                else return reject({ code: status, message: statusText, data })
             } catch (error: any) {
                 log(error.toString())
                 return reject({ code: 500, message: "Error on sending message", data: error.toString() })
@@ -1839,7 +1839,6 @@ export const Services = {
     addRoleToUser: async ({ inputs: { iduser, idroles }, transaction, cb }: { inputs: { iduser: number, idroles: number[] }, transaction: any, cb: Function }) => {
         if (!iduser || !idroles || !Array.isArray(idroles)) return cb(undefined, { code: 401, message: "This request must have at least !", data: { idroles, iduser } });
         try {
-
             if (Array.isArray(idroles)) {
                 const done: any[] = []
                 for (let role of idroles) {
@@ -1943,7 +1942,7 @@ export const Services = {
                     carte: card,
                     date_expiration: expiresIn,
                     date_expiration_unix: expiresInUnix
-                }, { transaction })
+                })
                 if (member instanceof Hasmembers) {
                     return cb(undefined, { code: 200, message: "Done", data: member })
                 } else return cb(undefined, { code: 500, message: "Error", data: null })
