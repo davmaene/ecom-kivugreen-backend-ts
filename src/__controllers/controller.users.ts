@@ -118,11 +118,11 @@ export const __controllerUsers = {
                         })
                             .then(async newuser => {
                                 if (newuser instanceof Users) {
-                                    const { nom, phone: asphone, id } = newuser.toJSON()
+                                    const { nom, phone: asphone, id } = newuser?.toJSON()
                                     Services.addRoleToUser({
                                         inputs: {
                                             idroles,
-                                            iduser: id
+                                            iduser: id || 0
                                         },
                                         transaction,
                                         cb: (err: any, done: any) => {
@@ -541,7 +541,7 @@ export const __controllerUsers = {
                 .then(user => {
                     if (user instanceof Users) {
 
-                        user = user.toJSON();
+                        user = user?.toJSON();
                         delete user['password'];
                         delete user['idprovince'];
                         delete user['idterritoire'];
@@ -552,7 +552,7 @@ export const __controllerUsers = {
                         Services.addRoleToUser({
                             inputs: {
                                 idroles,
-                                iduser: id
+                                iduser: id || 0
                             },
                             transaction,
                             cb: (err: any, done: any) => {
@@ -561,7 +561,6 @@ export const __controllerUsers = {
                                     const { id } = user
                                     if (code === 200) {
                                         log(err)
-
                                         Extras.create({
                                             id_user: id,
                                             verification: code_,

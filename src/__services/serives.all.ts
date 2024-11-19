@@ -343,7 +343,6 @@ export const Services = {
     onSendSMS: async ({ to, content, is_flash }: { to: string, content: string, is_flash: boolean }): Promise<{ code: number, message: string, data: any }> => {
         return new Promise(async (resolve, reject) => {
             try {
-                // || API_SMS_IS_FLASH,
                 const payload = {
                     'phone': completeCodeCountryToPhoneNumber({ phone: to, withoutplus: false }),
                     'message': content,
@@ -362,7 +361,6 @@ export const Services = {
                 log("Message was sent to ==> ", payload['phone'], "Content ==> ", payload['message'], "is_flash ==> ", is_flash)
                 if (status === 200 || status === 201) return resolve({ code: status, message: "Message was succefuly sent ", data: data })
                 else return resolve({ code: status, message: statusText, data })
-
             } catch (error: any) {
                 log(error.toString())
                 return reject({ code: 500, message: "Error on sending message", data: error.toString() })
@@ -1838,9 +1836,10 @@ export const Services = {
             }
         });
     },
-    addRoleToUser: async ({ inputs: { iduser, idroles }, transaction, cb }: { inputs: { iduser?: number, idroles: number[] }, transaction: any, cb: Function }) => {
-        if (!iduser || !idroles) return cb(undefined, { code: 401, message: "This request must have at least !", data: { idroles, iduser } });
+    addRoleToUser: async ({ inputs: { iduser, idroles }, transaction, cb }: { inputs: { iduser: number, idroles: number[] }, transaction: any, cb: Function }) => {
+        if (!iduser || !idroles || !Array.isArray(idroles)) return cb(undefined, { code: 401, message: "This request must have at least !", data: { idroles, iduser } });
         try {
+
             if (Array.isArray(idroles)) {
                 const done: any[] = []
                 for (let role of idroles) {
