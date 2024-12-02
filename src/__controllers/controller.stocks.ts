@@ -283,12 +283,14 @@ export const __controllerStocks = {
     },
     in: async (req: Request, res: Response) => {
         const { id_cooperative, items, description, date_production, date_expiration, approv_by } = req.body;
-        if(!id_cooperative || !items) return Responder(res, HttpStatusCode.NotAcceptable, "This reequest must have at least !id_cooperative || !items")
+        if (!id_cooperative || !items) return Responder(res, HttpStatusCode.NotAcceptable, "This reequest must have at least !id_cooperative || !items")
         const { currentuser } = req as any;
         if (!id_cooperative || !items) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !id_cooperative || !items")
-        if (!Array.isArray(items) || Array.from(items).length === 0) return Responder(res, HttpStatusCode.NotAcceptable, "Items must be a type of Array")
+        if (!Array.isArray(items) || Array.from(items).length === 0) return Responder(res, HttpStatusCode.NotAcceptable, "Items must be a type of Array and should not be empty !")
+
         const array: any[] = Array.from(items);
         const { __id, roles, uuid, phone } = currentuser;
+        const id_transaction = randomLongNumber({ length: 15 })
         const configs = await Configs.findOne({
             where: {
                 id: 1
@@ -302,7 +304,7 @@ export const __controllerStocks = {
                 date_production,
                 createdby: __id,
                 id_cooperative: id_cooperative,
-                transaction: randomLongNumber({ length: 15 }),
+                transaction: id_transaction,
                 description
             }, { transaction })
                 .then(async stock => {
@@ -312,10 +314,11 @@ export const __controllerStocks = {
                         if (configs instanceof Configs) {
                             const { taux_change, commission_price } = configs.toJSON() as any;
                             for (let index = 0; index < array.length; index++) {
-                                const { id_produit, qte, prix_unitaire, currency, date_production: asdate_production, id_member, qte_critique }: any = array[index];
-                                if (!id_produit || !qte || !prix_unitaire || !currency || !asdate_production || !id_member) { // || !id_membre
+                                const { id_produit, qte, prix_unitaire, currency, date_production: asdate_production, id_member: as_id_member, qte_critique }: any = array[index];
+                                if (!id_produit || !qte || !prix_unitaire || !currency || !asdate_production || !as_id_member) { // || !id_membre
                                     nottreated.push(array[index])
                                 } else {
+                                    const id_member = parseInt(as_id_member)
                                     try {
                                         const prd = await Produits.findOne({
                                             attributes: ['id', 'produit', 'id_unity', 'id_category', 'id_souscategory', 'image', 'tva'],
@@ -346,7 +349,7 @@ export const __controllerStocks = {
                                                         TblEcomStockId: asstockid || 0,
                                                         TblEcomUnitesmesureId: id_unity,
                                                         qte,
-                                                        id_membre: id_member
+                                                        // id_membre: id_member
                                                     },
                                                     transaction
                                                 })
@@ -375,8 +378,10 @@ export const __controllerStocks = {
                                                         TblEcomUnitesmesureId: id_unity,
                                                     }, {})
                                                     const __ = !Array.isArray(asids) ? [asids] : asids
+                                                    const ids_members = [...supprimerDoublons({ tableau: [...__ as any] })]
+                                                    log("Members are ===> ", ids_members)
                                                     item.update({
-                                                        id_membre: [...supprimerDoublons({ tableau: [...__ as any] })],
+                                                        id_membre: ids_members,
                                                         qte: qte + asqte
                                                     })
                                                     treated.push({ ...array[index], produit })

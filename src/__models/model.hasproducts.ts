@@ -27,7 +27,7 @@ export const Hasproducts = connect.define<Hasproduit>('__tbl_ecom_hasproducts', 
         defaultValue: 0
     },
     id_membre: {
-        type: DataTypes.STRING,
+        type: DataTypes.JSON,
         defaultValue: 0,
         allowNull: true
     },
