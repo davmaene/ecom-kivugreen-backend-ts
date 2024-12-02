@@ -282,149 +282,162 @@ export const __controllerStocks = {
         }
     },
     in: async (req: Request, res: Response) => {
-        const { id_cooperative, items, description, date_production, date_expiration, approv_by } = req.body;
-        if (!id_cooperative || !items) return Responder(res, HttpStatusCode.NotAcceptable, "This reequest must have at least !id_cooperative || !items")
+        const { id_cooperative, items, description, date_production, date_expiration } = req.body;
         const { currentuser } = req as any;
-        if (!id_cooperative || !items) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !id_cooperative || !items")
-        if (!Array.isArray(items) || Array.from(items).length === 0) return Responder(res, HttpStatusCode.NotAcceptable, "Items must be a type of Array and should not be empty !")
 
-        const array: any[] = Array.from(items);
-        const { __id, roles, uuid, phone } = currentuser;
-        const id_transaction = randomLongNumber({ length: 15 })
-        const configs = await Configs.findOne({
-            where: {
-                id: 1
-            }
-        })
+        // Vérifications initiales
+        if (!id_cooperative || !items) {
+            return Responder(res, HttpStatusCode.NotAcceptable, "Request must include 'id_cooperative' and 'items'.");
+        }
+
+        if (!Array.isArray(items) || items.length === 0) {
+            return Responder(res, HttpStatusCode.NotAcceptable, "Items must be a non-empty array.");
+        }
+
+        const { __id } = currentuser;
+        const id_transaction = randomLongNumber({ length: 15 });
 
         try {
-            const transaction = await connect.transaction()
-            Stocks.create({
-                date_expiration,
-                date_production,
-                createdby: __id,
-                id_cooperative: id_cooperative,
-                transaction: id_transaction,
-                description
-            }, { transaction })
-                .then(async stock => {
-                    if (stock instanceof Stocks) {
-                        const treated: any[] = []
-                        const nottreated: any[] = []
-                        if (configs instanceof Configs) {
-                            const { taux_change, commission_price } = configs.toJSON() as any;
-                            for (let index = 0; index < array.length; index++) {
-                                const { id_produit, qte, prix_unitaire, currency, date_production: asdate_production, id_member: as_id_member, qte_critique }: any = array[index];
-                                if (!id_produit || !qte || !prix_unitaire || !currency || !asdate_production || !as_id_member) { // || !id_membre
-                                    nottreated.push(array[index])
-                                } else {
-                                    const id_member = parseInt(as_id_member)
-                                    try {
-                                        const prd = await Produits.findOne({
-                                            attributes: ['id', 'produit', 'id_unity', 'id_category', 'id_souscategory', 'image', 'tva'],
-                                            where: {
-                                                id: id_produit
-                                            }
-                                        })
-                                        if (prd instanceof Produits) {
-                                            const { id, produit, id_unity, id_category, id_souscategory, image, tva } = prd.toJSON() as any
-                                            const { id: asstockid } = stock.toJSON() as any;
-                                            if (produit && id_category && id_unity) {
-                                                const price = await Services.calcProductPrice({ unit_price: prix_unitaire, tva })
-                                                const [item, created] = await Hasproducts.findOrCreate({
-                                                    where: {
-                                                        TblEcomProduitId: id_produit,
-                                                        TblEcomCooperativeId: id_cooperative
-                                                    },
-                                                    defaults: {
-                                                        prix_plus_commission: price,
-                                                        currency,
-                                                        tva,
-                                                        qte_critique: qte_critique || 0,
-                                                        prix_unitaire,
-                                                        date_production: asdate_production,
-                                                        TblEcomCategoryId: id_category,
-                                                        TblEcomCooperativeId: id_cooperative,
-                                                        TblEcomProduitId: id_produit,
-                                                        TblEcomStockId: asstockid || 0,
-                                                        TblEcomUnitesmesureId: id_unity,
-                                                        qte,
-                                                        // id_membre: id_member
-                                                    },
-                                                    transaction
-                                                })
-                                                if (created) {
-                                                    Historiquesmembersstocks.create({
-                                                        TblEcomUserId: id_member,
-                                                        qte,
-                                                        date_production: asdate_production,
-                                                        TblEcomCategoryId: id_category,
-                                                        TblEcomCooperativeId: id_cooperative,
-                                                        TblEcomProduitId: id_produit,
-                                                        TblEcomStockId: asstockid || 0,
-                                                        TblEcomUnitesmesureId: id_unity,
-                                                    }, {})
-                                                    treated.push(array[index])
-                                                } else {
-                                                    const { qte: asqte, id_membre: asids } = item?.toJSON()
-                                                    Historiquesmembersstocks.create({
-                                                        TblEcomUserId: id_member,
-                                                        qte,
-                                                        date_production: asdate_production,
-                                                        TblEcomCategoryId: id_category,
-                                                        TblEcomCooperativeId: id_cooperative,
-                                                        TblEcomProduitId: id_produit,
-                                                        TblEcomStockId: asstockid || 0,
-                                                        TblEcomUnitesmesureId: id_unity,
-                                                    }, {})
-                                                    const __ = !Array.isArray(asids) ? [asids] : asids
-                                                    const ids_members = [...supprimerDoublons({ tableau: [...__ as any] })]
-                                                    log("Members are ===> ", ids_members)
-                                                    item.update({
-                                                        id_membre: ids_members,
-                                                        qte: qte + asqte
-                                                    })
-                                                    treated.push({ ...array[index], produit })
-                                                }
-                                            } else {
-                                                log("We can not save this item cause it can not be proceced !", id_produit)
-                                            }
-                                        } else {
-                                            nottreated.push(array[index])
-                                        }
-                                    } catch (error) {
-                                        nottreated.push(array[index])
-                                        // log(error)
-                                        console.log('====================================');
-                                        console.log(id_produit, prix_unitaire, commission_price, " ============> ", id_member);
-                                        console.log('====================================');
-                                        log("Error on treatement on object => ", id_produit, configs, error)
-                                    }
-                                }
-                            }
+            // Récupération de la configuration
+            const configs = await Configs.findOne({ where: { id: 1 } });
+            if (!configs) {
+                return Responder(res, HttpStatusCode.Conflict, "Configuration parameters are missing.");
+            }
 
-                            if (treated.length > 0) {
-                                transaction.commit()
-                                return Responder(res, HttpStatusCode.Ok, { ...stock.toJSON(), produits: treated })
-                            } else {
-                                transaction.rollback()
-                                return Responder(res, HttpStatusCode.Conflict, "this request must have at least Configurations params for the price !, the table of product is empty")
-                            }
-                        } else {
-                            return Responder(res, HttpStatusCode.Conflict, "this request must have at least Configurations params for the price !, we can not initialize the commission and taux table")
-                        }
-                    } else {
-                        transaction.rollback()
-                        return Responder(res, HttpStatusCode.Conflict, {})
+            const { taux_change, commission_price } = configs.toJSON() as any;
+
+            // Début de la transaction
+            const transaction = await connect.transaction();
+
+            try {
+                // Création du stock
+                const stock = await Stocks.create(
+                    {
+                        date_expiration,
+                        date_production,
+                        createdby: __id,
+                        id_cooperative,
+                        transaction: id_transaction,
+                        description,
+                    },
+                    { transaction }
+                );
+
+                const treated: any[] = [];
+                const notTreated: any[] = [];
+
+                // Traitement des items
+                for (const item of items) {
+                    const {
+                        id_produit,
+                        qte,
+                        prix_unitaire,
+                        currency,
+                        date_production: asdate_production,
+                        id_member: as_id_member,
+                        qte_critique,
+                    } = item;
+
+                    if (!id_produit || !qte || !prix_unitaire || !currency || !asdate_production || !as_id_member) {
+                        notTreated.push(item);
+                        continue;
                     }
-                })
-                .catch(err => {
-                    transaction.rollback()
-                    return Responder(res, HttpStatusCode.Conflict, err)
-                })
 
-        } catch (error) {
-            return Responder(res, HttpStatusCode.InternalServerError, error)
+                    const id_member = parseInt(as_id_member);
+
+                    try {
+                        const prd = await Produits.findOne({
+                            attributes: ['id', 'produit', 'id_unity', 'id_category', 'id_souscategory', 'image', 'tva'],
+                            where: { id: id_produit },
+                        });
+                        
+                        if (!prd) {
+                            notTreated.push(item);
+                            continue;
+                        }
+
+                        const { id: asstockid } = stock.toJSON() as any;
+                        const { produit, id_unity, id_category, tva } = prd.toJSON() as any;
+
+                        if (!produit || !id_category || !id_unity) {
+                            notTreated.push(item);
+                            continue;
+                        }
+
+                        const price = await Services.calcProductPrice({ unit_price: prix_unitaire, tva });
+
+                        // Ajout ou mise à jour du produit
+                        const [createdItem, created] = await Hasproducts.findOrCreate({
+                            where: {
+                                TblEcomProduitId: id_produit,
+                                TblEcomCooperativeId: id_cooperative,
+                            },
+                            defaults: {
+                                prix_plus_commission: price,
+                                currency,
+                                tva,
+                                qte_critique: qte_critique || 0,
+                                prix_unitaire,
+                                date_production: asdate_production,
+                                TblEcomCategoryId: id_category,
+                                TblEcomCooperativeId: id_cooperative,
+                                TblEcomProduitId: id_produit,
+                                TblEcomStockId: asstockid || 0,
+                                TblEcomUnitesmesureId: id_unity,
+                                qte,
+                            },
+                            transaction,
+                        });
+
+                        if (created) {
+                            await Historiquesmembersstocks.create(
+                                {
+                                    TblEcomUserId: id_member,
+                                    qte,
+                                    date_production: asdate_production,
+                                    TblEcomCategoryId: id_category,
+                                    TblEcomCooperativeId: id_cooperative,
+                                    TblEcomProduitId: id_produit,
+                                    TblEcomStockId: asstockid || 0,
+                                    TblEcomUnitesmesureId: id_unity,
+                                },
+                                { transaction }
+                            );
+
+                            treated.push(item);
+                        } else {
+                            // Mise à jour des quantités
+                            const { qte: currentQte } = createdItem.toJSON();
+                            await createdItem.update(
+                                {
+                                    qte: currentQte + qte,
+                                },
+                                { transaction }
+                            );
+
+                            treated.push(item);
+                        }
+                    } catch (error) {
+                        console.error("Error processing item:", item, error);
+                        notTreated.push(item);
+                    }
+                }
+
+                // Validation de la transaction
+                if (treated.length > 0) {
+                    await transaction.commit();
+                    return Responder(res, HttpStatusCode.Ok, { ...stock.toJSON(), produits: treated });
+                } else {
+                    await transaction.rollback();
+                    return Responder(res, HttpStatusCode.Conflict, "No items were successfully processed.");
+                }
+            } catch (error) {
+                await transaction.rollback();
+                return Responder(res, HttpStatusCode.Conflict, "No items were successfully processed.");
+            }
+        } catch (error: any) {
+            console.error("Error in middleware:", error);
+            return Responder(res, HttpStatusCode.InternalServerError, error.message || "An error occurred.");
         }
     },
     list: async (req: Request, res: Response) => {

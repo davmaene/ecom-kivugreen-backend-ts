@@ -44,7 +44,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
     const { url, method, body, query, params, ip, ips } = req
-    log({
+    log("::: Req ::: ", JSON.stringify({
         url,
         method,
         body,
@@ -52,7 +52,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
         params,
         ip,
         ips
-    })
+    }))
     next();
     // return Responder(res, HttpStatusCode.Ok, req.body)
 });
