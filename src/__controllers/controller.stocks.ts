@@ -283,6 +283,7 @@ export const __controllerStocks = {
     },
     in: async (req: Request, res: Response) => {
         const { id_cooperative, items, description, date_production, date_expiration, approv_by } = req.body;
+        if(!id_cooperative || !items) return Responder(res, HttpStatusCode.NotAcceptable, "This reequest must have at least !id_cooperative || !items")
         const { currentuser } = req as any;
         if (!id_cooperative || !items) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least !id_cooperative || !items")
         if (!Array.isArray(items) || Array.from(items).length === 0) return Responder(res, HttpStatusCode.NotAcceptable, "Items must be a type of Array")
