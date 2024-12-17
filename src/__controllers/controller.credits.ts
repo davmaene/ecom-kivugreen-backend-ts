@@ -98,7 +98,8 @@ export const __controllersCredits = {
                 id_user: id_member || null,
                 periode_remboursement: parseInt(periode_remboursement),
                 status: 0,
-                createdat: _ as any
+                createdat: _ as any,
+                created_at: _ as any
             })
                 .then(async crd => {
                     if (crd instanceof Credits) {

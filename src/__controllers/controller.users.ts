@@ -182,7 +182,7 @@ export const __controllerUsers = {
         }
     },
     signin: async (req: Request, res: Response, next: NextFunction) => {
-        log(APP_EXIPRES_IN_ADMIN, APP_EXIPRES_IN_ALL)
+        // log(APP_EXIPRES_IN_ADMIN, APP_EXIPRES_IN_ALL)
         const { phone, password } = req.body;
         let allowedRoles = await Roles.findAll({ where: {}, raw: true });
         allowedRoles = [...allowedRoles.map(r => r['id']), ...[1, 3, 2, 4, 5] as any];
@@ -250,45 +250,56 @@ export const __controllerUsers = {
             const { password: hashedPassword, isvalidated, __tbl_ecom_roles } = user.toJSON() as any;
             const roles = __tbl_ecom_roles.map((role: any) => role['id']);
 
-            const passwordMatch = await comparePWD({ hashedtext: hashedPassword || '', plaintext: password });
+            comparePWD({
+                hashedtext: hashedPassword || '',
+                plaintext: password
+            })
+                .then(async p => {
 
-            if (!passwordMatch) {
-                await transaction.rollback();
-                return Responder(res, HttpStatusCode.Forbidden, "Phone | Email or Password incorrect!");
-            }
+                    if (isvalidated !== 1) {
+                        await transaction.rollback();
+                        return Responder(res, HttpStatusCode.NotAcceptable, "Account not validated!");
+                    }
 
-            if (isvalidated !== 1) {
-                await transaction.rollback();
-                return Responder(res, HttpStatusCode.NotAcceptable, "Account not validated!");
-            }
+                    if (!roles.some((r: any) => allowedRoles.includes(r))) {
+                        await transaction.rollback();
+                        return Responder(res, HttpStatusCode.Unauthorized, "You don't have right access, please contact the system admin! roles attributions fail");
+                    }
 
-            if (!roles.some((r: any) => allowedRoles.includes(r))) {
-                await transaction.rollback();
-                return Responder(res, HttpStatusCode.Unauthorized, "You don't have right access, please contact the system admin! roles attributions fail");
-            }
+                    Middleware.onSignin({
+                        expiresIn: APP_EXIPRES_IN_ALL || '45d',
+                        data: {
+                            phone: user.phone,
+                            uuid: user.uuid,
+                            __id: user.id,
+                            roles
+                        }
+                    }, async (reject: string, token: string) => {
+                        if (!token) {
+                            await transaction.rollback();
+                            return Responder(res, HttpStatusCode.Forbidden, "Your refresh token already expired! You must login to get a new one!");
+                        }
 
-            Middleware.onSignin({
-                expiresIn: APP_EXIPRES_IN_ALL || '45d',
-                data: {
-                    phone: user.phone,
-                    uuid: user.uuid,
-                    __id: user.id,
-                    roles
-                }
-            }, async (reject: string, token: string) => {
-                if (!token) {
+                        if (user.hasOwnProperty('isvalidated')) delete user.isvalidated;
+                        if (user.hasOwnProperty('password')) delete user.password;
+
+                        await transaction.commit();
+                        return Responder(res, HttpStatusCode.Ok, { token, user });
+                    });
+                })
+                .catch(async err => {
                     await transaction.rollback();
-                    return Responder(res, HttpStatusCode.Forbidden, "Your refresh token already expired! You must login to get a new one!");
-                }
+                    return Responder(res, HttpStatusCode.Forbidden, "Phone | Email or Password incorrect!");
+                })
 
-                if (user.hasOwnProperty('isvalidated')) delete user.isvalidated;
-                if (user.hasOwnProperty('password')) delete user.password;
 
-                await transaction.commit();
-                return Responder(res, HttpStatusCode.Ok, { token, user });
-            });
+            // if (!passwordMatch) {
+            //     await transaction.rollback();
+            //     return Responder(res, HttpStatusCode.Forbidden, "Phone | Email or Password incorrect!");
+            // }
 
         } catch (error: any) {
+            log(error)
             await transaction.rollback();
             return Responder(res, HttpStatusCode.InternalServerError, error.message);
         }
@@ -548,7 +559,7 @@ export const __controllerUsers = {
                         delete user['idvillage'];
                         delete user['isvalidated'];
                         const { id, } = user
-                        
+
                         transaction.commit()
                         Services.addRoleToUser({
                             inputs: {

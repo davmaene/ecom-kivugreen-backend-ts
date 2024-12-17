@@ -31,7 +31,7 @@ export const Credits = connect.define<Credit>('__tbl_ecom_credits', {
         type: DataTypes.FLOAT, // in month
         allowNull: false
     },
-    createdAt: {
+    created_at: {
         type: DataTypes.DATE,
         defaultValue: new Date() || now({ options: {} }),
         allowNull: true

@@ -139,7 +139,8 @@ export interface ICredits extends globalInterface {
     motif: string,
     periode_remboursement: number,
     status: number,
-    createdat: string
+    createdat: string,
+    created_at: string
 }
 
 export interface ITerritoires extends globalInterface {
