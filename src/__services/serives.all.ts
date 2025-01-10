@@ -1847,7 +1847,7 @@ export const Services = {
                             id: parseInt(randomLongNumber({ length: 6 })),
                             TblEcomRoleId: role,
                             TblEcomUserId: iduser
-                        })
+                        }, {transaction})
                         done.push(r)
                     } catch (error) {
                         log(error, "This role can not be added to this ==> ", {
@@ -1942,7 +1942,7 @@ export const Services = {
                     carte: card,
                     date_expiration: expiresIn,
                     date_expiration_unix: expiresInUnix
-                })
+                }, {transaction})
                 if (member instanceof Hasmembers) {
                     return cb(undefined, { code: 200, message: "Done", data: member })
                 } else return cb(undefined, { code: 500, message: "Error", data: null })

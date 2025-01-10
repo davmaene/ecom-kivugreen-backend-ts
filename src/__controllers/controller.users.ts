@@ -529,10 +529,10 @@ export const __controllerUsers = {
             return Responder(res, HttpStatusCode.NotAcceptable, "Please provide a valide phone number !")
         const code_ = randomLongNumber({ length: 6 })
         const idroles: number[] = [5]
+        const transaction = await connect.transaction();
 
         try {
             const pwd = await hashPWD({ plaintext: password })
-            const transaction = await connect.transaction();
             const uuid = uuidv4();
 
             Users.create({
@@ -549,7 +549,7 @@ export const __controllerUsers = {
                 sexe: genre,
                 password: pwd
             }, { transaction })
-                .then(user => {
+                .then(async user => {
                     if (user instanceof Users) {
 
                         user = user?.toJSON();
@@ -560,14 +560,13 @@ export const __controllerUsers = {
                         delete user['isvalidated'];
                         const { id, } = user
 
-                        transaction.commit()
                         Services.addRoleToUser({
                             inputs: {
                                 idroles,
                                 iduser: id || 0
                             },
                             transaction,
-                            cb: (err: any, done: any) => {
+                            cb: async (err: any, done: any) => {
                                 if (done) {
                                     const { code } = done;
                                     const { id } = user
@@ -577,7 +576,7 @@ export const __controllerUsers = {
                                             id_user: id,
                                             verification: code_,
                                         }, { transaction })
-                                            .then(extras => {
+                                            .then(async extras => {
                                                 if (extras instanceof Extras) {
                                                     if (email) {
                                                         let chaine = JSON.stringify({
@@ -593,44 +592,50 @@ export const __controllerUsers = {
                                                     })
                                                         .then(suc => {
                                                             // transaction.commit()
-                                                            return Responder(res, HttpStatusCode.Created, user)
                                                         })
                                                         .catch(err => {
                                                             // transaction.rollback()
                                                             log(err)
-                                                            return Responder(res, HttpStatusCode.InternalServerError, extras)
+                                                            // return Responder(res, HttpStatusCode.InternalServerError, extras)
                                                         })
+                                                    await transaction.commit()
+                                                    return Responder(res, HttpStatusCode.Created, user)
                                                 } else {
-                                                    // transaction.rollback()
+                                                    await transaction.rollback()
                                                     return Responder(res, HttpStatusCode.InternalServerError, extras)
                                                 }
                                             })
-                                            .catch(er => {
+                                            .catch(async er => {
                                                 log(er)
-                                                // transaction.rollback()
+                                                await transaction.rollback()
                                                 return Responder(res, HttpStatusCode.InternalServerError, er)
                                             })
                                     } else {
-                                        // transaction.rollback()
+                                        await transaction.rollback()
                                         return Responder(res, HttpStatusCode.InternalServerError, "Role not initialized correctly !")
                                     }
                                 } else {
-                                    // transaction.rollback()
+                                    await transaction.rollback()
                                     return Responder(res, HttpStatusCode.InternalServerError, "Role not initialized correctly !")
                                 }
                             }
                         })
-                    } else return Responder(res, HttpStatusCode.BadRequest, user)
+                    } else {
+                        await transaction.rollback()
+                        return Responder(res, HttpStatusCode.BadRequest, user)
+                    }
                 })
-                .catch(err => {
+                .catch(async err => {
                     transaction.rollback()
                     const { name, errors } = err;
                     const { message } = errors[0];
                     log(err)
+                    await transaction.rollback()
                     return Responder(res, HttpStatusCode.Conflict, { name, error: message })
                 })
         } catch (error) {
             log(error)
+            await transaction.rollback()
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     },
@@ -905,10 +910,10 @@ export const __controllerUsers = {
     },
     register: async (req: Request, res: Response, next: NextFunction) => {
         const { nom, postnom, prenom, email, phone, adresse, idprovince, idterritoire, idvillage, date_naiss, genre, password, avatar, idroles, id_cooperative } = req.body;
+        const transaction = await connect.transaction();
 
         try {
             const pwd = await hashPWD({ plaintext: password })
-            const transaction = await connect.transaction();
             const uuid = uuidv4();
 
             Users.create({
@@ -926,7 +931,7 @@ export const __controllerUsers = {
                 password: pwd,
                 isvalidated: 1
             }, { transaction })
-                .then(user => {
+                .then(async user => {
                     if (user instanceof Users) {
 
                         user = user?.toJSON();
@@ -936,8 +941,6 @@ export const __controllerUsers = {
                         delete user['idvillage'];
                         delete user['isvalidated'];
                         const { id } = user as any
-
-                        transaction.commit()
 
                         Services.addRoleToUser({
                             inputs: {
@@ -984,7 +987,7 @@ export const __controllerUsers = {
                                                                     expiresInUnix: expiresInUnix.toString()
                                                                 },
                                                                 transaction: transaction,
-                                                                cb: (err: any, done: any) => {
+                                                                cb: async (err: any, done: any) => {
                                                                     log("Added member card is =======> ", code, "=======", done)
                                                                     if (done) {
                                                                         const { code, message, data } = done;
@@ -1003,16 +1006,16 @@ export const __controllerUsers = {
                                                                                     // log(data)
                                                                                     // return Responder(res, HttpStatusCode.InternalServerError, "Error on initializing members table !")
                                                                                 })
-                                                                            // transaction.commit()
+                                                                            await transaction.commit()
                                                                             return Responder(res, HttpStatusCode.Ok, user)
 
                                                                         } else {
-                                                                            // transaction.rollback()
+                                                                            await transaction.rollback()
                                                                             log(data)
                                                                             return Responder(res, HttpStatusCode.InternalServerError, "Error on initializing members table !")
                                                                         }
                                                                     } else {
-                                                                        // transaction.rollback()
+                                                                        await transaction.rollback()
                                                                         log(done)
                                                                         return Responder(res, HttpStatusCode.InternalServerError, "Error on initializing members table ! ===")
                                                                     }
@@ -1020,17 +1023,17 @@ export const __controllerUsers = {
                                                             })
 
                                                         } else {
-                                                            // transaction.rollback()
+                                                            await transaction.rollback()
                                                             return Responder(res, HttpStatusCode.BadRequest, `The request can not be proceded cause the card can not be initialized !`)
                                                         }
                                                     })
-                                                    .catch(err => {
-                                                        // transaction.rollback()
+                                                    .catch(async err => {
+                                                        await transaction.rollback()
                                                         return Responder(res, HttpStatusCode.InternalServerError, err.toString())
                                                     })
                                             } else {
                                                 log(coop)
-                                                // transaction.rollback();
+                                                await transaction.rollback();
                                                 return Responder(res, HttpStatusCode.NotFound, `The coopec with ID: XXXX:${id_cooperative} was not found !`)
                                             }
                                         } else {
@@ -1048,29 +1051,33 @@ export const __controllerUsers = {
                                                     // log(er)
                                                     // return Responder(res, HttpStatusCode.InternalServerError, "Role not initialized correctly !")
                                                 })
-                                            // transaction.commit()
+                                            await transaction.commit()
                                             return Responder(res, HttpStatusCode.Created, user)
                                         }
 
                                     } else {
-                                        // transaction.rollback()
+                                        await transaction.rollback()
                                         return Responder(res, HttpStatusCode.InternalServerError, "Role not initialized correctly !")
                                     }
                                 } else {
-                                    // transaction.rollback()
+                                    await transaction.rollback()
                                     return Responder(res, HttpStatusCode.InternalServerError, "Role not initialized correctly !")
                                 }
                             }
                         })
-                    } else return Responder(res, HttpStatusCode.BadRequest, user)
+                    } else {
+                        await transaction.rollback()
+                        return Responder(res, HttpStatusCode.BadRequest, user)
+                    }
                 })
-                .catch(err => {
-                    transaction.rollback()
+                .catch(async err => {
+                    await transaction.rollback()
                     const { name, errors } = err;
                     const { message } = errors[0];
                     return Responder(res, HttpStatusCode.Conflict, { name, error: message })
                 })
         } catch (error) {
+            await transaction.rollback()
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     },
