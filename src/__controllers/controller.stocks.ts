@@ -284,6 +284,7 @@ export const __controllerStocks = {
     in: async (req: Request, res: Response) => {
         const { id_cooperative, items, description, date_production, date_expiration } = req.body;
         const { currentuser } = req as any;
+        const { __id } = currentuser;
 
         // Vérifications initiales
         if (!id_cooperative || !items) {
@@ -294,7 +295,6 @@ export const __controllerStocks = {
             return Responder(res, HttpStatusCode.NotAcceptable, "Items must be a non-empty array.");
         }
 
-        const { __id } = currentuser;
         const id_transaction = randomLongNumber({ length: 15 });
 
         try {
@@ -733,6 +733,45 @@ export const __controllerStocks = {
                     return Responder(res, HttpStatusCode.Conflict, error)
                 })
         } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    editpriceonmarketplaec: async (req: Request, res: Response, ) => {
+        const {id_produit_on_marketplce:id_produit, price, currency, id_cooperative} = req.body
+        const { currentuser } = req as any;
+        const { __id } = currentuser;
+
+        if(!id_produit || !price || !currency || !id_cooperative) return Responder(res, 401, "This request must have at least !id_produit || !price || !currency")
+        const transaction = await connect.transaction();
+
+        try {
+
+            const hasproduct = await Hasproducts.findOne({
+                where: {
+                    id: id_produit,
+                    TblEcomCooperativeId: id_cooperative
+                }
+            })
+
+            if(!hasproduct) return Responder(res, HttpStatusCode.NotFound, `Product not found on this server ==> hasProductOnMarketPlace`)
+            const pricePlusCommission = await Services.calcProductPrice({unit_price: price, tva: 0})
+
+            hasproduct.update({
+                currency: currency,
+                prix_unitaire: price,
+                prix_plus_commission: pricePlusCommission
+            }, {transaction})
+            .then(async _ => {
+                await transaction.commit()
+                return Responder(res, HttpStatusCode.Ok, req.body)
+            })
+            .catch(async err => {
+                await transaction.rollback()
+                return Responder(res, HttpStatusCode.InternalServerError, null)
+            })
+
+        } catch (error) {
+            await transaction.rollback()
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     }

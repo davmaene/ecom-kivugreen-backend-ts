@@ -227,4 +227,5 @@ export const groupArrayElementByColumn = ({ arr, columnName, convertColumn }: { 
 export const supprimerDoublons = ({ tableau }: { tableau: number[] }) => {
     const tableauUnique = tableau.filter((element, index) => tableau.indexOf(element) === index);
     return tableauUnique;
-}
+};
+
