@@ -1840,23 +1840,19 @@ export const Services = {
         if (!iduser || !idroles || !Array.isArray(idroles)) return cb(undefined, { code: 401, message: "This request must have at least !", data: { idroles, iduser } });
         try {
             if (Array.isArray(idroles)) {
-                const done: any[] = []
-                for (let role of idroles) {
-                    try {
-                        const r = await Hasroles.create({
-                            id: parseInt(randomLongNumber({ length: 6 })),
-                            TblEcomRoleId: role,
-                            TblEcomUserId: iduser
-                        }, {transaction})
-                        done.push(r)
-                    } catch (error) {
-                        log(error, "This role can not be added to this ==> ", {
-                            role,
-                            iduser
-                        })
-                    }
+                const roles = [...idroles].map(role => (                {
+                    id: parseInt(randomLongNumber({ length: 6 })),
+                    TblEcomRoleId: role,
+                    TblEcomUserId: iduser
+                }))
+                try {
+                    await Hasroles.bulkCreate(roles, {transaction})
+                    return cb(undefined, { code: 200, message: "Done", data: roles })
+                } catch (error: any) {
+                    return cb(undefined, { code: 500, message: "Error", data: error.toString() })
                 }
-                return cb(undefined, { code: 200, message: "Done", data: done })
+            }else{
+                return cb(undefined, { code: 500, message: "Error", data: idroles })
             }
         } catch (error: any) {
             return cb(undefined, { code: 500, message: "Error", data: error.toString() })

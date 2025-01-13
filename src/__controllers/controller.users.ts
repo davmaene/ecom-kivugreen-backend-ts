@@ -590,14 +590,8 @@ export const __controllerUsers = {
                                                         to: fillphone({ phone }),
                                                         content: `Bonjour ${capitalizeWords({ text: nom })} votre compte a été crée avec succès. Ceci est votre code de vérification ${code_}`,
                                                     })
-                                                        .then(suc => {
-                                                            // transaction.commit()
-                                                        })
-                                                        .catch(err => {
-                                                            // transaction.rollback()
-                                                            log(err)
-                                                            // return Responder(res, HttpStatusCode.InternalServerError, extras)
-                                                        })
+                                                        .then(suc => {})
+                                                        .catch(err => {})
                                                     await transaction.commit()
                                                     return Responder(res, HttpStatusCode.Created, user)
                                                 } else {
@@ -1040,21 +1034,13 @@ export const __controllerUsers = {
                                             Services.onSendSMS({
                                                 is_flash: false,
                                                 to: fillphone({ phone }),
-                                                content: `Bonjour ${capitalizeWords({ text: nom })} votre compte a été crée avec succès. Ceci est votre mot de passe ${password}`,
+                                                content: `Bonjour ${capitalizeWords({ text: nom })} votre compte a été crée avec succès. Ceci est votre mot de passe par défaut ${password}`,
                                             })
-                                                .then(sms => {
-                                                    // transaction.commit()
-                                                    // return Responder(res, HttpStatusCode.Created, user)
-                                                })
-                                                .catch(er => {
-                                                    // transaction.rollback()
-                                                    // log(er)
-                                                    // return Responder(res, HttpStatusCode.InternalServerError, "Role not initialized correctly !")
-                                                })
+                                                .then(sms => {})
+                                                .catch(er => {})
                                             await transaction.commit()
                                             return Responder(res, HttpStatusCode.Created, user)
                                         }
-
                                     } else {
                                         await transaction.rollback()
                                         return Responder(res, HttpStatusCode.InternalServerError, "Role not initialized correctly !")
@@ -1072,8 +1058,8 @@ export const __controllerUsers = {
                 })
                 .catch(async err => {
                     await transaction.rollback()
-                    const { name, errors } = err;
-                    const { message } = errors[0];
+                    const { name, errors = ["Une erreur inconnue vient de se produire !"] } = err;
+                    const { message } = errors[0] || "Une erreur inconnue vient de se produire !";
                     return Responder(res, HttpStatusCode.Conflict, { name, error: message })
                 })
         } catch (error) {
