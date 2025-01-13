@@ -153,7 +153,7 @@ export const Services = {
                                     id_unity,
                                     shipped_to: parseInt(type_livraison) === 4 ? shipped_to : "---",
                                     payament_phone: payament_phone || phone,
-                                    currency: converted_currency,
+                                    currency: currency_payement || converted_currency,
                                     prix_total: converted_price,
                                     prix_unit: prix_unitaire,
                                     qte,
