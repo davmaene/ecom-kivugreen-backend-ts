@@ -10,6 +10,7 @@ import { date, now } from "../__helpers/helper.moment";
 import { Services } from "../__services/serives.all";
 import { fillphone } from "../__helpers/helper.fillphone";
 import { Banks } from "../__models/model.banks";
+import { Hasmembers } from "../__models/model.hasmembers";
 
 export const __controllersCredits = {
     list: async (req: Request, res: Response) => {
@@ -122,6 +123,60 @@ export const __controllersCredits = {
                     {
                         model: Users,
                         required: false
+                    }
+                ]
+            })
+                .then(({ rows, count }) => {
+                    return Responder(res, HttpStatusCode.Ok, { count, rows })
+                })
+                .catch(err => {
+                    return Responder(res, HttpStatusCode.InternalServerError, err)
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    listbyidcarduser: async (req: Request, res: Response) => {
+        const { id_card:status } = req.params
+        if (!status) return Responder(res, HttpStatusCode.NoContent, "This request must have at least status")
+        try {
+            Credits.belongsTo(Users, { foreignKey: "id_user" })
+            Credits.belongsTo(Cooperatives, { foreignKey: "id_cooperative" })
+            Credits.belongsTo(Banks, { foreignKey: "validated_by_bank" })
+
+            Users.hasOne(Hasmembers, {foreignKey: "TblEcomUserId"})
+
+            Credits.findAndCountAll({
+                subQuery: false,
+                where: {
+                    // id_user: status
+                },
+                order: [
+                    ['id', 'DESC']
+                ],
+                include: [
+                    {
+                        model: Cooperatives,
+                        required: true
+                    },
+                    {
+                        model: Banks,
+                        required: false,
+                        attributes: ['id', 'bank', 'email', 'phone']
+                    },
+                    {
+                        model: Users,
+                        required: true,
+                        include: [
+                            {
+                                model: Hasmembers,
+                                required: true,
+                                attributes: ['id', 'carte', 'TblEcomUserId', 'date_expiration'],
+                                where: {
+                                    id: status
+                                }
+                            }
+                        ]
                     }
                 ]
             })
