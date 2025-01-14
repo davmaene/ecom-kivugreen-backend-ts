@@ -62,6 +62,175 @@ export const __controllersCredits = {
             Credits.belongsTo(Banks, { foreignKey: "validated_by_bank" })
 
             Credits.findAndCountAll({
+                where: {
+                    status
+                },
+                order: [
+                    ['id', 'DESC']
+                ],
+                include: [
+                    {
+                        model: Cooperatives,
+                        required: true
+                    },
+                    {
+                        model: Banks,
+                        required: false,
+                        attributes: ['id', 'bank', 'email', 'phone']
+                    },
+                    {
+                        model: Users,
+                        required: false
+                    }
+                ]
+            })
+                .then(({ rows, count }) => {
+                    return Responder(res, HttpStatusCode.Ok, { count, rows })
+                })
+                .catch(err => {
+                    return Responder(res, HttpStatusCode.InternalServerError, err)
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    listbycooperative: async (req: Request, res: Response) => {
+        const { id_cooperative:status } = req.params
+        if (!status) return Responder(res, HttpStatusCode.NoContent, "This request must have at least status")
+        try {
+            Credits.belongsTo(Users, { foreignKey: "id_user" })
+            Credits.belongsTo(Cooperatives, { foreignKey: "id_cooperative" })
+            Credits.belongsTo(Banks, { foreignKey: "validated_by_bank" })
+
+            Credits.findAndCountAll({
+                where: {
+                    id_cooperative: status
+                },
+                order: [
+                    ['id', 'DESC']
+                ],
+                include: [
+                    {
+                        model: Cooperatives,
+                        required: true
+                    },
+                    {
+                        model: Banks,
+                        required: false,
+                        attributes: ['id', 'bank', 'email', 'phone']
+                    },
+                    {
+                        model: Users,
+                        required: false
+                    }
+                ]
+            })
+                .then(({ rows, count }) => {
+                    return Responder(res, HttpStatusCode.Ok, { count, rows })
+                })
+                .catch(err => {
+                    return Responder(res, HttpStatusCode.InternalServerError, err)
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    listbyuser: async (req: Request, res: Response) => {
+        const { id_cooperative:status } = req.params
+        if (!status) return Responder(res, HttpStatusCode.NoContent, "This request must have at least status")
+        try {
+            Credits.belongsTo(Users, { foreignKey: "id_user" })
+            Credits.belongsTo(Cooperatives, { foreignKey: "id_cooperative" })
+            Credits.belongsTo(Banks, { foreignKey: "validated_by_bank" })
+
+            Credits.findAndCountAll({
+                where: {
+                    id_user: status
+                },
+                order: [
+                    ['id', 'DESC']
+                ],
+                include: [
+                    {
+                        model: Cooperatives,
+                        required: true
+                    },
+                    {
+                        model: Banks,
+                        required: false,
+                        attributes: ['id', 'bank', 'email', 'phone']
+                    },
+                    {
+                        model: Users,
+                        required: false
+                    }
+                ]
+            })
+                .then(({ rows, count }) => {
+                    return Responder(res, HttpStatusCode.Ok, { count, rows })
+                })
+                .catch(err => {
+                    return Responder(res, HttpStatusCode.InternalServerError, err)
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    listbycooperativeandbystatus: async (req: Request, res: Response) => {
+        const { id_cooperative, status } = req.params
+        if (!status || !id_cooperative) return Responder(res, HttpStatusCode.NoContent, "This request must have at least status id_cooperative")
+        try {
+            Credits.belongsTo(Users, { foreignKey: "id_user" })
+            Credits.belongsTo(Cooperatives, { foreignKey: "id_cooperative" })
+            Credits.belongsTo(Banks, { foreignKey: "validated_by_bank" })
+
+            Credits.findAndCountAll({
+                where: {
+                    id_cooperative: id_cooperative,
+                    status
+                },
+                order: [
+                    ['id', 'DESC']
+                ],
+                include: [
+                    {
+                        model: Cooperatives,
+                        required: true
+                    },
+                    {
+                        model: Banks,
+                        required: false,
+                        attributes: ['id', 'bank', 'email', 'phone']
+                    },
+                    {
+                        model: Users,
+                        required: false
+                    }
+                ]
+            })
+                .then(({ rows, count }) => {
+                    return Responder(res, HttpStatusCode.Ok, { count, rows })
+                })
+                .catch(err => {
+                    return Responder(res, HttpStatusCode.InternalServerError, err)
+                })
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
+    },
+    listbyuserandbystatus: async (req: Request, res: Response) => {
+        const { id_member, status } = req.params
+        if (!status || !id_member) return Responder(res, HttpStatusCode.NoContent, "This request must have at least status id_cooperative")
+        try {
+            Credits.belongsTo(Users, { foreignKey: "id_user" })
+            Credits.belongsTo(Cooperatives, { foreignKey: "id_cooperative" })
+            Credits.belongsTo(Banks, { foreignKey: "validated_by_bank" })
+
+            Credits.findAndCountAll({
+                where: {
+                    id_user: id_member,
+                    status
+                },
                 order: [
                     ['id', 'DESC']
                 ],

@@ -1,11 +1,11 @@
 import { DataTypes, Model } from 'sequelize'
 import { connect } from '../__databases/connecte'
 import { IHasmember, IHasrole, IRoles, IUsers } from '__enums/enum.interfacemodels';
-import { Roles } from './model.roles';
 import { Users } from './model.users';
 import { randomLongNumber } from '../__helpers/helper.random';
 import dotenv from 'dotenv';
 import { now } from '../__helpers/helper.moment';
+import { Cooperatives } from './model.cooperatives';
 
 dotenv.config()
 
@@ -51,7 +51,7 @@ export const Hasmembers = connect.define<Hasmember>('__tbl_ecom_hasmembers', {
     TblEcomCooperativeId: {
         type: DataTypes.INTEGER,
         references: {
-            model: Roles,
+            model: Cooperatives,
             key: 'id'
         }
     },
