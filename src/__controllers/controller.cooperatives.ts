@@ -188,7 +188,6 @@ export const __controllerCooperatives = {
                         id_user: id_membre || index
                     })
                         .then(async ({ code, message, data }) => {
-                            log("Generated card is =======> ", data)
                             if (code === 200) {
                                 const { card, expiresInString, expiresInUnix } = data
 
@@ -216,14 +215,13 @@ export const __controllerCooperatives = {
                                                             id_user: asuser
                                                         })
                                                             .then(async ({ code, message, data }) => {
-                                                                log("Generated card is =======> ", data)
                                                                 if (code === 200) {
                                                                     const { card, expiresInString, expiresInUnix } = data
                                                                     if (1) {
                                                                         Services.onSendSMS({
                                                                             to: fillphone({ phone }),
                                                                             is_flash: false,
-                                                                            content: `Bonjour ${nom}, votre enregistrement dans la coopérative ${cooperative} en date du ${now({ options: {} })} a réussi, votre carte de membre sera expiré le ${expiresInString.toString()}`
+                                                                            content: `Bonjour ${nom}, votre enregistrement dans la coopérative ${cooperative} en date du ${now({ options: {} })} a réussi, votre carte de membre a bien été générée et sera expiré le ${expiresInString.toString()}`
                                                                         })
                                                                             .then(m => { })
                                                                             .catch(e => { })

@@ -22,3 +22,6 @@
 ::ffff:127.0.0.1 - - [13/Jan/2025:09:40:12 +0000] "POST /api/stocks/stock/editproductprice HTTP/1.1" 200 154 "-" "PostmanRuntime/7.43.0"
 ::ffff:127.0.0.1 - - [13/Jan/2025:09:40:19 +0000] "GET /api/marketplace?page_size=100&page_number=1 HTTP/1.1" 200 2477 "-" "PostmanRuntime/7.43.0"
 ::ffff:127.0.0.1 - - [14/Jan/2025:06:11:03 +0000] "GET /api/marketplace?page_size=100&page_number=1 HTTP/1.1" 200 2477 "-" "PostmanRuntime/7.43.0"
+::ffff:127.0.0.1 - - [14/Jan/2025:14:38:32 +0000] "GET /api/users/user/1 HTTP/1.1" 404 85 "-" "PostmanRuntime/7.43.0"
+::ffff:127.0.0.1 - - [14/Jan/2025:14:40:16 +0000] "GET /api/users/user/85 HTTP/1.1" 200 975 "-" "PostmanRuntime/7.43.0"
+::ffff:127.0.0.1 - - [14/Jan/2025:14:48:28 +0000] "GET /api/users/user/85 HTTP/1.1" 200 1265 "-" "PostmanRuntime/7.43.0"

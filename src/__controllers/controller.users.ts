@@ -1165,6 +1165,8 @@ export const __controllerUsers = {
             Villages.hasOne(Users, { foreignKey: "id" });
             Users.belongsTo(Villages, { foreignKey: "idvillage" });
 
+            Users.hasOne(Hasmembers, {foreignKey: "TblEcomUserId"})
+
             Users.findOne({
                 where: {
                     [Op.or]: [
@@ -1180,6 +1182,11 @@ export const __controllerUsers = {
                         model: Roles,
                         required: true,
                         attributes: ['id', 'role']
+                    },
+                    {
+                        model: Hasmembers,
+                        required: false,
+                        attributes: ['id', 'carte', 'date_expiration', 'TblEcomUserId']
                     },
                     {
                         model: Provinces,
