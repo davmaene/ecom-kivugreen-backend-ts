@@ -64,6 +64,9 @@ export const __controllerServices = {
     listcarousels: async (req: Request, res: Response, next: NextFunction) => {
         try {
             Carousels.findAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 where: {
                     status: 1
                 }

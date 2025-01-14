@@ -1308,6 +1308,9 @@ export const __controllerUsers = {
             Users.belongsTo(Villages, { foreignKey: "idvillage" });
 
             Users.findAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 where: {
                     [Op.or]: [
                         {
@@ -1386,6 +1389,9 @@ export const __controllerUsers = {
             Users.belongsTo(Villages, { foreignKey: "idvillage" });
 
             Users.findAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 where: {
                     isvalidated: 1
                 },

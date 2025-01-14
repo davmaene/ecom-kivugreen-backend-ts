@@ -7,6 +7,9 @@ export const __controllerCategscooperatives = {
     list: async (req: Request, res: Response,) => {
         try {
             Categoriescooperatives.findAndCountAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 where: {}
             })
                 .then(({ count, rows }) => {

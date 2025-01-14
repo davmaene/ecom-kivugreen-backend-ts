@@ -16,6 +16,9 @@ export const __controllerPayements = {
             Paiements.belongsTo(Users, { foreignKey: "createdby" })
             // Paiements.hasMany(Hasproducts, { foreignKey: "realref" })
             Paiements.findAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 include: [
                     {
                         model: Users,
@@ -53,6 +56,9 @@ export const __controllerPayements = {
         try {
             Paiements.hasOne(Users, { foreignKey: "createdby" })
             Paiements.findAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 where: {
                     status
                 }

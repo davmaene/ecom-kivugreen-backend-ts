@@ -20,6 +20,9 @@ export const __controllersCredits = {
             Credits.belongsTo(Banks, { foreignKey: "validated_by_bank" })
 
             Credits.findAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 where: {},
                 include: [
                     {
@@ -59,6 +62,9 @@ export const __controllersCredits = {
             Credits.belongsTo(Banks, { foreignKey: "validated_by_bank" })
 
             Credits.findAndCountAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 include: [
                     {
                         model: Cooperatives,

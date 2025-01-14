@@ -10,6 +10,9 @@ export const __controllerBanks = {
         try {
             Banks.belongsTo(Users, { foreignKey: "id_responsable" })
             Banks.findAndCountAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 where: {},
                 include: [
                     {

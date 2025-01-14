@@ -21,6 +21,9 @@ export const __controllerCooperatives = {
             Users.belongsToMany(Cooperatives, { through: Hasmembers });
             Cooperatives.belongsToMany(Users, { through: Hasmembers });
             Cooperatives.findAndCountAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 where: {},
                 include: [
                     {

@@ -7,6 +7,9 @@ export const __controllerSouscategories = {
     list: async (req: Request, res: Response) => {
         try {
             Souscategories.findAndCountAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 where: {}
             })
                 .then(r => Responder(res, HttpStatusCode.Ok, { ...r }))

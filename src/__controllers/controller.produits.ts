@@ -102,6 +102,9 @@ export const __controllerProduits = {
             Produits.belongsTo(Souscategories, { foreignKey: "id_souscategory" })
             Produits.belongsTo(Unites, { foreignKey: "id_unity" })
             Produits.findAndCountAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 where: {},
                 include: [
                     {

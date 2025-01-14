@@ -7,6 +7,9 @@ export const __controllerCategories = {
     list: async (req: Request, res: Response) => {
         try {
             Categories.findAndCountAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 where: {}
             })
                 .then(r => Responder(res, HttpStatusCode.Ok, { ...r }))

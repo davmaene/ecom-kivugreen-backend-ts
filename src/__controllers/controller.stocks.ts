@@ -33,6 +33,9 @@ export const __controllerStocks = {
             Historiquesmembersstocks.belongsTo(Unites)
 
             Historiquesmembersstocks.findAndCountAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 where: {
                     TblEcomStockId: id_stock
                 },
@@ -94,6 +97,9 @@ export const __controllerStocks = {
             Historiquesmembersstocks.belongsTo(Unites)
 
             Historiquesmembersstocks.findAndCountAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 where: {
                     TblEcomCooperativeId: id_cooperative
                 },
@@ -155,6 +161,9 @@ export const __controllerStocks = {
             Historiquesmembersstocks.belongsTo(Unites)
 
             Historiquesmembersstocks.findAndCountAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 where: {
                     // TblEcomCooperativeId: id_membre
                 },
@@ -446,6 +455,9 @@ export const __controllerStocks = {
             Stocks.belongsToMany(Produits, { through: Hasproducts, })// as: 'produits'
 
             Stocks.findAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 where: {},
                 include: [
                     {

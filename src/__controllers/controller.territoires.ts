@@ -9,6 +9,9 @@ export const __controllerTerritoires = {
         try {
             Territoires.belongsTo(Provinces, { foreignKey: 'idprovince' })
             Territoires.findAndCountAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 where: {},
                 include: [
                     {
@@ -27,6 +30,9 @@ export const __controllerTerritoires = {
         const { idprovince } = req.params
         try {
             Territoires.findAndCountAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 where: {
                     idprovince: parseInt(idprovince)
                 }

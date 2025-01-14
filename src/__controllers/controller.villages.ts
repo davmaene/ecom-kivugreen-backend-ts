@@ -36,9 +36,10 @@ export const __controllerVillages = {
     },
     list: async (req: Request, res: Response, next: NextFunction) => {
         Villages.findAndCountAll({
-            where: {
-
-            }
+            order: [
+                ['id', 'DESC']
+            ],
+            where: {}
         })
             .then(({ count, rows }) => {
                 return Responder(res, HttpStatusCode.Ok, { count, rows })
@@ -49,6 +50,9 @@ export const __controllerVillages = {
         const { idterritoire } = req.params
         if (!idterritoire) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least ! idterritoire")
         Villages.findAndCountAll({
+            order: [
+                ['id', 'DESC']
+            ],
             where: {
                 idterritoire
             }

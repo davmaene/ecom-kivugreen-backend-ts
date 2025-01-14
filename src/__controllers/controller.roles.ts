@@ -10,6 +10,9 @@ export const __controllerRoles = {
     list: async (req: Request, res: Response, next: NextFunction) => {
         try {
             Roles.findAndCountAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 where: {}
             })
                 .then(({ rows, count }) => {

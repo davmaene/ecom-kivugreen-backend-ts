@@ -7,6 +7,9 @@ export const __controllerProvinces = {
     list: async (req: Request, res: Response, next: NextFunction) => {
         try {
             Provinces.findAndCountAll({
+                order: [
+                    ['id', 'DESC']
+                ],
                 where: {}
             })
                 .then(({ rows, count }) => {
