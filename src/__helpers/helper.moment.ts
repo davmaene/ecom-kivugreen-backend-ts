@@ -1,10 +1,11 @@
 import moment from "moment";
 
 moment.locale("fr");
+export const timeZone = 'Africa/Lubumbashi';
 
 export const now = ({ options }: { options: any }) => {
     options = options ? options : {}
-    return moment().format("LTS, L")
+    return new Intl.DateTimeFormat('fr-FR', { dateStyle: 'short', timeStyle: 'medium', timeZone: timeZone }).format(new Date());
 };
 
 export const date = () => new Date()

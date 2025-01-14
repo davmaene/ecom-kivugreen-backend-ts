@@ -12,6 +12,7 @@ import { Cooperatives } from "../__models/model.cooperatives";
 import { Commandes } from '../__models/model.commandes';
 import { Services } from '../__services/serives.all';
 import { Categories } from '../__models/model.categories';
+import { now } from '../__helpers/helper.moment';
 
 export const __controllerMarketplace = {
     placecommand: async (req: Request, res: Response, next: NextFunction) => {
@@ -139,7 +140,7 @@ export const __controllerMarketplace = {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
     },
-    marketplace: async (req: Request, res: Response, next: NextFunction) => {
+    marketplace: async (req: Request, res: Response) => {
         let { page_size, page_number } = req.query as any;
         page_number = page_number ? parseInt(page_number) : 0
         page_size = page_size ? parseInt(page_size) : 100
