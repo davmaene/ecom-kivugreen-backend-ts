@@ -157,20 +157,20 @@ export const getProductDetailsAsRegister = ({ data }: { data: Stock[] }): Produc
 
 export const returnStateCredit = ({ state }: { state: Number }) => {
     switch (state) {
+        case 0:
+            return "En attente"
+            break;
         case 1:
-            return "validé";
+            return "Validée"
             break;
         case 2:
-            return "rejeté";
+            return "En examen"
             break;
         case 3:
-            return "en cours";
-            break;
-        case 0:
-            return "en attente";
+            return "Réjetée"
             break;
         default:
-            return "en cours"
+            return "Non reconnu"
             break;
     }
 };

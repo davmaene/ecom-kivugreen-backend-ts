@@ -465,5 +465,67 @@ export const __controllersCredits = {
         } catch (error) {
             return Responder(res, HttpStatusCode.InternalServerError, error)
         }
+    },
+    changestatus: async (req: Request, res: Response,) => {
+        const { id_credit } = req.params as any;
+        const { state } = req.body as any
+        if (!id_credit) return Responder(res, HttpStatusCode.NotAcceptable, "This request must have at least id_credit !")
+        const { currentuser } = req as any;
+        const { __id, roles, uuid } = currentuser;
+        try {
+            const bank = await Banks.findOne({
+                where: {
+                    id_responsable: __id
+                }
+            })
+            if (bank instanceof Banks) {
+                const { id, id_responsable } = bank
+                Credits.belongsTo(Users, { foreignKey: "id_user" })
+                Credits.findOne({
+                    include: [
+                        {
+                            model: Users,
+                            attributes: ['id', 'phone', 'email', 'nom', 'postnom'],
+                            required: false,
+                        }
+                    ],
+                    where: {
+                        id: id_credit
+                    }
+                })
+                    .then(credit => {
+                        if (credit instanceof Credits) {
+                            const { status, __tbl_ecom_user, montant, currency, motif } = credit.toJSON() as any
+                            credit.update({
+                                status: state,
+                                validated_by_bank: id
+                            })
+                                .then(__ => {
+                                    const { phone, nom, postnom, email } = __tbl_ecom_user as any
+                                    Services.onSendSMS({
+                                        is_flash: false,
+                                        to: phone,
+                                        content: `Bonjour ${nom} ${postnom}, votre démande de crédit de ${montant}${currency} pour motif de ${motif} a changé de statut, son statut est ${returnStateCredit({ state })}; les autres informations vous seront transmises dans un bref délais`
+                                    })
+                                        .then(_ => { })
+                                        .catch(err => { })
+                                    return Responder(res, HttpStatusCode.Ok, credit)
+                                })
+                                .catch(err => {
+                                    return Responder(res, HttpStatusCode.BadGateway, err)
+                                })
+                        } else {
+                            return Responder(res, HttpStatusCode.NotFound, credit)
+                        }
+                    })
+                    .catch(err => {
+                        return Responder(res, HttpStatusCode.InternalServerError, err)
+                    })
+            } else {
+                return Responder(res, HttpStatusCode.NotFound, "Informations about bank not found !")
+            }
+        } catch (error) {
+            return Responder(res, HttpStatusCode.InternalServerError, error)
+        }
     }
 }

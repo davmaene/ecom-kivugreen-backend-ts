@@ -23,7 +23,7 @@ export const Credits = connect.define<Credit>('__tbl_ecom_credits', {
         type: DataTypes.INTEGER,
     },
     status: {
-        type: DataTypes.INTEGER, // 1: validated 0: otherwise
+        type: DataTypes.INTEGER, // 1: Validated, 2: En examen, 3: rejetée, 0: en attente
         allowNull: true,
         defaultValue: 0
     },
