@@ -229,3 +229,15 @@ export const supprimerDoublons = ({ tableau }: { tableau: number[] }) => {
     return tableauUnique;
 };
 
+export const calcPriceAsSomme = ({ array, column = 'prix' }: {array: any[], column: string}) => {
+    const somme = ({ lines = [] }) => {
+      return [...lines.map(line => line[column]), 0, 0].reduce((prev, next) => (prev) + (next))
+    }
+    const currencies = groupArrayElementByColumn({ arr: array, columnName: 'currency', convertColumn: false })
+    const prices = {} as any
+    Object.keys(currencies).map(currency => {
+      prices[currency] = somme({ lines: currencies[currency] })
+    })
+    return Object.keys(prices).length > 0 ? prices : { "USD": 0 }
+  };
+
