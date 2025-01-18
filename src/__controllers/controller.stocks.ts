@@ -13,7 +13,7 @@ import { Categories } from '../__models/model.categories';
 import { Unites } from '../__models/model.unitemesures';
 import { Commandes } from '../__models/model.commandes';
 import { Typelivraisons } from '../__models/model.typelivraison';
-import { getProductDetailsAsRegister, supprimerDoublons } from '../__helpers/helper.all';
+import { calcPriceAsSomme, getProductDetailsAsRegister, renderAsLisibleNumber, supprimerDoublons } from '../__helpers/helper.all';
 import { Historiquesmembersstocks } from '../__models/model.histories';
 import { Users } from '../__models/model.users';
 import { Services } from '../__services/serives.all';
@@ -294,7 +294,6 @@ export const __controllerStocks = {
         const { id_cooperative, items, description, date_production, date_expiration } = req.body;
         const { currentuser } = req as any;
         const { __id } = currentuser;
-
         // Vérifications initiales
         if (!id_cooperative || !items) {
             return Responder(res, HttpStatusCode.NotAcceptable, "Request must include 'id_cooperative' and 'items'.");
@@ -362,19 +361,25 @@ export const __controllerStocks = {
                         
                         if (!prd) {
                             notTreated.push(item);
+                            log("Item not found ==>", )
                             continue;
                         }
 
                         const { id: asstockid } = stock.toJSON() as any;
                         const { produit, id_unity, id_category, tva } = prd.toJSON() as any;
 
+                        const unit = await Unites.findOne({
+                            attributes: ['id', 'unity'],
+                            where: { id: id_unity },
+                        });
+
                         if (!produit || !id_category || !id_unity) {
                             notTreated.push(item);
                             continue;
                         }
-
+                        const {unity} = unit?.toJSON() as any
                         const price = await Services.calcProductPrice({ unit_price: prix_unitaire, tva });
-
+                        const value = price * qte//renderAsLisibleNumber({ nombre: price * qte })
                         // Ajout ou mise à jour du produit
                         const [createdItem, created] = await Hasproducts.findOrCreate({
                             where: {
@@ -413,7 +418,8 @@ export const __controllerStocks = {
                                 { transaction }
                             );
 
-                            treated.push(item);
+                            treated.push({...item, total_price: value, produit, unity });
+
                         } else {
                             // Mise à jour des quantités
                             const { qte: currentQte } = createdItem.toJSON();
@@ -424,7 +430,7 @@ export const __controllerStocks = {
                                 { transaction }
                             );
 
-                            treated.push(item);
+                            treated.push({...item, total_price: value, produit, unity});
                         }
                     } catch (error) {
                         console.error("Error processing item:", item, error);
@@ -435,7 +441,8 @@ export const __controllerStocks = {
                 // Validation de la transaction
                 if (treated.length > 0) {
                     await transaction.commit();
-                    return Responder(res, HttpStatusCode.Ok, { ...stock.toJSON(), produits: treated });
+                    const prices = calcPriceAsSomme({ array: treated, column: 'total_price' })
+                    return Responder(res, HttpStatusCode.Ok, { ...stock.toJSON(), valorisation: prices, produits: treated });
                 } else {
                     await transaction.rollback();
                     return Responder(res, HttpStatusCode.Conflict, "No items were successfully processed.");

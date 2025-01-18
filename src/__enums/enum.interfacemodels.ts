@@ -55,7 +55,7 @@ export interface IHasrole extends globalInterface {
 }
 
 export interface IUnite extends globalInterface {
-    unity?: string,
+    unity: string,
     description?: string,
     equival_kgs?: number
 }

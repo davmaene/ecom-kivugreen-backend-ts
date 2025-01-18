@@ -239,5 +239,17 @@ export const calcPriceAsSomme = ({ array, column = 'prix' }: {array: any[], colu
       prices[currency] = somme({ lines: currencies[currency] })
     })
     return Object.keys(prices).length > 0 ? prices : { "USD": 0 }
-  };
+};
+
+export const renderAsLisibleNumber = ({ nombre }: {nombre: number}) => {
+    let nombreString = nombre.toString();
+  
+    let partieEntiere = nombreString.split(".")[0];
+    let partieDecimale = nombreString.split(".")[1] || "";
+  
+    partieEntiere = partieEntiere.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  
+    let nombreLisible = partieEntiere + (partieDecimale ? "." + partieDecimale : "");
+    return nombreLisible;
+};
 
