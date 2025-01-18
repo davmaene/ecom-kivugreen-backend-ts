@@ -105,9 +105,12 @@ export const checkFileType = ({ mimetype, as = "doc" }: { mimetype: string, as: 
 type Product = {
     produit: string;
     __tbl_ecom_hasproducts: {
+        id: number,
         qte_critique: number,
         qte: number;
         updatedAt: string;
+        prix_plus_commission: number;
+        currency: string
     };
     __tbl_ecom_unitesmesures: {
         unity: string;
@@ -119,11 +122,14 @@ type Stock = {
 };
 
 type ProductDetails = {
+    id_product_on_market: number;
     produit: string;
     qte: number;
     unity: string;
     qte_critique: number,
     lastUpdated: string;
+    prix_plus_commission: number;
+    currency: string
 };
 
 export const getProductDetailsAsRegister = ({ data }: { data: Stock[] }): ProductDetails[] => {
@@ -132,22 +138,31 @@ export const getProductDetailsAsRegister = ({ data }: { data: Stock[] }): Produc
         stock.__tbl_ecom_produits.forEach(product => {
             const produit = product.produit;
             const qte = product.__tbl_ecom_hasproducts.qte;
+            const price = product.__tbl_ecom_hasproducts.prix_plus_commission
+            const currency = product.__tbl_ecom_hasproducts.currency
             const unity = product.__tbl_ecom_unitesmesures.unity;
             const qte_critique = product.__tbl_ecom_hasproducts.qte_critique
             const lastUpdated = product.__tbl_ecom_hasproducts.updatedAt;
+            const id_product_on_market = product.__tbl_ecom_hasproducts.id
 
             if (productMap[produit]) {
                 productMap[produit].qte += qte;
+                productMap[produit].prix_plus_commission = price
+                productMap[produit].currency = currency
+                productMap[produit].id_product_on_market = id_product_on_market
                 if (new Date(lastUpdated) > new Date(productMap[produit].lastUpdated)) {
                     productMap[produit].lastUpdated = lastUpdated;
                 }
             } else {
                 productMap[produit] = {
+                    id_product_on_market,
                     produit,
                     qte: qte,
                     unity,
                     qte_critique,
-                    lastUpdated
+                    lastUpdated,
+                    currency,
+                    prix_plus_commission: price
                 };
             }
         });
