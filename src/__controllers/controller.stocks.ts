@@ -13,7 +13,7 @@ import { Categories } from '../__models/model.categories';
 import { Unites } from '../__models/model.unitemesures';
 import { Commandes } from '../__models/model.commandes';
 import { Typelivraisons } from '../__models/model.typelivraison';
-import { calcPriceAsSomme, getProductDetailsAsRegister, renderAsLisibleNumber, supprimerDoublons } from '../__helpers/helper.all';
+import { calcPriceAsSomme, getProductDetailsAsRegister } from '../__helpers/helper.all';
 import { Historiquesmembersstocks } from '../__models/model.histories';
 import { Users } from '../__models/model.users';
 import { Services } from '../__services/serives.all';
