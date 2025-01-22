@@ -20,10 +20,10 @@ export const connect = new Sequelize(
         backoffExponent: 1.5
     },
     pool: {
-        max: 10,
+        max: 50,
         min: 0,
-        acquire: 30000,
-        idle: 10000
+        acquire: 1000000,
+        idle: 200000
     }
 }
 );
