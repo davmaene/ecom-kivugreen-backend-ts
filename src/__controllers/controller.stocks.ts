@@ -778,7 +778,7 @@ export const __controllerStocks = {
             hasproduct.update({
                 currency: currency,
                 prix_unitaire: price,
-                prix_plus_commission: pricePlusCommission
+                prix_plus_commission: price
             }, {transaction})
             .then(async _ => {
                 await transaction.commit()
